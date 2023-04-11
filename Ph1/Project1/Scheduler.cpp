@@ -10,7 +10,55 @@
 		NF= 0;
 		NR= 0;
 		NS = 0;
+		TimeStep = 0;
 	}
+
+	void Scheduler:: incrementTimeStep() {
+		TimeStep++;
+	}
+
+	int Scheduler::getTimeStep() {
+		return TimeStep;
+	}
+
+	void Scheduler::TerminateAll() {
+
+		if(TerminatedQueue.getCount()== NumProcess)
+			// what?
+	}
+
+	Processor* Scheduler::getMaxProcessor() {
+		Processor* max = ArrP[0];
+		for (int i = 0; i < NS+NF+NR; i++)
+		{
+			if (ArrP[i]->getRDY_Length() > max->getRDY_Length())
+				max = ArrP[i];
+		}
+		return max;
+	}
+
+	Processor* Scheduler::getMinProcessor() {
+		Processor* min = ArrP[0];
+		for (int i = 0; i < NS + NF + NR; i++)
+		{
+			if (ArrP[i]->getRDY_Length() < min->getRDY_Length())
+				min = ArrP[i];
+		}
+		return min;
+	}
+
+	double Scheduler::StealLimit() {
+		int shortest = getMinProcessor()->getRDY_Length();
+		int longest = getMaxProcessor()->getRDY_Length();
+		return (longest - shortest) / longest;
+	}
+
+	bool Scheduler::HandleBlk() {
+
+	}
+
+	
+
 	void Scheduler::Mode()
 	{}
 	/*void Scheduler::Output(int currenttime) // function used to relate to the printing functions for each state from UI class.
