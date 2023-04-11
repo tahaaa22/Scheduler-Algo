@@ -24,11 +24,11 @@ public:
             PQ.dequeue(temp);
             setCurrRun(temp);
         }
+        /*
         else if (getCurrRun()) {     //run not empty
             getCurrRun()->execute(time);
-            if (getCurrRun()->getisBlocked())
-                getCurrRun()->setisBlocked(true);
         }
+        */
     }
     
      Process* getNextProcess() {
