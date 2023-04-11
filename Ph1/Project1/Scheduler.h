@@ -15,6 +15,10 @@ class Scheduler
 {
 	SJF* ps;
 	UI* pUI;
+	int ID_Count;     //to be initialized as the number of processes from the input file in the constructor
+	int TimeStep; 
+	double Kill, Fork, Migrate, Steal, Avg_Util, Avg_WT, Avg_RT, Avg_TRT, pMaxW, pRTF;  //percentages
+	int Total_WT, Total_RT, Total_TRT;
 	int NR,NF ,NS , RRtime, RTF, MaxW, STL, NumProcess, AT ;
 	double Pfork;
 	int fiveStepCounter;
@@ -25,6 +29,16 @@ class Scheduler
 public :
 	
 	Scheduler();
+	void incrementTimeStep();
+	int getTimeStep();
+	double StealLimit();
+	bool Steal();
+	void MigrateToSJF();
+	void MigrateToRR();
+	void Forking();
+	Processor* getMaxProcessor();
+	Processor* getMinProcessor();
+	bool HandleBlk();
 	void Mode(); // read modes from UI class to make different implementation for each mode
 	bool allTerminated(); // check if the terminated queue has equal number of processes entered to stop simulation 
 	void Simulation(int currenttime);
