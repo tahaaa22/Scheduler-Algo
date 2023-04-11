@@ -2,6 +2,7 @@
 
 	Scheduler::Scheduler()
 	{
+		// mimo is here
 		ps = new SJF;
 		pUI = new UI;
 		isFileLoaded = false;
