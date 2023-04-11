@@ -7,6 +7,15 @@ private:
     PriorityQueue<Process*> PQ;
     int curenttime;
 public:
+    SJF() {
+        settype('s');
+    }
+    
+    void addToReadyQueue(Process* process) //inserting a process to the RDY 
+    {
+        PQ.enqueue(process, process->gettimeRemaining());
+    }
+    
     void ScheduleAlgo(int time) 
     {
         curenttime = time;
@@ -21,17 +30,18 @@ public:
                 getCurrRun()->setisBlocked(true);
         }
     }
-    void addtoBLK(Process*& process)
-    {
-        if (getCurrRun()->getisBlocked())
-            process = getCurrRun();
+    
+     Process* getNextProcess() {
+        if (PQ.isEmpty()) return nullptr;
+        else {
+            Process* tmp;
+            PQ.peek(tmp);
+            return tmp;
+        }
     }
-
-    void addtoterminate(Process* & process)
-    {
-        if (getCurrRun()->getisFinished())
-            process = getCurrRun();
+    
+    void Loadp() {
+        return;
     }
-    Process* getNextProcess() {};
-    void addToReadyQueue(Process* process) {};  // processor or scheduler
+    
 };
