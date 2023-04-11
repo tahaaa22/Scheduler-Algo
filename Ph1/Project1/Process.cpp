@@ -1,21 +1,24 @@
 #include "Process.h"
 
-#include "Process.h"
 
-Process::Process(int id, int arrivalTime, int cpuTime, int inputDuration , int No)
+Process::Process(int id, int arrivalTime, int cpuTime, int inputDuration , SQueue<int> Head)
 {
     PID = id;
     ArrivalTime = arrivalTime;
     CPUtime = cpuTime;
-    InputDuration = inputDuration;
     timeRemaining = cpuTime;
     isBlocked = false;
     isFinished = false;
     ResponseTime = -1;
     TerminationTime = -1;
     waitingTime = 0;
-    inputRequestTime = -1;
-    no = No; // no of times ha request input/output
+    TurnaroundDuration = 0;
+    IO = Head;    //m3rf4 leh hasa en fy haga 8lt
+    //No_of_IO = IO.size(); // no of times ha request input/output
+    LCH = NULL;
+    RCH = NULL;
+    
+
 
     //lch_ID = -1;  //1st child ID set to -1 if no children added by Amira
     //rch_ID = -1;   //1st child ID set to -1 if no children added by Amira
@@ -47,15 +50,7 @@ int Process::gettimeRemaining()
 {
     return timeRemaining;
 }
-void Process::setno_ofinput(int n)
-{
-    no = n;
-}
 
-int Process::getNo_ofinput()
-{
-    return no;
-}
 
 void Process::setResponseTime(int time) 
 {
@@ -111,7 +106,7 @@ void Process::execute(int currentTimeStep)  // decrement cpu at each time step
     }
 }
 
-void Process::requestIO(int currentTimeStep, int inputRequestTime) 
+/*void Process::requestIO(int currentTimeStep, int inputRequestTime)
 {
     isBlocked = true;
     this->inputRequestTime = inputRequestTime;
@@ -124,6 +119,7 @@ void Process::completeIO(int currentTimeStep)
     waitingTime += timeSpentWaiting;
     timeRemaining -= InputDuration;
 }
+*/
 
 /*ostream& operator<<(ostream& output, Process* p1)
 {
