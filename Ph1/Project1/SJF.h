@@ -39,6 +39,10 @@ public:
             return tmp;
         }
     }
+     virtual void print_rdy()
+    {
+        PQ.Print();
+    }
     
     void Loadp() {
         return;
