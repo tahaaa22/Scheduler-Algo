@@ -10,74 +10,108 @@ public:
 	Node<T>* head;
 	Node<T>* tail;
 	int count;
-	LinkedList() : head(nullptr), tail(nullptr) { count = 0; }
+	LinkedList() : head(nullptr), tail(nullptr)
+	{
+		count = 0;
+	}
 
-	bool isEmpty() const { return (tail == nullptr); }
+	bool isEmpty() const { return (tail == nullptr || head==nullptr); }
 
-	Node* GetHead() { return head; }
-	Node* GetTail() { return tail; }
+	Node<T>* GetHead() { return head; }
+	Node<T>* GetTail() { return tail; }
 
 	int getCount() const   //number of processes in the list
+	{return count;}
+
+	int getOccurrence(const T& item) const
 	{
+		int count = 0;
+		Node<T>* temp = head;
+		while (temp != nullptr)
+		{
+			if (temp->getItem() == item)
+				count++;
+			temp = temp->getNext();
+		}
 		return count;
 	}
 
-	bool deleteNode(Node<T>* to_delete = head) //by default, delete from head equivalent to dequeue, can delete certain node
-	{
-		if (isEmpty() || !isFound(to_delete)) //if the list is empty or the process is not in the list
-		{
-			return false;
-		}
-		else if (to_delete == tail) //if it acts as a normal dequeue
-		{
-			Node<T>* temp = to_delete;
-			to_delete = to_delete->getNext();
-			delete temp;
-			count--;
-			return true;
-		}
-		else //if a certain process is specified to be deleted 
-		{
-			Node<T>* before_todelete;
-			bool x = isFound(to_delete, &before_todelete);
-			Node<T>* temp = to_delete;
-			before_todelete->setNext(to_delete->getNext());
-			delete temp;
-			count--;
-			return true;
-		}
-
-	}
-	void insertNode(Node<T>* p)  //insert at tail and equivalent to enqueue
+	bool deleteNode(const T& item)
 	{
 		if (isEmpty())
 		{
-			p->getNext() = nullptr;
-			tail = p;
-			head = p;
+			return 0;
+		}
+		Node<T>* temp, * temp1;
+		temp = head;
+		temp1 = nullptr;
+		int x = getOccurrence(item);
+		while (x)
+		{
+			while (temp->getNext() != nullptr && temp->getNext()->getItem() != item)
+			{
+				temp = temp->getNext();
+			}
+
+			temp1 = temp->getNext();
+			if (temp1 == nullptr)
+				temp->setNext(nullptr);
+			else
+				temp->setNext(temp1->getNext());
+			if (item == temp1->getItem())
+				x--;
+			delete temp1;
+		}
+		return 1;
+	}
+
+	bool deleteNode() //similar to dequeue
+	{
+		if (isEmpty()) //if the list is empty 
+		{
+			return false;
+		}
+		else // it acts as a normal dequeue
+		{
+			Node<T>* temp = head;
+			head = head->getNext();
+			delete temp;
+			count--;
+			return true;
+		}
+	}
+	void insertNode(T& p)  //insert at tail and equivalent to enqueue
+	{
+		Node<T>* Process = new Node<T>;
+		Process->setItem(p);
+		if (isEmpty())
+		{
+			Process->setNext(nullptr);
+			tail = Process;
+			head = Process;
 			count++;
 			return;
 		}
 		else
 		{
-			tail->setNext(p);
-			p->setNext(nullptr);
-			tail = p;
+			tail->setNext(Process);
+			Process->setNext(nullptr);
+			tail = Process;
 			count++;
 			return;
 		}
 	}
 
-	bool isFound(Node<T>* p, Node<T>& before_p = nullptr) const
+	bool isFound(const T& p) //test
 	{
 		Node<T>* temp = head;
 		bool found = false;
 		while (temp->getNext() != nullptr)
 		{
-			before_p = temp;
-			if (temp->getNext() == p)
+			if (temp->getNext()->getItem() == p)
 			{
 				found = true;
+				//position_before = temp; //to use for certain node deletion
 				break;
 			}
 			temp = temp->getNext();
@@ -105,6 +139,7 @@ public:
 		}
 		return;
 	}
+
 
 	~LinkedList()
 	{
@@ -138,65 +173,23 @@ public:
 		node1->getItem() = item;
 		temp->getNext() = node1;
 		node1->getNext() = nullptr;
-	}
-
-	int getOccurrence(const T& item) const
-	{
-		int count = 0;
-		Node<T>* temp = head;
-		while (temp != nullptr)
-		{
-			if (temp->setItem() == item)
-				count++;
-			temp = temp->getNext();
-		}
-		return count;
-	}
-
-	bool deleteNodes(const T& item)
-	{
-		if (isEmpty())
-		{
-			return 0;
-		}
-		Node<T>* temp, * temp1;
-		temp = head;
-		temp1 = nullptr;
-		int x = getOccurrence(item);
-		while (x)
-		{
-			while (temp->getNext() != nullptr && temp->getNext()->getItem() != item)
-			{
-				temp = temp->getNext()
-			}
-
-			temp1 = temp->getNext();
-			if (temp1 == nullptr)
-				temp->getNext() = nullptr;
-			else
-				temp->getNext() = temp1->getNext();
-			if (item == temp1->getItem())
-				x--;
-			delete temp1;
-		}
-		return 1;
 	}*/
 
-
-	/*Node* GetLastNode()
-	{
-		Node<T>* temp = head; //ptr used for traversing the linkedList
-		if (isEmpty()) //empty linked list
-		{
-			return nullptr;
-		}
-		while (temp->getNext())  //by th end of the loop temp will point to the last node
-		{
-			temp = temp->getNext();
-		}
-		return temp;
-	}*/
+	//Node* GetNode(T& p)
+	//{
+	//	Node<T>* temp = head; //ptr used for traversing the linkedList
+	//	if (isEmpty()) //empty linked list
+	//	{
+	//		return nullptr;
+	//	}
+	//	while (temp->getNext())  //by th end of the loop temp will point to the last node
+	//	{
+	//		temp = temp->getNext();
+	//	}
+	//	return temp;
+	//}
 
 
 };
+
 
