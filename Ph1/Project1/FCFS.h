@@ -73,4 +73,5 @@ public:
 				getCurrRun()->setisBlocked(true);
 		}
 	}
+	virtual void print_rdy(){}
 };
