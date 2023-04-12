@@ -17,52 +17,63 @@ public:
 
 	bool isEmpty() const { return (tail == nullptr || head==nullptr); }
 
+	void Test() //delete later
+	{
+		if (tail)
+		{cout << "printing tail " << tail->getItem() << endl;}
+		else
+		{cout << "no tail" << endl;}
+		if (head)
+		{cout << "printing Head " << head->getItem() << endl;}
+		else
+		{cout << "no head" << endl;}
+	}
+
 	Node<T>* GetHead() { return head; }
 	Node<T>* GetTail() { return tail; }
 
 	int getCount() const   //number of processes in the list
 	{return count;}
 
-	int getOccurrence(const T& item) const
+	bool deleteNode(T& p)
 	{
-		int count = 0;
-		Node<T>* temp = head;
-		while (temp != nullptr)
+		if (isEmpty() || isFound(p)==0) //the list is empty or the list does not contain p
 		{
-			if (temp->getItem() == item)
-				count++;
+			return false;
+		}
+		//We know the list must contain p now 
+		Node<T>* temp = head;
+		if (temp->getItem()==p)  //if item is in head
+		{
+			if (head == tail) //if list has only 1 element
+			{tail = nullptr;}
+			head = head->getNext();
+			delete temp;
+			count--;
+			return true;
+		}
+		//2 or more elements
+		while (temp->getNext()->getNext() && temp->getNext()->getItem() != p)
+		{
 			temp = temp->getNext();
 		}
-		return count;
-	}
-
-	bool deleteNode(const T& item)
-	{
-		if (isEmpty())
+		//temp->getNext->getNext->getItem = p
+		if (!temp->getNext()->getNext()) //tail
 		{
-			return 0;
+			tail = temp;
+			delete temp->getNext();
+			temp->setNext(nullptr);
+			count--;
+			return true;
 		}
-		Node<T>* temp, * temp1;
-		temp = head;
-		temp1 = nullptr;
-		int x = getOccurrence(item);
-		while (x)
+		else
 		{
-			while (temp->getNext() != nullptr && temp->getNext()->getItem() != item)
-			{
-				temp = temp->getNext();
-			}
-
-			temp1 = temp->getNext();
-			if (temp1 == nullptr)
-				temp->setNext(nullptr);
-			else
-				temp->setNext(temp1->getNext());
-			if (item == temp1->getItem())
-				x--;
-			delete temp1;
+			Node<T>* temp2 = temp->getNext();
+			temp->setNext(temp2->getNext());
+			delete temp2;
+			count--;
+			return true;
 		}
-		return 1;
 	}
 
 	bool deleteNode() //similar to dequeue
@@ -74,12 +85,15 @@ public:
 		else // it acts as a normal dequeue
 		{
 			Node<T>* temp = head;
+			if (head == tail) //if list has only 1 element
+			{tail = nullptr;}
 			head = head->getNext();
 			delete temp;
 			count--;
 			return true;
 		}
 	}
+
 	void insertNode(T& p)  //insert at tail and equivalent to enqueue
 	{
 		Node<T>* Process = new Node<T>;
@@ -127,6 +141,7 @@ public:
 			head = head->getNext();
 			delete temp;
 		}
+		tail = nullptr;
 	}
 
 	void Print()
@@ -188,6 +203,48 @@ public:
 	//	}
 	//	return temp;
 	//}
+
+	/*int getOccurrence(const T& item) const
+	{
+		int count = 0;
+		Node<T>* temp = head;
+		while (temp != nullptr)
+		{
+			if (temp->getItem() == item)
+				count++;
+			temp = temp->getNext();
+		}
+		return count;
+	}
+
+	bool deleteNode(const T& item)
+	{
+		if (isEmpty())
+		{
+			return 0;
+		}
+		Node<T>* temp, * temp1;
+		temp = head;
+		temp1 = nullptr;
+		int x = getOccurrence(item);
+		while (x)
+		{
+			while (temp->getNext() != nullptr && temp->getNext()->getItem() != item)
+			{
+				temp = temp->getNext();
+			}
+
+			temp1 = temp->getNext();
+			if (temp1 == nullptr)
+				temp->setNext(nullptr);
+			else
+				temp->setNext(temp1->getNext());
+			if (item == temp1->getItem())
+				x--;
+			delete temp1;
+		}
+		return 1;
+	}*/
 
 
 };
