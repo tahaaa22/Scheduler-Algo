@@ -9,6 +9,7 @@ private:
 	LinkedList<Process*> RDY;
 	double fork; //fork probability
 	//int killSig; //Kill Signal Time 
+	int maxw;
 public:
 	virtual void addToReadyQueue(Process* process) //inserting a process to the RDY 
 	{
@@ -77,4 +78,35 @@ public:
 	{
 		RDY.Print();
 	}
+	
+	void loadp()
+	{
+        // open the file
+        ifstream inputFile("filename.txt");
+        int int_number = 6; // MAXW MAKANO 6
+        int NO_MAXW;
+        int current_int_number = 0;
+
+        if (inputFile.fail())
+        {
+            cout << "Cannot load input file!!" << endl;    // Check if file is not opened
+            exit(1); // terminates program
+        }
+        else
+        {
+            while (inputFile >> NO_MAXW)
+            {
+                current_int_number++;
+                if (current_int_number == int_number)
+                {
+                    maxw = NO_MAXW;
+                    break;
+
+                }
+            }
+        }
+        // close the file
+        inputFile.close();
+}
+
 };
