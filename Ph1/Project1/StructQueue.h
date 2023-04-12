@@ -21,93 +21,85 @@ public:
     * Function: ~SQueue
     * The SQueue Destructor.
     */
-    ~SQueue() 
+    ~SQueue()
     {
         clear();
     }
 
     /*
     * Function: enqueue
-    * Inserts a value at the end of the queue.
+    * Inserts a new node at the end of the queue.
     *
     * Parameters:
-    *  - value: The value to be inserted in the queue.
+    *  - newNode: The node to be inserted in the queue.
     */
-    void enqueue(T value1, T value2) 
+    void enqueue(SNode<T>* newNode)
     {
-        SNode<T>* temp = new SNode<T>(value1, value2);
-        if (!temp) 
+        if (!newNode)
         {
             return;
         }
-        if (isEmpty()) 
+        if (isEmpty())
         {
-            front = back = temp;
+            front = back = newNode;
         }
-        else 
+        else
         {
-            back->SetNext(temp);
-            back = temp;
+            back->setNext(newNode);
+            back = newNode;
         }
         itemCount++;
     }
 
     /*
     * Function: dequeue
-    * Removes the first element in the queue and assigns its values to the given reference variables of type T.
-    *
-    * Parameters:
-    *  - value1: This will hold the value of the first data item in the queue.
-    *  - value2: This will hold the value of the second data item in the queue.
+    * Removes the first element in the queue and returns its data as an SNode object.
     *
     * Returns:
-    *  - bool: True if the dequeue operation was successful, False otherwise.
+    *  - SNode<T>: The first node's data as an SNode object.
     */
-    bool dequeue(T& value1, T& value2)
+    SNode<T> dequeue()
     {
+        SNode<T> emptyNode;
         if (isEmpty())
         {
-            return false;
+            return emptyNode;
         }
-        value1 = front->getFirstItem();
-        value2 = front->getSecondItem();
+        T value1 = front->getFirstItem();
+        T value2 = front->getSecondItem();
         SNode<T>* delPtr = front;
         front = front->getNext();
         if (!front) {
             back = nullptr;
         }
-        delete delPtr;
-        delPtr = nullptr;
+        delPtr->setNext(nullptr);
         itemCount--;
-        return true;
+        return SNode<T>(value1, value2);
     }
 
     /*
     * Function: peek
-    * Assigns the values of the first element in the queue to the given reference variables of type T.
-    *
-    * Parameters:
-    *  - value1: This will hold the value of the first data item in the queue.
-    *  - value2: This will hold the value of the second data item in the queue.
+    * Returns the data of the first element in the queue as an SNode object.
     *
     * Returns:
-    *  - bool: True if the peek operation was successful, False otherwise.
+    *  - SNode<T>: The first node's data as an SNode object.
     */
-    bool peek(T& value1, T& value2) const
+    SNode<T> peek() const
     {
-        if (isEmpty()) 
+        SNode<T> emptyNode;
+        if (isEmpty())
         {
-            return false;
+            return emptyNode;
         }
-        value1 = front->getFirstItem();
-        value2 = front->getSecondItem();
-        return true;
+        T value1 = front->getFirstItem();
+        T value2 = front->getSecondItem();
+        return SNode<T>(value1, value2);
     }
 
     /*
      Function: size
      Returns the number of elements in the queue.
-    
+
      Returns:
      - int: The number of elements in the queue.
     */
@@ -123,7 +115,7 @@ public:
     * Returns:
     *  - bool: True if the queue is empty, False otherwise.
     */
-    bool isEmpty() const 
+    bool isEmpty() const
     {
         return itemCount == 0;
     }
@@ -132,11 +124,10 @@ public:
     * Function: clear
     * Removes all the elements from the queue.
     */
-    void clear() 
+    void clear()
     {
         while (!isEmpty()) {
-            T temp1, temp2;
-            dequeue(temp1, temp2);
+            dequeue();
         }
     }
 };
