@@ -21,9 +21,9 @@
 		return TimeStep;
 	}
 
-	void Scheduler::TerminateAll() {
+	bool Scheduler::TerminateAll() {
 
-		if(TerminatedQueue.getCount()== NumProcess)
+		//if(TerminatedQueue.getCount()== NumProcess)
 			// what?
 	}
 
