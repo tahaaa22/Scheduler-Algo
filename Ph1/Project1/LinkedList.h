@@ -37,43 +37,44 @@ public:
 
 	bool deleteNode(T& p)
 	{
-		if (isEmpty() || isFound(p)==0) //the list is empty or the list does not contain p
+		if (isEmpty() ) // if the list is empty
 		{
 			return false;
 		}
-		//We know the list must contain p now 
-		Node<T>* temp = head;
-		if (temp->getItem()==p)  //if item is in head
+
+		if (head->getItem() == p) // if the node to be deleted is the head node
 		{
-			if (head == tail) //if list has only 1 element
-			{tail = nullptr;}
+			Node<T>* temp = head;
 			head = head->getNext();
 			delete temp;
 			count--;
+			if (!head) // if the list becomes empty
+			{
+				tail = nullptr;
+			}
 			return true;
 		}
-		//2 or more elements
-		while (temp->getNext()->getNext() && temp->getNext()->getItem() != p)
+
+		Node<T>* temp = head;
+		while (temp->getNext() && temp->getNext()->getItem() != p) // traverse the list
 		{
 			temp = temp->getNext();
 		}
-		//temp->getNext->getNext->getItem = p
-		if (!temp->getNext()->getNext()) //tail
+
+		if (!temp->getNext()) // if the node to be deleted is not found in the list
+		{
+			return false;
+		}
+
+		Node<T>* nodeToDelete = temp->getNext();
+		temp->setNext(nodeToDelete->getNext());
+		if (!nodeToDelete->getNext()) // if the node to be deleted is the tail node
 		{
 			tail = temp;
-			delete temp->getNext();
-			temp->setNext(nullptr);
-			count--;
-			return true;
 		}
-		else
-		{
-			Node<T>* temp2 = temp->getNext();
-			temp->setNext(temp2->getNext());
-			delete temp2;
-			count--;
-			return true;
-		}
+		delete nodeToDelete;
+		count--;
+		return true;
 	}
 
 	bool deleteNode() //similar to dequeue
