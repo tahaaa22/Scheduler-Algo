@@ -24,7 +24,7 @@ public:
 	{
 		if (!RDY.isEmpty())
 		{
-			return RDY.GetTail();
+			return RDY.GetHead();
 		}
 		else
 		{
@@ -53,7 +53,7 @@ public:
 		//Check_Kill(time); //kill at this time step if signal received at rdy
 		if (!RDY.isEmpty() && !getCurrRun()) //run empty and ready contains processes
 		{
-			Process* temp = RDY.GetTail(); //First Process In and the turn is on this Process to RUN
+			Process* temp = RDY.GetHead(); //First Process In and the turn is on this Process to RUN
 			RDY.deleteNode(); //deleting first Process as it is removed to RUN 
 			setCurrRun(temp); //setting the RUN state to this process
 		}
