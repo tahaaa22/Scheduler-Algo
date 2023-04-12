@@ -82,11 +82,7 @@ public:
 
         // open the file
         ifstream inputFile("inputfile.txt");
-
-        // read the desired line number
         int int_number = 5; // RTF MAKANO 5
-
-        // read the file line by line until we reach the desired line number
         int NO_RTF;
         int current_int_number = 0;
 
@@ -102,7 +98,6 @@ public:
                 current_int_number++;
                 if (current_int_number == int_number) 
                 {
-                    // do something with the desired number
                     RTF = NO_RTF;
                     break;
                 }
