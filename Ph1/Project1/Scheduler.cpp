@@ -95,7 +95,53 @@
 		infile >> NumProcess;		// num of processes
 		
 		//------------------load processes-----------------------------//
-		// waiting for new queue//
+ // create an array of queues, where the index corresponds to the process ID
+   /* const int MAX_PROCESS_ID = 100;    //waiting for TA to ans -taha
+    array<SQueue<int>*, MAX_PROCESS_ID> processQueues{};
+
+    // open the input file
+    ifstream inputFile("inputfile.txt");
+
+    if (inputFile.is_open()) {
+        int processId, value1, value2;
+
+        // read each line of the input file
+        while (inputFile >> processId >> value1 >> value2) 
+        {
+            // create a new queue for the process if it doesn't already exist
+            if (processQueues[processId] == nullptr) {
+                processQueues[processId] = new SQueue<int>();
+            }
+
+            // enqueue the values in the queue for the process
+            SNode<int>* node = new SNode<int>(value1, value2);
+            processQueues[processId]->enqueue(node);
+        }
+
+        // close the input file
+        inputFile.close();
+    }
+    else {
+        std::cout << "Unable to open file!" << std::endl;
+        return 1;
+    }
+
+    // print the contents of the queues for each process
+    for (int i = 0; i < MAX_PROCESS_ID; i++) {
+        if (processQueues[i] != nullptr) {
+            std::cout << "Process " << i << ": ";
+
+            while (!processQueues[i]->isEmpty()) {
+                SNode<int> dequeuedNode = processQueues[i]->dequeue();
+                cout << dequeuedNode.getFirstItem() << ", " << dequeuedNode.getSecondItem() << " ";
+            }
+
+            cout << std::endl;
+
+            // clean up memory for the queue
+            delete processQueues[i];
+        }
+    }*/
 
 		//------------------signkill times and ID-----------------------------//
 	}
