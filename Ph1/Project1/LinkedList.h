@@ -10,34 +10,38 @@ public:
 	Node<T>* head;
 	Node<T>* tail;
 	int count;
-	LinkedList() : head(nullptr), tail(nullptr)
-	{
-		count = 0;
-	}
-
-	bool isEmpty() const { return (tail == nullptr || head==nullptr); }
-
 	void Test() //delete later
 	{
 		if (tail)
-		{cout << "printing tail " << tail->getItem() << endl;}
+		{
+			cout << "printing tail " << tail->getItem() << endl;
+		}
 		else
-		{cout << "no tail" << endl;}
+		{
+			cout << "no tail" << endl;
+		}
 		if (head)
-		{cout << "printing Head " << head->getItem() << endl;}
+		{
+			cout << "printing Head " << head->getItem() << endl;
+		}
 		else
-		{cout << "no head" << endl;}
+		{
+			cout << "no head" << endl;
+		}
 	}
 
-	Node<T>* GetHead() { return head; }
-	Node<T>* GetTail() { return tail; }
+	LinkedList() : head(nullptr), tail(nullptr), count(0) {}
 
-	int getCount() const   //number of processes in the list
-	{return count;}
+	bool isEmpty() const { return (head == nullptr); }
+
+	Node<T>* getHead() { return head; }
+	Node<T>* getTail() { return tail; }
+
+	int getCount() const { return count; }
 
 	bool deleteNode(T& p)
 	{
-		if (isEmpty() ) // if the list is empty
+		if (isEmpty()) // if the list is empty
 		{
 			return false;
 		}
@@ -77,17 +81,19 @@ public:
 		return true;
 	}
 
-	bool deleteNode() //similar to dequeue
+	bool deleteNode() // similar to dequeue
 	{
-		if (isEmpty()) //if the list is empty 
+		if (isEmpty()) // if the list is empty 
 		{
 			return false;
 		}
 		else // it acts as a normal dequeue
 		{
 			Node<T>* temp = head;
-			if (head == tail) //if list has only 1 element
-			{tail = nullptr;}
+			if (head == tail) // if list has only 1 element
+			{
+				tail = nullptr;
+			}
 			head = head->getNext();
 			delete temp;
 			count--;
@@ -95,7 +101,7 @@ public:
 		}
 	}
 
-	void insertNode(T& p)  //insert at tail and equivalent to enqueue
+	void insertNode(const T& p)  // insert at tail and equivalent to enqueue
 	{
 		Node<T>* Process = new Node<T>;
 		Process->setItem(p);
@@ -104,34 +110,33 @@ public:
 			Process->setNext(nullptr);
 			tail = Process;
 			head = Process;
-			count++;
-			return;
 		}
 		else
 		{
 			tail->setNext(Process);
 			Process->setNext(nullptr);
 			tail = Process;
-			count++;
-			return;
 		}
+		count++;
 	}
 
-	bool isFound(const T& p) //test
+	bool isFound(const T& p) // test
 	{
-		Node<T>* temp = head;
-		bool found = false;
-		while (temp->getNext() != nullptr)
+		if (isEmpty()) // if the list is empty
 		{
-			if (temp->getNext()->getItem() == p)
+			return false;
+		}
+
+		Node<T>* temp = head;
+		while (temp != nullptr)
+		{
+			if (temp->getItem() == p)
 			{
-				found = true;
-				//position_before = temp; //to use for certain node deletion
-				break;
+				return true;
 			}
 			temp = temp->getNext();
 		}
-		return found;
+		return false;
 	}
 
 	void clear()
@@ -143,6 +148,7 @@ public:
 			delete temp;
 		}
 		tail = nullptr;
+		count = 0;
 	}
 
 	void Print()
@@ -153,9 +159,7 @@ public:
 			cout << temp->getItem() << endl;
 			temp = temp->getNext();
 		}
-		return;
 	}
-
 
 	~LinkedList()
 	{
@@ -217,7 +221,6 @@ public:
 		}
 		return count;
 	}
-
 	bool deleteNode(const T& item)
 	{
 		if (isEmpty())
@@ -234,7 +237,6 @@ public:
 			{
 				temp = temp->getNext();
 			}
-
 			temp1 = temp->getNext();
 			if (temp1 == nullptr)
 				temp->setNext(nullptr);
