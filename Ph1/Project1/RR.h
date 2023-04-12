@@ -13,6 +13,8 @@ public:
     {
         TS = T;
         Curtime = 0;
+        //3yza agyb el rtf mn el load ba 
+        loadp();
         settype('R');
     }
     virtual void addToReadyQueue(Process* process)
@@ -77,8 +79,39 @@ public:
         RdyQueue.Print();
     }
     void Loadp() {
-        return;
+
+        // open the file
+        ifstream inputFile("inputfile.txt");
+
+        // read the desired line number
+        int int_number = 5; // RTF MAKANO 5
+
+        // read the file line by line until we reach the desired line number
+        int NO_RTF;
+        int current_int_number = 0;
+
+        if (inputFile.fail())
+        {
+            cout << "Cannot load input file!!" << endl;    // Check if file is not opened
+            exit(1); // terminates program
+        }
+        else
+        {
+            while (inputFile >> NO_RTF)
+            {
+                current_int_number++;
+                if (current_int_number == int_number) 
+                {
+                    // do something with the desired number
+                    RTF = NO_RTF;
+                    break;
+                }
+            }
+        }
+        // close the file
+        inputFile.close();
     }
+
 
 };
 
