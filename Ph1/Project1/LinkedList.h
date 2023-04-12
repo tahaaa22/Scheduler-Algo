@@ -166,7 +166,7 @@ public:
 		}
 		return temp;
 	}
-	void display(node<T>* head) 
+	void print(node<T>* head) 
 	{
     node<T>* temp = head;
     while (temp != nullptr) {
