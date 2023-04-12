@@ -63,6 +63,22 @@ public:
             
        
     };
+    bool CheckRTF(Process* p1);
+    Process* getNextProcess() {
+        if (RdyQueue.isEmpty()) return nullptr;
+        else {
+            Process* temp;
+            RdyQueue.peek(temp);
+            return temp;
+        }
+    }
+    virtual void print_rdy()
+    {
+        RdyQueue.Print();
+    }
+    void Loadp() {
+        return;
+    }
 
 };
 
