@@ -88,7 +88,6 @@ public:
 
         if (inputFile.fail())
         {
-            cout << "Cannot load input file!!" << endl;    // Check if file is not opened
             exit(1); // terminates program
         }
         else
