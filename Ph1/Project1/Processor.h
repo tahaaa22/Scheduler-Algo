@@ -36,6 +36,7 @@ private:
     virtual Process* getNextProcess() = 0;       
     virtual void addToReadyQueue(Process* process) = 0;  // processor or scheduler
     virtual void ScheduleAlgo(int time) = 0;  //new
+    virtual void print_rdy() = 0;
     void setCurrRun(Process* p)
     {     //new
         CurrRun = p;
