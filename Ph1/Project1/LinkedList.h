@@ -166,6 +166,14 @@ public:
 		}
 		return temp;
 	}
+	void display(node<T>* head) 
+	{
+    node<T>* temp = head;
+    while (temp != nullptr) {
+        cout << temp->getItem() << " ";
+        temp = temp->getNext();
+    }
+}
 
 	 ~LinkedList() 
 	 { 
