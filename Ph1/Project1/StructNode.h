@@ -3,9 +3,9 @@ template<typename T>
 class SNode
 {
 private:
-	T data1;	// first data item (can be any complex sturcture)
-	T data2;    // second data item (can be any complex sturcture)
-	SNode<T>* next;	// Pointer to next node
+	T data1; // first data item (can be any complex sturcture)
+	T data2; // second data item (can be any complex sturcture)
+	SNode<T>* next; // Pointer to next node
 public:
 
 	SNode() //default constructor
@@ -13,7 +13,7 @@ public:
 		next = nullptr;
 	}
 
-	SNode(T Item1 ,T Item2) //non-default constructor
+	SNode(T Item1, T Item2) //non-default constructor
 	{
 		data1 = Item1;
 		data2 = Item2;
@@ -30,22 +30,22 @@ public:
 		data2 = Item2;
 	} // end set second Item
 
-	void setNext(Node<T>* nextNodePtr)
+	void setNext(SNode <T>* nextNodePtr)
 	{
 		next = nextNodePtr;
 	} // end setNext
 
-	T getFirstItem() 
+	T getFirstItem()
 	{
 		return data1;
 	} // end get first Item
-	
-	T getSecondItem() 
+
+	T getSecondItem()
 	{
 		return data2;
 	} // end getItem
 
-	Node<T>* getNext() const
+	SNode<T>* getNext()
 	{
 		return next;
 	}
