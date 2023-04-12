@@ -13,6 +13,7 @@
 using namespace std;
 class Scheduler
 {
+	Processor** ArrP;
 	SJF* ps;
 	UI* pUI;
 	int ID_Count;     //to be initialized as the number of processes from the input file in the constructor
@@ -40,7 +41,7 @@ public :
 	Processor* getMinProcessor();
 	bool HandleBlk();
 	void Mode(); // read modes from UI class to make different implementation for each mode
-	bool allTerminated(); // check if the terminated queue has equal number of processes entered to stop simulation 
+	bool TerminateAll(); // check if the terminated queue has equal number of processes entered to stop simulation 
 	void Simulation(int currenttime);
 	void AddReady(Process* p);	// Add Processes to the suitable queue
 	void addtotermination();
