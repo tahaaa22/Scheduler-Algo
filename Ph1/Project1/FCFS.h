@@ -73,5 +73,8 @@ public:
 				getCurrRun()->setisBlocked(true);
 		}
 	}
-	virtual void print_rdy(){}
+	virtual void print_rdy()
+	{
+		RDY.Print();
+	}
 };
