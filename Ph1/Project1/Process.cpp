@@ -1,25 +1,18 @@
 #include "Process.h"
 
 
-Process::Process(int id, int arrivalTime, int cpuTime, int inputDuration , SQueue<int> Head)
+Process::Process(int AT, int ID, int CT, SQueue<int> N) : ArrivalTime(AT), PID(ID), CPUtime(CT), IO_queue(N)
 {
-    PID = id;
-    ArrivalTime = arrivalTime;
-    CPUtime = cpuTime;
-    timeRemaining = cpuTime;
+    timeRemaining = CT;
     isBlocked = false;
     isFinished = false;
     ResponseTime = -1;
     TerminationTime = -1;
     waitingTime = 0;
     TurnaroundDuration = 0;
-    IO = Head;    //m3rf4 leh hasa en fy haga 8lt
     //No_of_IO = IO.size(); // no of times ha request input/output
     LCH = NULL;
     RCH = NULL;
-    
-
-
     //lch_ID = -1;  //1st child ID set to -1 if no children added by Amira
     //rch_ID = -1;   //1st child ID set to -1 if no children added by Amira
     //ch_count = 0; //number of children; set to 0 by default added by Amira
@@ -104,6 +97,39 @@ void Process::execute(int currentTimeStep)  // decrement cpu at each time step
             TerminationTime = currentTimeStep;
         }
     }
+}
+void Process::load(const string& filename)
+{
+    ifstream input(filename);
+    if (!input.is_open())
+    {
+        cout << "Error opening file " << filename << endl;
+        return;
+    }
+    string line;
+    while (getline(input, line)) {
+        istringstream iss(line);
+        int AT, ID, CT, N;
+        SQueue<int> IO_queue;
+
+        if (!(iss >> AT >> ID >> CT >> N)) {
+            std::cerr << "Error reading input data from file " << filename << std::endl;
+            return;
+        }
+
+        for (int i = 0; i < N; i++)
+        {
+            int IO_R, IO_D;
+            if (!(iss >> IO_R >> IO_D))
+            {
+                cout << "Error reading input data from file " << filename << std::endl;
+                return;
+            }
+            IOpairs = new SNode<int>(IO_R, IO_D);
+            IO_queue.enqueue({ IOpairs });
+        }
+    }
+    input.close();
 }
 
 /*void Process::requestIO(int currentTimeStep, int inputRequestTime)
