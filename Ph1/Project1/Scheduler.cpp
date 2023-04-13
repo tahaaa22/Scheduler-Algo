@@ -143,9 +143,11 @@
 			//------------------Line 3-----------------------------//
 			// Skip the next line
 			getline(inputFile, line);
-		}
+		
 		//------------------Line 4-----------------------------//
 		inputFile >> NumProcess;		// num of processes
+Break;
+}
 	}
 	void Scheduler::addtotermination()
 	{
