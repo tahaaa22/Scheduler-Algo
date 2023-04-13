@@ -13,7 +13,8 @@ private:
     int TerminationTime;
     int TurnaroundDuration;
     int waitingTime;
-    SQueue<int> IO; //List of input and output
+   SNode <int>* IOpairs;
+    SQueue<int> IO_queue;
     int timeRemaining;
     int No_of_IO; //no of times user request input or output
     bool isBlocked;
@@ -25,8 +26,8 @@ private:
     //int ch_count; //number of children; set to 0 by default added by Amira
     
 public:
-    Process(int id, int arrivalTime, int cpuTime, int inputDuration, SQueue<int> Head); //ordinary process
-    // parent only 
+    Process(int AT, int ID, int CT, SQueue<int> N); 
+   void load(const string& filename);
     int getPID();
     int getArrivalTime() ;
     int getResponseTime() ;
@@ -42,8 +43,8 @@ public:
     void setisFinished(bool it);
     bool getisFinished();
     void execute(int currentTimeStep);
-    void requestIO(int currentTimeStep, int inputRequestTime);
-    void completeIO(int currentTimeStep);
+    //void requestIO(int currentTimeStep, int inputRequestTime);
+    //void completeIO(int currentTimeStep);
  //   friend ostream& operator<<(ostream& output,  Process* p1);
     ~Process();    
 };
