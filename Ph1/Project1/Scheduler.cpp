@@ -21,10 +21,9 @@
 		return TimeStep;
 	}
 
-	bool Scheduler::TerminateAll() {
-
-		//if(TerminatedQueue.getCount()== NumProcess)
-			// what?
+	bool Scheduler:: allTerminated()
+	{
+		 return TerminatedQueue.getCount() == NumProcess;
 	}
 
 	Processor* Scheduler::getMaxProcessor() {
@@ -60,15 +59,70 @@
 	
 
 	void Scheduler::Mode()
-	{}
-	/*void Scheduler::Output(int currenttime) // function used to relate to the printing functions for each state from UI class.
-	{}*/
+	{
+		LoadFile();
+		int mode;
+		mode = pUI->ReadMode();
+		cin.ignore();  //Clear any leftover characters in the input buffer
+		if (mode == 1)
+		{
+			bool isallterminated = allTerminated();	//simulation is working
+
+			while (!isallterminated && isFileLoaded)
+			{
+				addtotermination();
+					Simulation(TimeStep);
+					isallterminated = allTerminated(); 
+					fiveStepCounter++;
+				// PRINTING //
+				output(TimeStep);
+				getchar();	// Waits for user to press "Enter" 
+				incrementTimeStep();
+			}
+		}//exit of while loop(program)
+		else if (mode == 2)
+		{
+			bool isallterminated = allTerminated();	//simulation is working
+
+			while (!isallterminated && isFileLoaded)
+			{
+				addtotermination();
+				Simulation(TimeStep);
+				isallterminated = allTerminated();
+				fiveStepCounter++;
+
+				// PRINTING //
+				output(TimeStep);
+				Sleep(1000);		//Wait for 1 second
+				incrementTimeStep();
+			}
+
+		}
+
+		else if (mode == 3)
+		{
+			pUI->printBeforeSim();
+	
+			bool isallterminated = allTerminated();		//simulation is working
+
+			while (!isallterminated && isFileLoaded)
+			{
+				addtotermination();
+				Simulation(TimeStep);
+				isallterminated = allTerminated();
+				fiveStepCounter++;
+
+				incrementTimeStep();
+			}
+			pUI->printAfterSim();
+		}
+	}
 
 	void Scheduler::LoadFile()
 	{
-		ifstream infile;
-		//infile.open("ay file ba2a");// lama ne3mel input file ha4el comment 
-		if (infile.fail())
+		ifstream inputFile("input.txt");
+		string line;   // lama ne3mel input file ha4el comment 
+		if (inputFile.fail())
 		{
 			cout << "Cannot load input file!!" << endl;    // Check if file is not opened
 			exit(1); // terminates program
@@ -78,72 +132,20 @@
 			isFileLoaded = true;
 		}
 		//------------------Line 1-----------------------------//
-		infile >> NF;	// Number of FCFS processor
-		infile >> NS;		// Number of SJF processor
-		infile >> NR;		// Number of RR processor
+		while (getline(inputFile, line)) {
+			inputFile >> NF;	// Number of FCFS processor
+			inputFile >> NS;		// Number of SJF processor
+			inputFile >> NR;		// Number of RR processor
 
-		//------------------Line 2-----------------------------//
-		infile >> RRtime;		// time slice of RR
-
-		//------------------Line 3-----------------------------//
-		infile >> RTF;		// RTF
-		infile >> MaxW;		// MaxW
-		infile >> STL;		// STL
-		infile >> Pfork;    //fork probability
-
+			//------------------Line 2-----------------------------//
+			// Skip the next line
+			getline(inputFile, line);
+			//------------------Line 3-----------------------------//
+			// Skip the next line
+			getline(inputFile, line);
+		}
 		//------------------Line 4-----------------------------//
-		infile >> NumProcess;		// num of processes
-		
-		//------------------load processes-----------------------------//
- // create an array of queues, where the index corresponds to the process ID
-   /* const int MAX_PROCESS_ID = 100;    //waiting for TA to ans -taha
-    array<SQueue<int>*, MAX_PROCESS_ID> processQueues{};
-
-    // open the input file
-    ifstream inputFile("inputfile.txt");
-
-    if (inputFile.is_open()) {
-        int processId, value1, value2;
-
-        // read each line of the input file
-        while (inputFile >> processId >> value1 >> value2) 
-        {
-            // create a new queue for the process if it doesn't already exist
-            if (processQueues[processId] == nullptr) {
-                processQueues[processId] = new SQueue<int>();
-            }
-
-            // enqueue the values in the queue for the process
-            SNode<int>* node = new SNode<int>(value1, value2);
-            processQueues[processId]->enqueue(node);
-        }
-
-        // close the input file
-        inputFile.close();
-    }
-    else {
-        std::cout << "Unable to open file!" << std::endl;
-        return 1;
-    }
-
-    // print the contents of the queues for each process
-    for (int i = 0; i < MAX_PROCESS_ID; i++) {
-        if (processQueues[i] != nullptr) {
-            std::cout << "Process " << i << ": ";
-
-            while (!processQueues[i]->isEmpty()) {
-                SNode<int> dequeuedNode = processQueues[i]->dequeue();
-                cout << dequeuedNode.getFirstItem() << ", " << dequeuedNode.getSecondItem() << " ";
-            }
-
-            cout << std::endl;
-
-            // clean up memory for the queue
-            delete processQueues[i];
-        }
-    }*/
-
-		//------------------signkill times and ID-----------------------------//
+		inputFile >> NumProcess;		// num of processes
 	}
 	void Scheduler::addtotermination()
 	{
