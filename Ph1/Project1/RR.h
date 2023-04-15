@@ -1,20 +1,21 @@
 #pragma once
 #include "Processor.h"
 #include "Queue.h"
+#include <fstream>
+#include <iostream>
+#include <ostream>
+using namespace std;
 class RR : public Processor
 {
 private:
     Queue<Process*> RdyQueue;
-    int TS;    //Timeslice
-    int RTF;
+    static int TS;    //Timeslice
+    static int RTF;
     int Curtime;
 public:
-    RR(int T=0)  
+    RR()  
     {
-        TS = T;
-        Curtime = 0;
-        //3yza agyb el rtf mn el load ba 
-        loadp();
+        Curtime = 0;   
         settype('R');
     }
     virtual void addToReadyQueue(Process* process)
@@ -78,34 +79,14 @@ public:
     {
         RdyQueue.Print();
     }
-    void Loadp() {
-
-        // open the file
-        ifstream inputFile("inputfile.txt");
-        int int_number = 5; // RTF MAKANO 5
-        int NO_RTF;
-        int current_int_number = 0;
-
-        if (inputFile.fail())
-        {
-            exit(1); // terminates program
-        }
-        else
-        {
-            while (inputFile >> NO_RTF)
-            {
-                current_int_number++;
-                if (current_int_number == int_number) 
-                {
-                    RTF = NO_RTF;
-                    break;
-                }
-            }
-        }
-        // close the file
-        inputFile.close();
+    void Loadp(ifstream & inputFile) {
+        inputFile >> TS;
+        inputFile >> RTF;
+       
     }
 
 
 };
+int RR::TS = 0; 
+int RR::RTF = 0;
 
