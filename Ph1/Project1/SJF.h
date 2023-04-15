@@ -44,7 +44,7 @@ public:
         PQ.Print();
     }
     
-    void Loadp() {
+    void Loadp(ifstream & inputFile) {
         return;
     }
     
