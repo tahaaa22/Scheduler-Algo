@@ -1,8 +1,11 @@
 #pragma once
 #include <fstream>
+#include <iostream>
+#include <ostream>
 #include "Processor.h"
 #include "LinkedList.h"
 #include "StructQueue.h"
+using namespace std;
 
 class FCFS : public Processor
 {
@@ -13,6 +16,7 @@ private:
 	double fork; //fork probability
 	SQueue<int> killSig; //Kill Signal Time 
 	int MaxW; //to use for check in migration
+	static int forkprob;
 public:
 	void  Check_Kill(int timestep) {} //will be added in phase 2
 	bool CheckMaxW(Process* p) {} //will be added in phase 2 used for migration
@@ -87,33 +91,11 @@ public:
 	{
 		RDY.Print();
 	}
-	void loadp()
-	{
-		// open the file
-		ifstream inputFile("filename.txt");
-		int int_number = 6; // MAXW MAKANO 6
-		int NO_MAXW;
-		int current_int_number = 0;
+	void Loadp(ifstream & inputFile) {
+        inputFile >> MaxW;
+       
+    }
 
-		if (inputFile.fail())
-		{
-			// Check if file is not opened
-			exit(1); // terminates program
-		}
-		else
-		{
-			while (inputFile >> NO_MAXW)
-			{
-				current_int_number++;
-				if (current_int_number == int_number)
-				{
-					MaxW = NO_MAXW;
-					break;
-
-				}
-			}
-		}
-		// close the file
-		inputFile.close();
-	}
 };
+int FCFS::forkprob = 0; 
+
