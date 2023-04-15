@@ -15,7 +15,7 @@ private:
 	LinkedList<Process*> RDY;
 	double fork; //fork probability
 	SQueue<int> killSig; //Kill Signal Time 
-	int MaxW; //to use for check in migration
+	static int MaxW; //to use for check in migration
 	static int forkprob;
 public:
 	void  Check_Kill(int timestep) {} //will be added in phase 2
@@ -91,11 +91,18 @@ public:
 	{
 		RDY.Print();
 	}
-	void Loadp(ifstream & inputFile) {
+	void Loadp(ifstream & inputFile) 
+	{
         inputFile >> MaxW;
-       
-    }
+	}
+	void Loadpf(ifstream & inputFile) 
+	{
+        inputFile >> forkprob ;
+	}
+
 
 };
 int FCFS::forkprob = 0; 
+int FCFS::Maxw = 0; 
+
 
