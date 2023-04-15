@@ -26,7 +26,8 @@ private:
     //int ch_count; //number of children; set to 0 by default added by Amira
     
 public:
-    Process(int AT, int ID, int CT, SQueue<int> N); 
+ Process();
+    Process(int AT, int ID, int CT,int Num, SQueue<int> N); 
    void load(const string& filename);
     int getPID();
     int getArrivalTime() ;
@@ -43,6 +44,7 @@ public:
     void setisFinished(bool it);
     bool getisFinished();
     void execute(int currentTimeStep);
+     //Process newcreation(int AT, int ID, int CT, SQueue<int> N);
     //void requestIO(int currentTimeStep, int inputRequestTime);
     //void completeIO(int currentTimeStep);
  //   friend ostream& operator<<(ostream& output,  Process* p1);
