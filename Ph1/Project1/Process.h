@@ -28,7 +28,7 @@ private:
 public:
  Process();
     Process(int AT, int ID, int CT,int Num, SQueue<int> N); 
-   void load(const string& filename);
+   Process load(ifstream& inputFile);
     int getPID();
     int getArrivalTime() ;
     int getResponseTime() ;
