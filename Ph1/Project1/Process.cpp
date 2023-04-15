@@ -1,8 +1,12 @@
 #include "Process.h"
 
 
-Process::Process(int AT, int ID, int CT, SQueue<int> N) : ArrivalTime(AT), PID(ID), CPUtime(CT), IO_queue(N)
+Process::Process(){}
+Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT), PID(ID), CPUtime(CT), No_of_IO(Num), IO_queue(N)
 {
+    AT = 0;
+    ID = 0;
+    CT = 0;
     timeRemaining = CT;
     isBlocked = false;
     isFinished = false;
@@ -98,8 +102,26 @@ void Process::execute(int currentTimeStep)  // decrement cpu at each time step
         }
     }
 }
-void Process::load(const string& filename)
+Process Process:: load(ifstream& inputFile)
 {
+    int AT, ID, CT, N;
+    SQueue<int> IO_queue;
+    inputFile >> AT;
+    inputFile >> ID;
+    inputFile >> CT;
+    inputFile >> N;
+    for (int i = 0; i < N; i++)
+    {
+        int IO_R, IO_D;
+        IOpairs = new SNode<int>(IO_R, IO_D);
+        IO_queue.enqueue({ IOpairs });
+    }
+     Process p(AT, ID, CT, N, IO_queue);
+     return p;
+}
+/*void Process::load()
+{
+    string filename("inputfile.txt");
     ifstream input(filename);
     if (!input.is_open())
     {
@@ -107,13 +129,15 @@ void Process::load(const string& filename)
         return;
     }
     string line;
-    while (getline(input, line)) {
+   while (getline(input, line))
+    {
         istringstream iss(line);
         int AT, ID, CT, N;
         SQueue<int> IO_queue;
 
-        if (!(iss >> AT >> ID >> CT >> N)) {
-            std::cerr << "Error reading input data from file " << filename << std::endl;
+        if (!(iss >> AT >> ID >> CT >> N)) 
+        {
+            cerr << "Error reading input data from file " << filename << endl;
             return;
         }
 
@@ -126,12 +150,18 @@ void Process::load(const string& filename)
                 return;
             }
             IOpairs = new SNode<int>(IO_R, IO_D);
-            IO_queue.enqueue({ IOpairs });
+            IO_queue.enqueue({ IOpairs });  
         }
-    }
+        newcreation(AT,ID,CT,IO_queue);
+   // }
     input.close();
-}
-
+}*/
+//Process Process::newcreation(int AT,int ID , int CT , SQueue<int> N)
+//{
+ //   Process p(AT,ID,CT,N);
+ //   return p;
+   
+//}
 /*void Process::requestIO(int currentTimeStep, int inputRequestTime)
 {
     isBlocked = true;
