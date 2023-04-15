@@ -58,14 +58,7 @@ private:
         type = a;
     }
 
-    void setCurrRun(Process* p)
-    {     //new
-        CurrRun = p;
-    }
-    Process* getCurrRun()
-    {      //new 
-        return CurrRun;
-    }
+    
 
     bool isBusy() {
         if (RDY_Length == 0) return false;
