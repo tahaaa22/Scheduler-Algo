@@ -1,6 +1,7 @@
 #pragma once
 #include "StructNode.h"
 #include <iostream>
+using namespace std;
 
 template <typename T>
 class SQueue
@@ -15,6 +16,8 @@ public:
     * Function: SQueue
     * The SQueue Constructor.
     */
+    
+
     SQueue() : front(nullptr), back(nullptr), itemCount(0) {}
 
     /*
@@ -23,7 +26,7 @@ public:
     */
     ~SQueue()
     {
-        clear();
+       // clear();
     }
 
     /*
