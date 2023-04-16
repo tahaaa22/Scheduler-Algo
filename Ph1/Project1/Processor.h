@@ -1,3 +1,5 @@
+
+#pragma once
 #include<iostream>
 #include"Queue.h"
 #include <list>
@@ -11,12 +13,11 @@ private:
     int RDY_Length;        //increasses when new process is added and decreases during run or steal etc.
     int BusyCount;     //incremented every time step during running
     int Total_CPUtime;  //increases when new process is added to rdy queue
-    int Total_TRT;      //increases every time process is moved to the terminate list 
-    public:
-    Queue<Process*> blockedProcesses; 
-    Queue<Process*> terminatedProcesses; 
-
-    Processor() //new
+    int Total_TRT;      //increases every time process is moved to the terminate list
+protected:
+    Queue <int> qID;
+public:
+    Processor() 
     {
         CurrRun = nullptr;
         RDY_Length = 0;
@@ -25,16 +26,27 @@ private:
         Total_TRT = 0;
 
     }
-    virtual void addtoBLK(Process*& process){
-          if (getCurrRun()->getisBlocked())
-            process = getCurrRun();
+    virtual void ReadyIDs() = 0;   // it fills qID AND CALLS print of DS
+    virtual void addtoBLK(Process*& process)
+    {
+        if (getCurrRun() != NULL)
+        {
+            if (getCurrRun()->getisBlocked())
+                process = getCurrRun();
+        }
     }
-    virtual void addtoterminate(Process* & process){
-          if (getCurrRun()->getisFinished())
-            process = getCurrRun();
+    virtual void addtoterminate(Process*& process)
+    {
+        if (getCurrRun() != NULL)
+        {
+            if (getCurrRun()->getisFinished())
+                process = getCurrRun();
+
+        }
+        return;
     }
     virtual Process* getNextProcess() = 0;       
-    virtual void addToReadyQueue(Process* process) = 0;  // processor or scheduler
+    virtual void addToReadyQueue(Process *process) = 0;  // processor or scheduler
     virtual void ScheduleAlgo(int time) = 0;  //new
     virtual void print_rdy() = 0;
     void setCurrRun(Process* p)
