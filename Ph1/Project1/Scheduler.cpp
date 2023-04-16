@@ -7,7 +7,7 @@
 		ps = new SJF;
 		pUI = new UI;
 		ArrP = new Processor * [NF + NR + NS];
-		isFileLoaded = false;
+		isFileLoaded = true;
 		NF = 0;
 		NR = 0;
 		NS = 0;
@@ -18,6 +18,7 @@
 	{
 		// Seed the random number generator with the current time
 		srand(currenttime);
+		int random = rand() % 100;
 		NumProcessor = NF + NS + NR;
 		// create processors array
 		for (int i = 0; i < NumProcessor; i++)
@@ -50,32 +51,46 @@
 		while (!NewQueue.isEmpty())
 		{
 			// Get the next process from the new queue
-			Process process;
+			Process* process;
 			NewQueue.dequeue(process);
 
 			// Choose a random available processor to assign the process to
 			int randomIndex = rand() % numAvailableProcessors;
+
 			Processor* processor = availableProcessors[randomIndex];
 
 			// Enqueue the process to the ready queue of the chosen processor
 			if (FCFS* fcfs = dynamic_cast<FCFS*>(processor))
 			{
 				fcfs->addToReadyQueue(process);
+
 			}
 			else if (RR* rr = dynamic_cast<RR*>(processor))
 			{
 				rr->addToReadyQueue(process);
+
 			}
 			else if (SJF* sjf = dynamic_cast<SJF*>(processor))
 			{
 				sjf->addToReadyQueue(process);
+
 			}
 
 			// Remove the chosen processor from the available processors array
-			availableProcessors[randomIndex] = availableProcessors[numAvailableProcessors - 1];
-			numAvailableProcessors--;
+		//	availableProcessors[randomIndex] = availableProcessors[numAvailableProcessors - 1];
+		//	numAvailableProcessors--;
+		}
+		for (int i = 0; i < NumProcessor; i++)
+		{
+			if (FCFS* fcfs = dynamic_cast<FCFS*>(ArrP[i]))
+				fcfs->ScheduleAlgo(random);
+			else if (RR* rr = dynamic_cast<RR*>(ArrP[i]))
+			    rr->ScheduleAlgo(random);
+			else if (SJF* sjf = dynamic_cast<SJF*>(ArrP[i]))
+				 sjf->ScheduleAlgo(random);
 		}
 	}
+	
 	void Scheduler:: incrementTimeStep() 
 	{
 		TimeStep++;
@@ -120,8 +135,10 @@
 		return (longest - shortest) / longest;
 	}
 
-	bool Scheduler::HandleBlk() 
-	{}
+	//bool Scheduler::HandleBlk() 
+	//{
+		//ana b3mal ay habl nba n3dlo 34an n3rf n run
+	//}
 
 
 	void Scheduler::Mode()
@@ -132,16 +149,16 @@
 		cin.ignore();  //Clear any leftover characters in the input buffer
 		if (mode == 1)
 		{
-			bool isallterminated = allTerminated();	//simulation is working
-
+			bool isallterminated = allTerminated();	//simulation is working // btba b 0 fl awl
+			//isallterminated && ana 3mltha
 			while (!isallterminated && isFileLoaded)
 			{
-				addtotermination();
+				//addtotermination();
 					Simulation(TimeStep);
-					addtoBlock();
+					//addtoBlock();
 					isallterminated = allTerminated(); 
 				// PRINTING //
-				//output(TimeStep);
+				Output(TimeStep);
 				getchar();	// Waits for user to press "Enter" 
 				incrementTimeStep();
 			}
@@ -183,54 +200,64 @@
 			pUI->printAfterSim();
 		}
 	}
-/*	void Scheduler::output(int time)
+	void Scheduler::Output(int time)
 	{
-		pUI->Print1(TimeStep,NF, NS, NR, ReadyFCFS, ReadyRR, ReadySJF);
-		pUI->Print2( BLKqueue, BLKcount);
-		pUI->Print3( RUNqueue, runcount,  PID, type);
-		pUI->Print4( TRMqueue, trmcount);
-	}*/
+		pUI->Print1(TimeStep,NumProcessor,ArrP , NF, NS , NR);
+		pUI->Print2(BLKQueue, BLKQueue.getCount());
+		pUI->Print3(NumProcessor, ArrP);
+		pUI->Print4(TerminatedQueue, TerminatedQueue.getCount());
+	}
 
 
 	void Scheduler::LoadFile()
 	{
+		int dum1 = 0;
+		int dum2 = 0;
+		int dum3 = 0;
 		ifstream inputFile("input.txt");
 		string line;   // lama ne3mel input file ha4el comment 
 		if (inputFile.fail())
 		{
 			cout << "Cannot load input file!!" << endl;    // Check if file is not opened
+			isFileLoaded = false;
 			exit(1); // terminates program
+			
 		}
 		else
 		{
 			isFileLoaded = true;
 		}
 		//------------------Line 1-----------------------------//
-		while (getline(inputFile, line))
-		{
+		
+		
 			inputFile >> NF;	// Number of FCFS processor
 			inputFile >> NS;		// Number of SJF processor
 			inputFile >> NR;		// Number of RR processor
+			
 
 			//------------------Line 2-----------------------------//
 			// Skip the next line
-			pr->Loadp(inputFile);
+			//pr->Loadp(inputFile);
+			inputFile >> dum1;
+			inputFile >> dum2;
+			inputFile >> dum3;
 			//------------------Line 3-----------------------------//
-			pf->Loadp(inputFile);
+			//pf->Loadp(inputFile);
 			inputFile >> STL;
-			pf->Loadpf(inputFile);
+			inputFile >> dum1;
+			//pf->Loadpf(inputFile);
 
 			//------------------Line 4-----------------------------//
 			inputFile >> NumProcess;		// num of processes
 			//------------------Line 5-----------------------------//
 			//create Processes//
-			Pp = new Process;
+			
 			for (int i = 0; i < NumProcess; i++)
 			{
-			Process p =	Pp->load(inputFile);
-			NewQueue.enqueue(p);
+				Pp = new Process;
+			NewQueue.enqueue(Pp->load(inputFile));
 			}
-		}
+		
 	}
 
 	void Scheduler::addtotermination()
