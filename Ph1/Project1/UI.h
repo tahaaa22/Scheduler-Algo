@@ -2,19 +2,24 @@
 #include <iostream>
 #include <string>
 #include "Queue.h"
-#include <string>
 #include <fstream>
 #include "LinkedList.h"
-#include "Queue.h"
 #include "PriorityQueue.h"
 #include <conio.h>
 #include "Process.h"
-#include "Processor.h"
+#include"FCFS.h"
+#include "RR.h"
+#include "SJF.h"
 using namespace std;
 
 class UI
 {
+private:
+	RR* pr;
+	FCFS* pf;
+	SJF* ps;
 public:
+	
 	void clear(); // to clear console after each time step
 	UI();
 	~UI();
@@ -23,9 +28,9 @@ public:
 	int ReadMode();
 
 	// Printing the Process Scheduler Status
-	void Print1(int time, int NF, int NS, int NR, LinkedList<Process*>& ReadyFCFS, Queue<Process*>& ReadyRR, PriorityQueue<Process*>& ReadySJF);
+	void Print1(int time, int NumProcessor, Processor** ArrP, int NF, int NS, int NR);
 	void Print2(Queue<Process*> BLKqueue, int BLKcount);
-	void Print3(Queue<Process*> RUNqueue, int runcount, int ID, char type);
+	void Print3(int NumProcessor, Processor** ArrP);
 	void Print4(Queue<Process*> TRMqueue, int trmcount);
 	// Silent Mode
 	void printBeforeSim();
