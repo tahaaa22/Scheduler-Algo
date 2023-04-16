@@ -1,6 +1,5 @@
 #pragma once
 #include "Processor.h"
-#include "Queue.h"
 #include <fstream>
 #include <iostream>
 #include <ostream>
@@ -9,31 +8,67 @@ class RR : public Processor
 {
 private:
     Queue<Process*> RdyQueue;
-    static int TS;    //Timeslice
-    static int RTF;
+    int TS;    //Timeslice
+    int RTF;
     int Curtime;
 public:
-    RR()  
+    RR(int t=0, int rtf=0)  
     {
+        TS = t;
+        RTF = rtf;
         Curtime = 0;   
-        settype('R');
+        settype('r');
     }
-    virtual void addToReadyQueue(Process* process)
+    virtual void addToReadyQueue(Process* p1)
     {
-        RdyQueue.enqueue(process);
-    };
+        RdyQueue.enqueue(p1);
+    }
     void settimeslice(int t)
     {
         TS = t;
-    };
-    virtual void ScheduleAlgo(int currenttimestep)
+    }
+    virtual void ReadyIDs()
     {
+        int n = RdyQueue.getCount();
+        for (int i = 0; i < n; i++)
+        {
+            Process* temp;
+            RdyQueue.dequeue(temp);
+            int id = temp->getPID();
+            qID.enqueue(id);
+            RdyQueue.enqueue(temp);
+        }
+        qID.Print();
+    }
+    virtual void ScheduleAlgo(int time)
+    {
+        //rdy queue msh empty w mafya4 current bardo
         if (!RdyQueue.isEmpty() && !getCurrRun()) {
             Process* temp;         
             RdyQueue.dequeue(temp);
             setCurrRun(temp);
         }
-
+        else if (getCurrRun())  //run not empty
+        {
+            if (time <= 15)
+            {
+                Process* P = getCurrRun();
+                getCurrRun()->setisBlocked(true);
+                addtoBLK(P);
+                setCurrRun(nullptr);
+            }
+            else if (time >= 20 && time <= 30)
+            {
+                addToReadyQueue(getCurrRun());
+                setCurrRun(nullptr);
+            }
+            else if (time >= 50 && time <= 60)
+            {
+                Process* P = getCurrRun();
+                addtoterminate(P);
+                setCurrRun(nullptr);
+            }
+        }
        /* if (Curtime == 0 && RdyQueue.getCount()>0)
         {
             Process* temp;
@@ -65,7 +100,7 @@ public:
             
             
        
-    };
+    }
     bool CheckRTF(Process* p1);
     Process* getNextProcess() {
         if (RdyQueue.isEmpty()) return nullptr;
@@ -78,7 +113,10 @@ public:
     virtual void print_rdy()
     {
         RdyQueue.Print();
+
     }
+    
+
     void Loadp(ifstream & inputFile) {
         inputFile >> TS;
         inputFile >> RTF;
@@ -87,6 +125,5 @@ public:
 
 
 };
-int RR::TS = 0; 
-int RR::RTF = 0;
+
 
