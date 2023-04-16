@@ -1,11 +1,9 @@
 #pragma once
-#include "Processor.h"
 #include "Process.h"
 #include "UI.h"
 #include "PriorityQueue.h"
 #include "Queue.h"
 #include "LinkedList.h"
-#include "binarySearchTree.h"
 #include <fstream>
 #include <iostream>
 #include <ostream>
@@ -28,10 +26,9 @@ class Scheduler
 	int NumProcessor;
 	double Kill, Fork, Migrate, Stealp, Avg_Util, Avg_WT, Avg_RT, Avg_TRT, pMaxW, pRTF;  //percentages
 	int Total_WT, Total_RT, Total_TRT;
-	int NR,NF ,NS , RRtime, RTF, MaxW, STL, NumProcess, AT ;
-	double Pfork;
+	int NR,NF ,NS , STL, NumProcess, AT ;
 	bool isFileLoaded; // File load boolean
-	Queue <Process> NewQueue;
+	Queue <Process*> NewQueue;
 	Queue <Process*> TerminatedQueue;
 	Queue <Process*> BLKQueue;
 public :
@@ -53,7 +50,7 @@ public :
 	void addtotermination();
 	void addtoBlock();
 	//	INPUT-OUTPUT functions
-	//void Output(int currenttime); // link between print functions from UI class and scheduler class so we maintain classes responsibility
+	void Output(int currenttime); // link between print functions from UI class and scheduler class so we maintain classes responsibility
 	void LoadFile(); // load inputs for memebers 
 	~Scheduler();
 };
