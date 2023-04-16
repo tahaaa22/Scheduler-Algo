@@ -1,144 +1,52 @@
 #pragma once
-#include "Node.h"
-#include <iostream>
-using namespace std;
-
-template <typename T>
-class Queue
+template<typename T>
+class SNode
 {
 private:
-	Node<T>* front;
-	Node<T>* back;
-	int itemCount;
+	T data1; // first data item (can be any complex sturcture)
+	T data2; // second data item (can be any complex sturcture)
+	SNode<T>* next; // Pointer to next node
 public:
-	Node<T> * getHead()
+
+	SNode() //default constructor
 	{
-		return front;
+		next = nullptr;
 	}
 
-
-	/*
-	* Function: Queue.
-	* The Queue Constructor.
-	*/
-	Queue()
+	SNode(T Item1, T Item2) //non-default constructor
 	{
-		front = back = nullptr;
-		itemCount = 0;
+		data1 = Item1;
+		data2 = Item2;
+		next = nullptr;
+
 	}
 
-	/*
-	* Function: ~Queue.
-	* The Queue Destructor.
-	*/
-	~Queue()
+	void setFirstItem(T Item1)
 	{
-		while (front)
-		{
-			T temp;
-			dequeue(temp);
-		}
-		itemCount = 0;
-	}
-
-	/*
-	* Function: enqueue.
-	* Inserts a value at the beginning of the LinkedList.
-	*
-	* Parameters:
-	*	- value : The value to be inserted in the LinkedList.
-	*/
-	void enqueue(T value)
+		data1 = Item1;
+	} // end set first Item
+	void setSecondItem(T Item2)
 	{
-		Node<T>* temp = new Node<T>(value);
-		if (!temp)
-			return;
-		if (isEmpty())
-		{
-			front = back = temp;
-			itemCount++;
-		}
-		else
-		{
-			back->setNext(temp);
-			back = temp;
-			itemCount++;
-		}
-	}
+		data2 = Item2;
+	} // end set second Item
 
-	/*
-	* Function: dequeue.
-	* Removes the first element in the queue and assigns it to the a given reference variable of type T.
-	*
-	* Parameters:
-	*	- value : This will hold the value of the first element in the queue.
-	*/
-	void dequeue(T& value)
+	void setNext(SNode <T>* nextNodePtr)
 	{
-		if (isEmpty())
-			return;
-		value = front->getItem();
-		Node<T>* delPtr = front;
-		front = front->getNext();
-		delPtr->setNext(nullptr);
-		delete delPtr;
-		delPtr = nullptr;
-		itemCount--;
-	}
+		next = nextNodePtr;
+	} // end setNext
 
-	/*
-	* Function: peek.
-	* Assigns the value of the first element in the queue to a reference variable of type T.
-	*
-	* Parameters:
-	*	- value : This will hold the value of the first element in the queue.
-	*/
-	void peek(T& value) const
+	T getFirstItem()
 	{
-		if (isEmpty())
-			return;
-		else
-			value = front->getItem();
-	}
+		return data1;
+	} // end get first Item
 
-	/*
-	* Function: isEmpty.
-	* Checks Whether the queue is empty.
-	*
-	* Returns: boolean.
-	*/
-	bool isEmpty() const
+	T getSecondItem()
 	{
-		return front == nullptr;
-	}
+		return data2;
+	} // end getItem
 
-	int getCount() const
+	SNode<T>* getNext()
 	{
-		return itemCount;
+		return next;
 	}
-
-	void Print() const
-	{
-		if (isEmpty())
-			return;
-
-		Node<T>* curQPtr = front;
-		while (curQPtr)
-		{
-			cout << curQPtr->getItem();
-			if (curQPtr->getNext())
-				cout << ", ";
-			curQPtr = curQPtr->getNext();
-		}
-	}
-
-	void clear()
-	{
-		while (front)
-		{
-			T temp;
-			dequeue(temp);
-		}
-		itemCount = 0;
-	}
-};
+}; // end Node
