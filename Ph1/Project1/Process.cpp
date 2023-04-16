@@ -1,5 +1,9 @@
 #include "Process.h"
-
+#include <fstream>
+#include <iostream>
+#include <istream>
+#include <ostream>
+using namespace std; 
 
 Process::Process(){}
 Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT), PID(ID), CPUtime(CT), No_of_IO(Num), IO_queue(N)
@@ -102,9 +106,14 @@ void Process::execute(int currentTimeStep)  // decrement cpu at each time step
         }
     }
 }
-Process Process:: load(ifstream& inputFile)
+void print()
+{
+
+}
+Process *Process:: load(ifstream& inputFile)
 {
     int AT, ID, CT, N;
+    char c;
     SQueue<int> IO_queue;
     inputFile >> AT;
     inputFile >> ID;
@@ -112,12 +121,17 @@ Process Process:: load(ifstream& inputFile)
     inputFile >> N;
     for (int i = 0; i < N; i++)
     {
-        int IO_R, IO_D;
+        int IO_R=0, IO_D=0;
+        inputFile >> IO_R;
+        inputFile >> c;
+        inputFile >> IO_D;
         IOpairs = new SNode<int>(IO_R, IO_D);
-        IO_queue.enqueue({ IOpairs });
+         IO_queue.enqueue({ IOpairs });
     }
+    Process* Pp;
      Process p(AT, ID, CT, N, IO_queue);
-     return p;
+     Pp = & p;
+     return Pp;
 }
 /*void Process::load()
 {
@@ -180,16 +194,12 @@ void Process::completeIO(int currentTimeStep)
 /*ostream& operator<<(ostream& output, Process* p1)
 {
     output << "PID: " << p1->PID << "\n";
-    output << "Arrival time: " << p1->ArrivalTime << "\n";
+    /*output << "Arrival time: " << p1->ArrivalTime << "\n";
     output << "CPU time: " << p1->CPUtime << "\n";
-    output << "Input/Output duration: " << p1->InputDuration << "\n";
     output << "Response time: " << p1->ResponseTime << "\n";
     output << "Termination time: " << p1->TerminationTime << "\n";
     output << "Turnaround duration: " << p1->getTurnaroundDuration() << "\n";
-    output << "Waiting time: " << p1->waitingTime << "\n";
-    output << "Blocked: " << (p1->getisBlocked() ? "Yes" : "No") << "\n";
-    output << "Finished: " << (p1->getisFinished() ? "Yes" : "No") << "\n";
-    return output;
-}*/
-
+    output << "Waiting time: " << p1->waitingTime << "\n";*/
+ //   return output;
+//}
 Process::~Process(){}
