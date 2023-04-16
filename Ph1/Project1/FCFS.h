@@ -5,6 +5,7 @@
 #include "Processor.h"
 #include "LinkedList.h"
 #include "StructQueue.h"
+#include "Node.h"
 using namespace std;
 
 class FCFS : public Processor
@@ -15,20 +16,39 @@ private:
 	LinkedList<Process*> RDY;
 	double fork; //fork probability
 	SQueue<int> killSig; //Kill Signal Time 
-	static int MaxW; //to use for check in migration
-	static int forkprob;
+	int MaxW; //to use for check in migration
+	double forkprob;
 public:
+	FCFS( int m=0, double f=0)
+	{
+		MaxW = m;
+		forkprob = f;
+		settype('f');
+	}
 	void  Check_Kill(int timestep) {} //will be added in phase 2
 	bool CheckMaxW(Process* p) {} //will be added in phase 2 used for migration
-	virtual void addToReadyQueue(Process* process) //inserting a process to the RDY 
+
+	virtual void addToReadyQueue(Process *process) //inserting a process to the RDY 
 	{
 		RDY.insertNode(process);
+	}
+	
+	virtual void ReadyIDs()
+	{
+		Node<Process*>* temp = RDY.getHead();
+		while (temp) {
+			Process* te = temp->getItem();
+			int id=te->getPID();
+			cout << id;
+			temp = temp->getNext();
+		}
 	}
 	virtual Process* getNextProcess()   //getting the process that should be moved to RUN 
 	{
 		if (!RDY.isEmpty())
 		{
-			return RDY.GetHead();
+			return RDY.getHead()->getItem();
+		
 		}
 		else
 		{
@@ -52,18 +72,36 @@ public:
 		}
 	}*/
 
-	void ScheduleAlgo(int time)
+	virtual void ScheduleAlgo(int time)
 	{
 		//Check_Kill(time); //kill at this time step if signal received at rdy
 		if (!RDY.isEmpty() && !getCurrRun()) //run empty and ready contains processes
 		{
-			Process* temp = RDY.GetHead(); //First Process In and the turn is on this Process to RUN
+			Process* temp = RDY.getHead()->getItem(); //First Process In and the turn is on this Process to RUN
 			RDY.deleteNode(); //deleting first Process as it is removed to RUN 
 			setCurrRun(temp); //setting the RUN state to this process
 		}
 		else if (getCurrRun())  //run not empty
 		{
-			getCurrRun()->execute(time);
+			if (time <= 15)
+			{
+				Process* P = getCurrRun();
+				getCurrRun()->setisBlocked(true);
+				addtoBLK(P);
+				setCurrRun(nullptr);
+			}
+			else if (time >= 20 && time <= 30)
+			{
+				addToReadyQueue(getCurrRun());
+				setCurrRun(nullptr);
+			}
+			else if (time >= 50 && time <= 60)
+			{
+				Process* P = getCurrRun();
+				addtoterminate(P);
+				setCurrRun(nullptr);
+			}
+			//getCurrRun()->execute(time);
 			//srand(0);
 			//double forkP = rand() % 100; //generate a random forking probability
 			//if (forkP == fork)         //compare the randomly generate dto the one from the input file
@@ -87,10 +125,12 @@ public:
 				getCurrRun()->setisBlocked(true);*/
 		}
 	}
-	virtual void print_rdy()
+	void print_rdy()
 	{
 		RDY.Print();
 	}
+
+
 	void Loadp(ifstream & inputFile) 
 	{
         inputFile >> MaxW;
@@ -102,7 +142,6 @@ public:
 
 
 };
-int FCFS::forkprob = 0; 
-int FCFS::Maxw = 0; 
+
 
 
