@@ -34,8 +34,9 @@ public:
 
 	bool isEmpty() const { return (head == nullptr); }
 
-	Node<T>* getHead() { return head; }
-	Node<T>* getTail() { return tail; }
+	Node <T> *getHead() { return head; }
+	T * getHead1() { return head; }
+	Node <T> * getTail() { return tail; }
 
 	int getCount() const { return count; }
 
@@ -100,8 +101,12 @@ public:
 			return true;
 		}
 	}
-
-	void insertNode(const T& p)  // insert at tail and equivalent to enqueue
+	T* getnext(Node<T>* p)
+	{
+		return p->getNext();
+	}
+	
+	void insertNode( T  p)  // insert at tail and equivalent to enqueue
 	{
 		Node<T>* Process = new Node<T>;
 		Process->setItem(p);
@@ -153,13 +158,16 @@ public:
 
 	void Print()
 	{
-		Node<T>* temp = head;
+		Node<T>* temp = getHead();
 		while (temp)
 		{
 			cout << temp->getItem() << endl;
 			temp = temp->getNext();
 		}
 	}
+
+
+
 
 	~LinkedList()
 	{
@@ -195,19 +203,19 @@ public:
 		node1->getNext() = nullptr;
 	}*/
 
-	//Node* GetNode(T& p)
-	//{
-	//	Node<T>* temp = head; //ptr used for traversing the linkedList
-	//	if (isEmpty()) //empty linked list
-	//	{
-	//		return nullptr;
-	//	}
-	//	while (temp->getNext())  //by th end of the loop temp will point to the last node
-	//	{
-	//		temp = temp->getNext();
-	//	}
-	//	return temp;
-	//}
+	/*Node* GetNode(T& p)
+	{
+		Node<T>* temp = head; //ptr used for traversing the linkedList
+		if (isEmpty()) //empty linked list
+		{
+			return nullptr;
+		}
+		while (temp->getNext())  //by th end of the loop temp will point to the last node
+		{
+			temp = temp->getNext();
+		}
+		return temp;
+	}*/
 
 	/*int getOccurrence(const T& item) const
 	{
