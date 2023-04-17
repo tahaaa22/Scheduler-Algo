@@ -16,8 +16,8 @@ private:
 	LinkedList<Process*> RDY;
 	double fork; //fork probability
 	SQueue<int> killSig; //Kill Signal Time 
-	int MaxW; //to use for check in migration
-	double forkprob;
+	static int MaxW; //to use for check in migration
+	static double forkprob;
 public:
 	FCFS( int m=0, double f=0)
 	{
@@ -131,14 +131,8 @@ public:
 	}
 
 
-	void Loadp(ifstream & inputFile) 
-	{
-        inputFile >> MaxW;
-	}
-	void Loadpf(ifstream & inputFile) 
-	{
-        inputFile >> forkprob ;
-	}
+	static void Loadp(ifstream & inputFile);
+	static void Loadpf(ifstream & inputFile);
 
 
 };
