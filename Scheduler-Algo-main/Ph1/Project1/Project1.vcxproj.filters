@@ -1,0 +1,102 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Data Structures">
+      <UniqueIdentifier>{ffab83f6-d98b-4b57-8a31-bc3b6df35864}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="UI">
+      <UniqueIdentifier>{ed181bf5-7801-4d7f-84c0-471ea340091d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Processor">
+      <UniqueIdentifier>{0ba3f52e-2f5a-4037-a374-6252d81f83b9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Processes">
+      <UniqueIdentifier>{5f8f67c3-a13c-4e9d-91dd-178decd08dc1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="scheduler">
+      <UniqueIdentifier>{101bde43-5434-4c8c-a8fe-cf977d8967a9}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="Node.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="PQnode.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="PriorityQueue.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Queue.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="LinkedList.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="UI.h">
+      <Filter>UI</Filter>
+    </ClInclude>
+    <ClInclude Include="Process.h">
+      <Filter>Processes</Filter>
+    </ClInclude>
+    <ClInclude Include="FCFS.h">
+      <Filter>Processor</Filter>
+    </ClInclude>
+    <ClInclude Include="RR.h">
+      <Filter>Processor</Filter>
+    </ClInclude>
+    <ClInclude Include="SJF.h">
+      <Filter>Processor</Filter>
+    </ClInclude>
+    <ClInclude Include="binarySearchTree.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="Scheduler.h">
+      <Filter>scheduler</Filter>
+    </ClInclude>
+    <ClInclude Include="SearchTreeNode.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="StructNode.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+    <ClInclude Include="StructQueue.h">
+      <Filter>Data Structures</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="UI.cpp">
+      <Filter>UI</Filter>
+    </ClCompile>
+    <ClCompile Include="Processor.h">
+      <Filter>Processor</Filter>
+    </ClCompile>
+    <ClCompile Include="Process.cpp">
+      <Filter>Processes</Filter>
+    </ClCompile>
+    <ClCompile Include="Scheduler.cpp">
+      <Filter>scheduler</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FCFS.cpp">
+      <Filter>Processor</Filter>
+    </ClCompile>
+    <ClCompile Include="RR.cpp">
+      <Filter>Processor</Filter>
+    </ClCompile>
+  </ItemGroup>
+</Project>
