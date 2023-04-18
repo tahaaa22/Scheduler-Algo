@@ -12,7 +12,7 @@ public:
 	int count;
 	LinkedList() : head(nullptr), tail(nullptr), count(0) {}
 
-	bool isEmpty() const { return (head == nullptr); }
+	bool isEmpty() const { return tail == nullptr; }
 
 	Node <T> *getHead() { return head; }
 	T * getHead1() { return head; }

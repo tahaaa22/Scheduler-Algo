@@ -69,7 +69,7 @@ void UI::Print2(Queue<Process*> BLKqueue, int BLKcount)
 	cout << "--------------------BLK processes--------------------" << endl;
 	cout << BLKcount << " BLK: ";
 	BLKqueue.Print();
-	cout << ", ";
+	
 	
 }
 void UI::Print3(int NumProcessor, Processor** ArrP)
@@ -93,12 +93,12 @@ void UI::Print3(int NumProcessor, Processor** ArrP)
 	}
 	cout << endl;
 }
-void UI::Print4(Queue<Process*> TRMqueue, int trmcount)
+void UI::Print4(Queue<Process*> TRMqueue, int trmcount )
 {
 	cout << "--------------------TRM processes--------------------" << endl;
 	cout << trmcount << " TRM: ";
 	TRMqueue.Print();
-	cout << ", ";
+	
 }
 // Silent Mode
 void UI::printBeforeSim()

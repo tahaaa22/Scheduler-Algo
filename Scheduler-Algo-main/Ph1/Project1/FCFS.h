@@ -27,42 +27,37 @@ public:
 	}
 
 
-	bool To_Kill (int timestep) //cannot be done in LinkedList.h as I need getPID fn of process (depends on T)
+	bool To_Kill (int timestep , int  numprocesses) //cannot be done in LinkedList.h as I need getPID fn of process (depends on T)
 	{
-		if (!RDY.isEmpty())
-		{
-
 			srand(timestep);
-			int randomPID = rand() % getRDYCount(); //generates a random ID
+			int randomPID = rand() % numprocesses ; //generates a random ID
 			Node<Process*>* temp = RDY.getHead();
 			while (temp) //traversing the RDY list until I found the process with that ID
 			{
 				if (temp->getItem()->getPID() == randomPID)
 				{
 					Process* p = temp->getItem();
-					addtoterminate(p); //terminate this process
+					addterminate(p); //terminate this process
 					RDY.deleteNode(p); //delete it from RDY List
 					return true;
 				}
 				temp = temp->getNext();
 			}
-		}
 		return false;
 	}
-
-
-
-	virtual void ScheduleAlgo(int time)
+	
+	virtual void ScheduleAlgo(int time , int Num)
 	{
-		bool kill = To_Kill(time);   //terminates a random process
-		//Check_Kill(time); //kill at this time step if signal received at rdy
-		if (!RDY.isEmpty() && ! isBusy()) //run empty and ready contains processes
+		bool kill = To_Kill(time, Num);   //terminates a random process
+		//Check_Kill(time); // kill at this time step if signal received at rdy
+		if (!RDY.isEmpty() && !getCurrRun()) //run empty and ready contains processes
 		{
 			Process* temp = RDY.getHead()->getItem(); //First Process In and the turn is on this Process to RUN
 			RDY.deleteNode(); //deleting first Process as it is removed to RUN 
-			setCurrRun(temp); //setting the RUN state to this process
+			setCurrRun(temp); //setting the RUN state to this 
+			
 		}
-		else if (isBusy())  //run not empty
+		else if (getCurrRun())  //run not empty
 		{
 			if (time <= 15)
 			{
@@ -76,7 +71,7 @@ public:
 				addToReadyQueue(getCurrRun());
 				setCurrRun(nullptr);
 			}
-			else if (time >= 50 && time <= 60 && ! kill) //&& kill - taha sheltaha
+			else if (time >= 50 && time <= 60)
 			{
 				Process* P = getCurrRun();
 				addtoterminate(P);
@@ -128,18 +123,18 @@ public:
 	}
 
 
-	virtual Process* getNextProcess()   //getting the process that should be moved to RUN 
-	{
-		if (!RDY.isEmpty())
-		{
-			return RDY.getHead()->getItem();
-		
-		}
-		else
-		{
-			return nullptr;
-		}
-	}
+	//virtual Process* getNextProcess()   //getting the process that should be moved to RUN 
+	//{
+	//	if (!RDY.isEmpty())
+	//	{
+	//		return RDY.getHead()->getItem();
+	//	
+	//	}
+	//	else
+	//	{
+	//		return nullptr;
+	//	}
+	//}
 	/*void CheckAndKill(int time) //traverse LinkedList to check if any process received kill Signal
 	{
 		Node <Process*>* traverse = RDY.head;  //ptr used to traverse RDY

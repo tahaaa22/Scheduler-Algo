@@ -15,7 +15,7 @@
 using namespace std;
 class Scheduler
 {
-	Processor** ArrP;
+	Processor ** ArrP  ;
 	RR* pr;
 	FCFS* pf;
 	SJF* ps;
@@ -44,13 +44,14 @@ public :
 	Processor* getMaxProcessor();
 	Processor* getMinProcessor();
 	void  HandleBlk(int currenttime);
-	void Mode(); // read modes from UI class to make different implementation for each mode
+	void Simulation(); // read modes from UI class to make different implementation for each mode
 	bool allTerminated(); // check if the terminated queue has equal number of processes entered to stop simulation 
 	void Simulation(int currenttime);
-	void addtotermination();
+	//void addtotermination();
 	void addtoBlock();
 	//	INPUT-OUTPUT functions
 	void Output(int currenttime); // link between print functions from UI class and scheduler class so we maintain classes responsibility
 	void LoadFile(); // load inputs for memebers 
+	
 	~Scheduler();
 };

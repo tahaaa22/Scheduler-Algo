@@ -31,7 +31,7 @@ public:
 	void Print1(int time, int NumProcessor, Processor** ArrP, int NF, int NS, int NR);
 	void Print2(Queue<Process*> BLKqueue, int BLKcount);
 	void Print3(int NumProcessor, Processor** ArrP);
-	void Print4(Queue<Process*>  TRMqueue, int trmcount);
+	void Print4(Queue<Process*>  TRMqueue, int trmcount );
 	// Silent Mode
 	void printBeforeSim();
 	void printAfterSim();

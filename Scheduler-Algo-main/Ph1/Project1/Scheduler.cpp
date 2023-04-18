@@ -14,7 +14,7 @@
 		TimeStep = 0;
 		char type=0;
 	}
-	void Scheduler::Mode()
+	void Scheduler::Simulation()
 	{
 		LoadFile();
 		NumProcessor = NF + NS + NR;
@@ -28,11 +28,10 @@
 		if (mode == 1)
 		{
 			bool isallterminated = allTerminated();	//simulation is working // btba b 0 fl awl
-			//isallterminated && ana 3mltha
+			
 		
 			while (!isallterminated && isFileLoaded)
 			{
-				addtotermination();
 				Simulation(TimeStep);
 				addtoBlock();
 				HandleBlk(TimeStep);
@@ -51,8 +50,6 @@
 
 			while (!isallterminated && isFileLoaded)
 			{
-			
-				addtotermination();
 				Simulation(TimeStep);
 				addtoBlock();
 				HandleBlk(TimeStep);
@@ -60,7 +57,7 @@
 
 				// PRINTING //
 				Output(TimeStep);
-				Sleep(5);		//Wait for 1 second
+				Sleep(25);		//Wait for 1 second
 				incrementTimeStep();
 				
 			}
@@ -75,7 +72,6 @@
 
 			while (!isallterminated && isFileLoaded)
 			{
-				addtotermination();
 				Simulation(TimeStep);
 				addtoBlock();
 				isallterminated = allTerminated();
@@ -113,17 +109,6 @@
 		// Seed the random number generator with the current time
 		srand(currenttime);
 		int random = rand() % 100;
-		
-		// create processors array
-		
-		// Use an array to keep track of the available processors
-		/*Processor** availableProcessors = new Processor * [NumProcessor];
-		int numAvailableProcessors = NumProcessor;
-		for (int i = 0; i < NumProcessor; i++)
-		{
-			availableProcessors[i] = ArrP[i];
-		}*/
-
 		// Iterate through the new queue and randomly assign each process to a processor
 		Process* process;
 		NewQueue. peek(process);
@@ -131,63 +116,48 @@
 		{
 			
 			// Get the next process from the new queue
-			
-		//	random = rand() % 100;
 			// Choose a random available processor to assign the process to
 			int randomIndex = rand() % NumProcessor ;
-			Processor* processor = ArrP[randomIndex];
-			// Enqueue the process to the ready queue of the chosen processor
-			//if (processor -> getPtype() == 'f')
-			if (process->getArrivalTime() == currenttime)
+			if (randomIndex >= 0 || randomIndex < NumProcessor)
 			{
-				processor->addToReadyQueue(process);
-				NewQueue.dequeue(process);
+				Processor* processor = ArrP[randomIndex];
+				// Enqueue the process to the ready queue of the chosen processor
+				if (process->getArrivalTime() == currenttime)
+				{
+					processor->addToReadyQueue(process);
+					NewQueue.dequeue(process);
 
+				}
+				NewQueue.peek(process);
 			}
-			NewQueue.peek (process);
-			///else if (processor->getPtype() == 'r')
-			//{
-				//processor-> addToReadyQueue(process);
-			//}
-			//else if (processor->getPtype() == 's')
-			//{
-			//	processor-> addToReadyQueue(process);
-			//}
-			/*if (FCFS* fcfs = dynamic_cast<FCFS*>(processor))
-			{
-				fcfs->addToReadyQueue(process);
-			}
-			else if (RR* rr = dynamic_cast<RR*>(processor))
-			{
-				rr->addToReadyQueue(process);
-			}
-			else if (SJF* sjf = dynamic_cast<SJF*>(processor))
-			{
-				sjf->addToReadyQueue(process);
-			}*/
-			// Remove the chosen processor from the available processors array
-		//	availableProcessors[randomIndex] = availableProcessors[numAvailableProcessors - 1];
-		//	numAvailableProcessors--; // remove it ya taha in phase 2 for equality if not needed
 		}
 			// Choose a random available processor to assign the process to
+		Process* Pts = NULL;
+		Process* ts = NULL;
 		for (int i = 0; i < NumProcessor; i++)
 		{
 			Processor* proc = ArrP[i];
 			if (proc)
-			proc->ScheduleAlgo(random);
-		
-			//if (FCFS* fcfs = dynamic_cast<FCFS*>(ArrP[i]))
-			//{
-			
-		    //	}
-			//else if (RR* rr = dynamic_cast<RR*>(ArrP[i]))
-			//{
-			//	rr->ScheduleAlgo(random);
-			//}
-			//else if (SJF* sjf = dynamic_cast<SJF*>(ArrP[i]))
-			//{
-			//	sjf->ScheduleAlgo(random);
-			//}
+			proc->ScheduleAlgo(random, NumProcess);
+			Pts = ArrP[i]->getTerminated();
+			ts = ArrP[i]->getkilltem();
+			if (Pts != NULL && ts != NULL)
+			{
+				TerminatedQueue.enqueue(ts);
+				ArrP[i]->addterminate(NULL);
+				TerminatedQueue.enqueue(Pts);
+				ArrP[i]->addtoterminate(NULL);
+			}
+			else if (Pts != NULL)
+			{
+				TerminatedQueue.enqueue(Pts);
+				ArrP[i]->addtoterminate(NULL);
+			}
+			else if(ts != NULL)
+			{
+				TerminatedQueue.enqueue(ts);
+				ArrP[i]->addterminate(NULL);
+			}
 		}
 					
 	}
@@ -231,21 +201,20 @@
 	}
 	void  Scheduler::HandleBlk(int currenttime) 
 	{
-		for (int i = 0; i < NumProcessor; i++)
-		{
+		
 			if (!BLKQueue.isEmpty())
 			{
 				srand(currenttime);
+				int rad = rand() % NumProcessor;
 				int random = rand() % 100;
 				if (random <= 10)
 				{
 					Process* t;
 					BLKQueue.dequeue(t);
-					ArrP[i]->addToReadyQueue(t);
+					ArrP[rad]->addToReadyQueue(t);
 				}
 
 			}
-		}
 	}
 	void Scheduler::Output(int time)
 	{
@@ -301,22 +270,7 @@
 		
 	}
 
-	void Scheduler::addtotermination()
-	{
-		Process* Pts = NULL ;
-		for (int i = 0; i < NumProcessor; i++)
-		{
-			Pts = ArrP[i]->getTerminated();
-			if (Pts != NULL)
-			{
-				
-				TerminatedQueue.enqueue(Pts);
-				ArrP[i]->addtoterminate(NULL);
-		
-			}
-		}
-
-	}
+	
 	void Scheduler::addtoBlock()
 	{
 		Process* Pbs = NULL;

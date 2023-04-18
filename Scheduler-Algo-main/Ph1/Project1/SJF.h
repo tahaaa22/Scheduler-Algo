@@ -13,7 +13,7 @@ public:
     SJF() {
         settype('s');
     }
-    
+ 
     void addToReadyQueue(Process *p1) //inserting a process to the RDY 
     {
       
@@ -45,7 +45,8 @@ public:
         }
         */
  //   }
-    void ScheduleAlgo(int prob) {
+    void ScheduleAlgo(int prob, int  num) 
+    {
         if (!PQ.isEmpty() && !getCurrRun()) {
             Process* temp;
             PQ.dequeue(temp);
@@ -70,6 +71,7 @@ public:
             }
         }
     }
+  
     /*void kill()
     {
         Process* p;
@@ -89,7 +91,7 @@ public:
         qID.Print();
     }*/
     
-     Process* getNextProcess()
+  /*   Process* getNextProcess()
      {
         if (PQ.isEmpty()) return nullptr;
         else {
@@ -97,7 +99,7 @@ public:
             PQ.peek(tmp);
             return tmp;
         }
-    }
+    }*/
      virtual void print_rdy()
     {
         PQ.Print();

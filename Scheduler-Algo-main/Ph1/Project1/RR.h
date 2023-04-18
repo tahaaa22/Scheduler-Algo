@@ -51,7 +51,7 @@ public:
 
         qID.Print();
     }*/
-    virtual void ScheduleAlgo(int time)
+    virtual void ScheduleAlgo(int time, int  num)
     {
         //rdy queue msh empty w mafya4 current bardo
         if (!RdyQueue.isEmpty() && !getCurrRun()) 
@@ -114,14 +114,14 @@ public:
        
     }
     bool CheckRTF(Process* p1);
-    Process* getNextProcess() {
+   /* Process* getNextProcess() {
         if (RdyQueue.isEmpty()) return nullptr;
         else {
             Process* temp;
             RdyQueue.peek(temp);
             return temp;
         }
-    }
+    }*/
     virtual void print_rdy()
     {
         RdyQueue.Print();
@@ -131,7 +131,7 @@ public:
     {
         return RdyQueue.getCount();
     }
-    
+
     static void Loadp(ifstream& inputFile);
 };
 

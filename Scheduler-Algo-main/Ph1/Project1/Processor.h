@@ -9,7 +9,8 @@ class Processor
 {
 private:
     Process* CurrRun;
-    Process* Terminate;
+    Process* Terminate;  ///  termination from run 
+    Process *Terminatekill;  // termination from killing 
     Process* BLK;
     char type;
     int RDY_Length;        //increasses when new process is added and decreases during run or steal etc.
@@ -27,6 +28,15 @@ public:
         Total_CPUtime = 0;
         Total_TRT = 0;
 
+    }
+     void addterminate(Process* pro)  //kill for FCFS
+    {
+         Terminatekill = pro;
+    
+    }
+     Process* getkilltem() // get killed process to termination
+    {
+        return Terminatekill;
     }
     void addtoterminate(Process* p)  //rename to setTerminate after debugging
     {
@@ -63,10 +73,11 @@ public:
     //    }
     //    return;
     //}
+   
     virtual int getRDYCount() = 0;
-    virtual Process* getNextProcess() = 0;       
+   // virtual Process* getNextProcess() = 0;       
     virtual void addToReadyQueue(Process *process) = 0;  // processor or scheduler
-    virtual void ScheduleAlgo(int time) = 0;  //new
+    virtual void ScheduleAlgo(int time, int  num) = 0;  //new
     virtual void print_rdy() = 0;
     void setCurrRun(Process* p)
     {     //new
@@ -98,7 +109,7 @@ public:
     //      if (RDY_Length == 0) return false;
     //      else return true;
     //  }*/
-    bool isBusy() // return true of currrun if working 
+    bool isBusy() // return true of currrun if working // dh feha 8lt need fix 
     {
         if (CurrRun) return true;
         return false;
