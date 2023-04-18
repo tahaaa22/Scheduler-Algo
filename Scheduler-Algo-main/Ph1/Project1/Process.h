@@ -48,6 +48,6 @@ public:
      //Process newcreation(int AT, int ID, int CT, SQueue<int> N);
     //void requestIO(int currentTimeStep, int inputRequestTime);
     //void completeIO(int currentTimeStep);
-  // friend ostream& operator<<(ostream& output,  Process* p1);
+  friend ostream& operator<<(ostream& output,  Process* p1);
     ~Process();    
 };

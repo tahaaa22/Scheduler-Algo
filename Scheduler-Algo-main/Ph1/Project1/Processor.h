@@ -9,6 +9,8 @@ class Processor
 {
 private:
     Process* CurrRun;
+    Process* Terminate;
+    Process* BLK;
     char type;
     int RDY_Length;        //increasses when new process is added and decreases during run or steal etc.
     int BusyCount;     //incremented every time step during running
@@ -26,25 +28,42 @@ public:
         Total_TRT = 0;
 
     }
-    virtual void ReadyIDs() = 0;   // it fills qID AND CALLS print of DS
-   
-    virtual void addtoBLK(Process*& process)
+    void addtoterminate(Process* p)  //rename to setTerminate after debugging
     {
-        if (getCurrRun() != NULL)
-        {
-           // if (getCurrRun()->getisBlocked())
-                process = getCurrRun();
-        }
+        Terminate = p;
     }
-    virtual void addtoterminate(Process* & process)
+    Process* getTerminated()
     {
-        if (getCurrRun() != NULL)
-        {
-           //if (getCurrRun()->getisFinished())
-                process = getCurrRun();
-        }
-        return;
+        return Terminate;
     }
+    //virtual void ReadyIDs() = 0;   // it fills qID AND CALLS print of DS
+    void addtoBLK(Process* process)
+    {
+        BLK = process;
+    }
+    Process* getBLK()
+    {
+        return BLK;
+    }
+
+    //virtual void addtoBLK(Process*& process)
+    //{
+    //    if (getCurrRun() != NULL)
+    //    {
+    //       // if (getCurrRun()->getisBlocked())
+    //            process = getCurrRun();
+    //    }
+    //}
+    //virtual void addtoterminate(Process* & process)
+    //{
+    //    if (getCurrRun() != NULL)
+    //    {
+    //       //if (getCurrRun()->getisFinished())
+    //          //  process = getCurrRun();
+    //    }
+    //    return;
+    //}
+    virtual int getRDYCount() = 0;
     virtual Process* getNextProcess() = 0;       
     virtual void addToReadyQueue(Process *process) = 0;  // processor or scheduler
     virtual void ScheduleAlgo(int time) = 0;  //new
@@ -57,24 +76,32 @@ public:
     {      //new 
         return CurrRun;
     }
-    virtual int readycount() = 0;
-    int getRDY_Length() {
+   // virtual int readycount() = 0;
+    int getRDY_Length()
+    {
         return RDY_Length;
     }
 
-    char gettype() {
+    char gettype() 
+    {
         return type;
     }
 
-    void settype(char a) {
+    void settype(char a) 
+    {
         type = a;
     }
+    virtual char getPtype() = 0;
 
-    
-
-    bool isBusy() {
-        if (RDY_Length == 0) return false;
-        else return true;
+    ///*  bool isBusy() 
+    //  {
+    //      if (RDY_Length == 0) return false;
+    //      else return true;
+    //  }*/
+    bool isBusy() // return true of currrun if working 
+    {
+        if (CurrRun) return true;
+        return false;
     }
 
     void incrementBusyCount() {
@@ -84,7 +111,7 @@ public:
     int getTotal_TRT() {
         return Total_TRT;
     }
-
+    //friend ostream& operator<<(ostream& output, Processor * p1);
 
     ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
     ////me7tag as2al mo3ed 3ala haga hena / momken tet3ml btare2a tanya ashal b kteer gowa kol processor fa lama a4ofoko ha2oloko yarab afteker bs

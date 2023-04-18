@@ -190,15 +190,15 @@ void Process::completeIO(int currentTimeStep)
 }
 */
 
-/*ostream& operator<<(ostream& output, Process* p1)
+ostream& operator<<(ostream& output, Process* p1)
 {
-    output << "PID: " << p1->PID << "\n";
+    output << p1->PID << " ";
     /*output << "Arrival time: " << p1->ArrivalTime << "\n";
     output << "CPU time: " << p1->CPUtime << "\n";
     output << "Response time: " << p1->ResponseTime << "\n";
     output << "Termination time: " << p1->TerminationTime << "\n";
     output << "Turnaround duration: " << p1->getTurnaroundDuration() << "\n";
     output << "Waiting time: " << p1->waitingTime << "\n";*/
- //   return output;
-//}
+   return output;
+}
 Process::~Process(){}

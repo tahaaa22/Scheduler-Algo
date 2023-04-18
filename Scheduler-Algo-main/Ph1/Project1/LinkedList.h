@@ -165,7 +165,7 @@ public:
 		Node<T>* temp = getHead();
 		while (temp)
 		{
-			cout << temp->getItem() << endl;
+			cout << temp->getItem() ;
 			temp = temp->getNext();
 		}
 	}

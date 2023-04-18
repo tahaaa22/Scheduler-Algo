@@ -150,6 +150,7 @@
     <ClCompile Include="Processor.h" />
     <ClCompile Include="RR.cpp" />
     <ClCompile Include="Scheduler.cpp" />
+    <ClCompile Include="SJF.cpp" />
     <ClCompile Include="UI.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

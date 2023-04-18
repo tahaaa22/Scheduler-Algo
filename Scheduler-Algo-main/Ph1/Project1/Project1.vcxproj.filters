@@ -98,5 +98,8 @@
     <ClCompile Include="RR.cpp">
       <Filter>Processor</Filter>
     </ClCompile>
+    <ClCompile Include="SJF.cpp">
+      <Filter>Processor</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

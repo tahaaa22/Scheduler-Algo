@@ -32,7 +32,7 @@ class Scheduler
 	Queue <Process*> TerminatedQueue;
 	Queue <Process*> BLKQueue;
 public :
-	
+	void full();
 	Scheduler();
 	void incrementTimeStep();
 	int getTimeStep();
@@ -43,7 +43,7 @@ public :
 	void Forking();
 	Processor* getMaxProcessor();
 	Processor* getMinProcessor();
-	bool HandleBlk();
+	void  HandleBlk(int currenttime);
 	void Mode(); // read modes from UI class to make different implementation for each mode
 	bool allTerminated(); // check if the terminated queue has equal number of processes entered to stop simulation 
 	void Simulation(int currenttime);

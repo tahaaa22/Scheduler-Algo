@@ -7,7 +7,8 @@ using namespace std;
 class RR : public Processor
 {
 private:
-    Queue <int> qID;
+    static char Ptype;
+    //Queue <int> qID;
     Queue<Process*> RdyQueue;
    static int TS;    //Timeslice
    static int RTF;
@@ -18,10 +19,14 @@ public:
         Curtime = 0;   
         settype('r');
     }
-    virtual int readycount()
+    char getPtype()
+    {
+        return Ptype;
+    }
+   /* virtual int readycount()
     {
         return qID.getCount();
-    }
+    }*/
     virtual void addToReadyQueue(Process* p1)
     {
        
@@ -32,7 +37,7 @@ public:
     {
         TS = t;
     }
-    virtual void ReadyIDs()
+  /*  virtual void ReadyIDs()
     {
         int n = RdyQueue.getCount();
         for (int i = 0; i < n; i++)
@@ -43,9 +48,9 @@ public:
             qID.enqueue(id);
             RdyQueue.enqueue(temp);
         }
-        cout << qID.getCount();
+
         qID.Print();
-    }
+    }*/
     virtual void ScheduleAlgo(int time)
     {
         //rdy queue msh empty w mafya4 current bardo
@@ -60,7 +65,7 @@ public:
             if (time <= 15)
             {
                 Process* P = getCurrRun();
-                getCurrRun()->setisBlocked(true);
+               P->setisBlocked(true);
                 addtoBLK(P);
                 setCurrRun(nullptr);
             }
@@ -121,6 +126,10 @@ public:
     {
         RdyQueue.Print();
 
+    }
+   virtual  int getRDYCount()
+    {
+        return RdyQueue.getCount();
     }
     
     static void Loadp(ifstream& inputFile);

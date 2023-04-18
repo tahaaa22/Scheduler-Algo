@@ -4,9 +4,11 @@
 class SJF : public Processor
 {
 private:
-    Queue <int> qID;
+    //Queue <int> qID;
     PriorityQueue<Process*> PQ;
     int curenttime;
+    static char Ptype ;
+
 public:
     SJF() {
         settype('s');
@@ -19,10 +21,15 @@ public:
  
         
     }
-    virtual int readycount()
+    char getPtype()
+    {
+        return Ptype;
+    }
+
+  /*  virtual int readycount()
     {
         return qID.getCount();
-    }
+    }*/
     
    /* void ScheduleAlgo(int time)
     {
@@ -63,19 +70,24 @@ public:
             }
         }
     }
-    virtual void ReadyIDs()
+    /*void kill()
+    {
+        Process* p;
+        PQ.dequeue(p);
+        addtoterminate(p);
+    }*/
+    /*virtual void ReadyIDs()
     {
         Process* temp;
-        for (int i = 0; i < getRDY_Length(); i++)
+        for (int i = 0; i < PQ.getCount(); i++)
         {
             PQ.dequeue(temp);
             int id = temp->getPID();
             qID.enqueue(id);
-            PQ.enqueue (temp, temp->gettimeRemaining());
+            PQ.enqueue(temp, temp->gettimeRemaining());
         }
-        cout << qID.getCount();
-        qID. Print();
-    }
+        qID.Print();
+    }*/
     
      Process* getNextProcess()
      {
@@ -93,6 +105,10 @@ public:
     
     void Loadp(ifstream & inputFile) {
         return;
+    }
+   virtual  int getRDYCount()
+    {
+        return PQ.getCount();
     }
     
 };

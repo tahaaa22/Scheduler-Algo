@@ -33,12 +33,12 @@ public:
 	*/
 	~Queue()
 	{
-		while (front)
+		/*while (front)
 		{
 			T temp;
 			dequeue(temp);
 		}
-		itemCount = 0;
+		itemCount = 0;*/
 	}
 
 	/*

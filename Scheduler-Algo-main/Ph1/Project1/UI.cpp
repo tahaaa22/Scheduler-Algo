@@ -10,7 +10,7 @@ UI::UI()
 
 void UI::clear()
 {
-	//system("CLS"); //clear console 
+	system("CLS"); //clear console 
 }
 
 //Reading the required mode
@@ -38,45 +38,36 @@ void UI:: Print1 (int time, int NumProcessor, Processor ** ArrP , int NF, int NS
 	cout << "--------------------RDY processes--------------------" << endl;	
 		for (int i = 0; i < NumProcessor; i++)
 		{
-			if (i < NF)
+			if (ArrP[i] != NULL)
 			{
-				cout << "Processor " << i + 1 << "[FCFS]";
-				cout << " " << pf->readycount();
-				pf->ReadyIDs();
-				cout << endl;
-			}
-			else if (i < NF + NS)
-			{
-				cout << "Processor " << i + 1 << "[SJF]";
-				
-				cout << " " << ps->readycount();
-				ps->ReadyIDs();
-				cout << endl;
-			}
-			else
-			{
-				cout << "Processor " << i + 1 << "[RR]";
-				cout << " " << pr->readycount();
-				pr->ReadyIDs();
-				cout << endl;
+				if (i < NF)//&& ArrP[i] != NULL
+				{
+					cout << "Processor " << i + 1 << "[FCFS]";
+					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
+					ArrP[i]->print_rdy();
+					cout << endl;
+				}
+				else if (i < NF + NS )//&& ArrP[i] != NULL
+				{
+					cout << "Processor " << i + 1 << "[SJF]";
+					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
+					ArrP[i]->print_rdy();
+					cout << endl;
+				}
+				else
+				{
+					cout << "Processor " << i + 1 << "[RR]";
+					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
+					ArrP[i]->print_rdy();
+					cout << endl;
+				}
 			}
 		}
-	/*cout << "Current Timestep:" << time << endl;
-	cout << "--------------------RDY processes--------------------" << endl;
-	cout << "processor 1 [FCFS]:" << NF << "RDY: ";
-	pf->print_rdy();
-	cout << ", " << endl;
-	cout << "processor 2 [SJF]:" << NS << "RDY: " ;
-	ps->print_rdy();
-	cout << ", " << endl;
-	cout << "processor 3 [RR]:" << NR << "RDY: ";
-	pr->print_rdy();
-	cout << ", " << endl;*/
 }
 void UI::Print2(Queue<Process*> BLKqueue, int BLKcount)
 {
 	cout << "--------------------BLK processes--------------------" << endl;
-	cout << BLKcount << "BLK: ";
+	cout << BLKcount << " BLK: ";
 	BLKqueue.Print();
 	cout << ", ";
 	
@@ -94,18 +85,18 @@ void UI::Print3(int NumProcessor, Processor** ArrP)
 	
 	cout << endl;
 	cout << "--------------------RUN processes--------------------" << endl;
-	cout << count << "RUN: ";
+	cout << count << " RUN: ";
 	for (int i = 0; i < NumProcessor; i++)
 	{
 		if (ArrP[i]->getCurrRun())
-		cout << ArrP[i] ->getCurrRun()->getPID()<< "(P"<<i+1<<"), ";
+		cout << ArrP[i] ->getCurrRun()->getPID() << "(P"<<i+1<<") ";
 	}
 	cout << endl;
 }
 void UI::Print4(Queue<Process*> TRMqueue, int trmcount)
 {
 	cout << "--------------------TRM processes--------------------" << endl;
-	cout << trmcount << "TRM: ";
+	cout << trmcount << " TRM: ";
 	TRMqueue.Print();
 	cout << ", ";
 }

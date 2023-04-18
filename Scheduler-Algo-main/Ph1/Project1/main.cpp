@@ -8,9 +8,6 @@ int main()
 {
 	Scheduler s;
 	s. Mode();
-    
-	
-
-
+	cout <<endl <<"Simulation endedddd :)" << endl;
 	return 0;
 }
