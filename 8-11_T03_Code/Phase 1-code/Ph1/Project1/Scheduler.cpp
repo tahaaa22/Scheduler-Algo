@@ -15,73 +15,42 @@
 		char type=0;
 	}
 	void Scheduler::Simulation()
-	{
-		LoadFile();
-		NumProcessor = NF + NS + NR;
-		full();
-		int mode;
-		mode = pUI->ReadMode();
-		cin.ignore();  //Clear any leftover characters in the input buffer
-		// create processors array
-		
-		
-		if (mode == 1)
 		{
+			LoadFile();
+			NumProcessor = NF + NS + NR;
+			full();
+			int mode;
+			mode = pUI->ReadMode();
+			cin.ignore();  //Clear any leftover characters in the input buffer
+			// create processors array
 			bool isallterminated = allTerminated();	//simulation is working // btba b 0 fl awl
-			
-		
+			if (mode == 3)
+				pUI->printBeforeSim(); // only condition for mode 3 before simulation 
 			while (!isallterminated && isFileLoaded)
 			{
 				Simulation(TimeStep);
 				addtoBlock();
 				HandleBlk(TimeStep);
 				isallterminated = allTerminated();
-				// PRINTING //
-				Output(TimeStep);
-				getchar();	// Waits for user to press "Enter" 
-				incrementTimeStep();
-				
-				
-			}
-		}//exit of while loop(program)
-		else if (mode == 2)
-		{
-			bool isallterminated = allTerminated();	//simulation is working
+				// NOW CHOOSING MODES////
+				if (mode == 1)
+				{
+					// PRINTING //
+					Output(TimeStep);
+					getchar();	// Waits for user to press "Enter" 
+				}
+				else if (mode == 2)
+				{
+					// PRINTING //
+					Output(TimeStep);
+					Sleep(25);		//Wait for second
 
-			while (!isallterminated && isFileLoaded)
-			{
-				Simulation(TimeStep);
-				addtoBlock();
-				HandleBlk(TimeStep);
-				isallterminated = allTerminated();
-
-				// PRINTING //
-				Output(TimeStep);
-				Sleep(25);		//Wait for second
-				incrementTimeStep();
-				
-			}
-
-		}
-
-		else if (mode == 3)
-		{
-			pUI->printBeforeSim();
-
-			bool isallterminated = allTerminated();		//simulation is working
-
-			while (!isallterminated && isFileLoaded)
-			{
-				Simulation(TimeStep);
-				addtoBlock();
-				HandleBlk(TimeStep);
-				isallterminated = allTerminated();
-
-				incrementTimeStep();
-			}
+				}
+				incrementTimeStep(); // finally increment time step for next loop
+		    }
+			 if (mode == 3)  //no need for bring inside loop as it is printed once
 			pUI->printAfterSim();
 		}
-	}
 	void Scheduler::full()
 	{
 		for (int i = 0; i < NumProcessor; i++)
