@@ -33,7 +33,7 @@ class Scheduler
 	Queue <Process*> TerminatedQueue;
 	Queue <Process*> BLKQueue;
 public :
-	void ahmed(Process * p);
+	void KillOrphan(Process * parent);
 	void full();
 	Scheduler();
 	void incrementTimeStep();
