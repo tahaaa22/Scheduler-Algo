@@ -136,5 +136,7 @@ public:
         }
     }
     */
-
+ /////////////////////////////////////////ADDEDDDDD BY MIMO/////////////////////////////
+    virtual Process* sigkill(int timestep, int NF) = 0;
+    
 };
