@@ -340,7 +340,7 @@
 
 	void Scheduler::RuntoTrm(Process* p) 
 	{
-		ahmed(p);
+		KillOrphan(p);
 		p->setisFinished(true);
 		TerminatedQueue.enqueue(p);
 	}
