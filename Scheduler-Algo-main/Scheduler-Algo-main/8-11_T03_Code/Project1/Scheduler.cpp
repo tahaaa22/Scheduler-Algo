@@ -14,6 +14,25 @@
 		TimeStep = 0;
 		char type=0;
 	}
+	///////////////////Added by Amira //////////////////
+	void Scheduler::fork(Process* parent)
+	{
+		Process* child = new Process(TimeStep, ID_Count + 1, parent->gettimeRemaining());
+		if (parent->getLCH() || parent->getRCH())  //There is <2 children
+		{
+			Processor* f = getMinProcessor('f', 0);
+			f->addToReadyQueue(child);
+			if (!parent->getLCH())
+			{
+				parent->setLCH(child);
+			}
+			if (!parent->getRCH())
+			{
+				parent->setRCH(child);
+			}
+		}
+	}
+	////////////////////////////////////////////////////
 	void Scheduler::KillOrphan(Process* parent)
 	{
 		if ((!parent->getLCH() && !parent->getRCH()) || !parent)
@@ -300,11 +319,6 @@
 			}
 		
 	}
-	void Scheduler::fork(Process * p)
-	{
-
-	}
-	
 	void Scheduler::addtoBlock()
 	{
 		Process* Pbs = NULL;
