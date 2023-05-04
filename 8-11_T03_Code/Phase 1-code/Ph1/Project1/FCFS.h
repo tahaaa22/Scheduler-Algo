@@ -19,6 +19,10 @@ private:
 	double fork; //fork probability
 	static int MaxW; //to use for check in migration
 	static double forkprob;
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////MARIAMMMMM////////////////////////////////////////////////////////////////////////////////////////
+	static int nf;
+
 public:
 	FCFS ( int m=0, double f=0)
 	{
@@ -26,29 +30,56 @@ public:
 	}
 
 
-	bool To_Kill (int timestep , int  numprocesses) //cannot be done in LinkedList.h as I need getPID fn of process (depends on T)
+	
+	///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+	////////////////////////////////////////////////////////MARIAMMMMM////////////////////////////////////////////////////////////////////////////////////////
+	void sigkill(int timestep, int NF)
 	{
-			srand(timestep);
-			int randomPID = rand() % numprocesses ; //generates a random ID
-			Node<Process*>* temp = RDY.getHead();
+		SNode<int> Q;
+		Q=killSig.peek();
+		int kill=Q.getFirstItem(); // get the kill time
+		int ID = Q.getSecondItem(); // get id
+		Node<Process*>* temp = RDY.getHead(); // get head
+		if (timestep == kill)
+		{
+			nf++;
+			//check lw el process dy 3ndy hena 
 			while (temp) //traversing the RDY list until I found the process with that ID
 			{
-				if (temp->getItem()->getPID() == randomPID)
+				if (temp->getItem()->getPID() == ID)
 				{
 					Process* p = temp->getItem();
 					addterminate(p); //terminate this process
 					RDY.deleteNode(p); //delete it from RDY List
-					return true;
+					break;
 				}
 				temp = temp->getNext();
 			}
-		return false;
+			if (getCurrRun())
+			{
+				int IDR = getCurrRun()->getPID();
+				if (IDR == ID)
+				{
+					addterminate(getCurrRun()); //terminate this process
+					setCurrRun(nullptr);// RUN CURRENTLY EMPTY
+				}
+
+			}
+			if (nf == NF)
+			{
+				killSig.dequeue();
+				nf = 0; 
+			}
+		}
+
+
 	}
+
+	
 	
 	virtual void ScheduleAlgo(int time , int Num)
 	{
-		bool kill = To_Kill(time, Num);   //terminates a random process
-		//Check_Kill(time); // kill at this time step if signal received at rdy
+		
 		if (!RDY.isEmpty() && !getCurrRun()) //run empty and ready contains processes
 		{
 			Process* temp = RDY.getHead()->getItem(); //First Process In and the turn is on this Process to RUN
