@@ -31,6 +31,7 @@ public:
 
 	///////might be removed if not needed/////////////
 	virtual int getRDYCount(); //number of processes in processor
+	// int CalcRdyLength();
 	//bool CheckMaxW(Process* p); // used for migration
 	////////////////////////////////////////////////////
 
