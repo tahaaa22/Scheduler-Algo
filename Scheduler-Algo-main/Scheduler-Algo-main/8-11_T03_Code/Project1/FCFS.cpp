@@ -38,7 +38,7 @@ int FCFS::getRDYCount()
 //	}
 //}
 
-void FCFS::sigkill(int timestep, int NF)
+Process* FCFS::sigkill(int timestep, int NF)
 {
 	SNode<int> Q;
 	Q = killSig.peek();
@@ -56,9 +56,10 @@ void FCFS::sigkill(int timestep, int NF)
 				Process* p = temp->getItem();
 				// killing the children and grandchildren
 				sc->KillOrphan(p);
-				addterminate(p); //terminate this process
+				//addterminate(p); //terminate this process
 				RDY.deleteNode(p); //delete it from RDY List
 				setRDY_Length(getRDY_Length() - p->getCpuTime());
+				return p;
 				break;
 			}
 			temp = temp->getNext();
