@@ -42,7 +42,6 @@ public :
 	bool Steal(int STL);
 	void MigrateToSJF();
 	void MigrateToRR();
-	void Forking();
 	Processor* getMaxProcessor();
 	Processor* getMinProcessor(char a, int n); //true gets min of all types false gets min fcfs
 	void  BlktoRdy();
