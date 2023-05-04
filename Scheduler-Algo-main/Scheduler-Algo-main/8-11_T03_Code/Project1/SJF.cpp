@@ -15,6 +15,12 @@ char  SJF::getPtype()
     return Ptype;
 }
 
+Process* SJF::sigkill(int timestep, int NF)
+{
+    return nullptr;
+}
+
+
 void  SJF::ScheduleAlgo(int time)
 {
     if (!PQ.isEmpty() && !getCurrRun()) {
