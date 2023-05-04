@@ -122,11 +122,7 @@ public:
     }
     bool CheckRTF(Process* p1); // checking rtf in phase 2
    
-    virtual void print_rdy()
-    {
-        RdyQueue.Print();
-
-    }
+  
 
     static void Loadp(ifstream& inputFile);
 };
