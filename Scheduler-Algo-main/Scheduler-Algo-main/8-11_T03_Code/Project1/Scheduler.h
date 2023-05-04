@@ -61,4 +61,7 @@ public :
 	void fork(Process* parent);
 	//////////////////////////////////////////////////////////
 	~Scheduler();
+	//////////////////////Added by mimo//////////////////////////
+	bool migrationrtf(Process* p, int rtf);
+	bool migrationmaxw(Process* p, int maxw, int timestep);
 };
