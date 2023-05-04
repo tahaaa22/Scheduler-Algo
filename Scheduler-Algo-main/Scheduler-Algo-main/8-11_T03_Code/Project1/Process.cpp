@@ -21,9 +21,6 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT
     //No_of_IO = IO.size(); // no of times ha request input/output
     LCH = NULL;
     RCH = NULL;
-    //lch_ID = -1;  //1st child ID set to -1 if no children added by Amira
-    //rch_ID = -1;   //1st child ID set to -1 if no children added by Amira
-    //ch_count = 0; //number of children; set to 0 by default added by Amira
 }
 
 int Process::getPID() 
@@ -137,6 +134,8 @@ SQueue<int> Process::getIOqueue() {
 }
 
 ///////////// Added by Amira /////////////
+Process::Process(int AT, int ID, int CT) :ArrivalTime(AT), PID(ID), CPUtime(CT) //overloaded constructr for forking
+{}
 void Process::setRCH(Process* p)
 {
     RCH = p;
