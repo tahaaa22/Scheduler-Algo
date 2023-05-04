@@ -14,27 +14,26 @@
 		TimeStep = 0;
 		char type=0;
 	}
-	void Scheduler::ahmed(Process* p)
+	void Scheduler::KillOrphan(Process* parent)
 	{
-		if ((!p->getLCH() && !p->getRCH()) || !p)
+		if ((!parent->getLCH() && !parent->getRCH()) || !parent)
 		{
 			return;
 		}
-		if (p->getLCH())
+		if (parent->getLCH())
 		{
-			ahmed(p->getLCH());
-			TerminatedQueue.enqueue(p);
-			delete p->getLCH();
-			p->setLCH(nullptr);
+			KillOrphan(parent->getLCH());
+			TerminatedQueue.enqueue(parent);
+			delete parent->getLCH();
+			parent->setLCH(nullptr);
 		}
-		if (p->getLCH())
+		if (parent->getLCH())
 		{
-			ahmed(p->getRCH());
-			TerminatedQueue.enqueue(p);
-			delete p->getRCH();
-			p->setRCH(nullptr);
+			KillOrphan(parent->getRCH());
+			TerminatedQueue.enqueue(parent);
+			delete parent->getRCH();
+			parent->setRCH(nullptr);
 		}
-
 	}
 	void Scheduler::Simulation()
 	{
