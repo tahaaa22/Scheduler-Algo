@@ -60,6 +60,8 @@ void RR::ScheduleAlgo(int timestep)
         RdyQueue.dequeue(temp);
         setCurrRun(temp);
         Curtime = 0;
+        setRDY_Length(getRDY_Length() - temp->getCpuTime()); //bn2s cpu time el fy el run
+
     }
     else if (getCurrRun())  //run not empty
     {
@@ -79,15 +81,15 @@ void RR::ScheduleAlgo(int timestep)
             // FROM RUN TO TERMINATION
             if (t == 0)
             {
-                addtoterminate(temp);// calling fn el schedular
-                sc->RuntoTrm(getCurrRun());;
+                sc->RuntoTrm(temp);
             }
+        }
 
             // FROM RUN TO BLOCK
             if (!getCurrRun()->getIOqueue().isEmpty()) {
 
-                if (getCurrRun()->getIOqueue().peek().getFirstItem() == timestep) {
-                    sc->RuntoBlk(getCurrRun());
+                if (temp->getIOqueue().peek().getFirstItem() == timestep) {
+                    sc->RuntoBlk(temp);
                 }
             }
 
@@ -119,7 +121,6 @@ void RR::ScheduleAlgo(int timestep)
         }
 
     }
-}
 
 void RR::print_rdy()
 {
