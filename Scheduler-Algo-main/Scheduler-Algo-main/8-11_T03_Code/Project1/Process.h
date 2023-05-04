@@ -47,6 +47,7 @@ public:
     void execute(int currentTimeStep);
     SQueue<int> getIOqueue();
     ///////////// Added by Amira /////////////
+    Process(int AT, int ID, int CT); //overloaded constructor for forking
     void setRCH(Process* p);
     void setLCH(Process* p);
     Process* getRCH();
