@@ -17,25 +17,25 @@ int FCFS::getRDYCount()
 //// setRDY_Length(getRDY_Length() - process->getCpuTime()); Add in migration
 	// scheduler fork 
 
-void FCFS::KillOrphans(Process* parent)
-{
-	if ((!parent->getLCH() && !parent->getRCH()) || !parent)
-	{
-		return;
-	}
-	if (parent->getLCH())
-	{
-		KillOrphans(parent->getLCH());
-		delete parent->getLCH();
-		parent->setLCH(nullptr);
-	}
-	if (parent->getLCH())
-	{
-		KillOrphans(parent->getRCH());
-		delete parent->getRCH();
-		parent->setRCH(nullptr);
-	}
-}
+//void FCFS::KillOrphans(Process* parent)
+//{
+//	if ((!parent->getLCH() && !parent->getRCH()) || !parent)
+//	{
+//		return;
+//	}
+//	if (parent->getLCH())
+//	{
+//		KillOrphans(parent->getLCH());
+//		delete parent->getLCH();
+//		parent->setLCH(nullptr);
+//	}
+//	if (parent->getLCH())
+//	{
+//		KillOrphans(parent->getRCH());
+//		delete parent->getRCH();
+//		parent->setRCH(nullptr);
+//	}
+//}
 
 void FCFS::sigkill(int timestep, int NF)
 {
@@ -53,9 +53,9 @@ void FCFS::sigkill(int timestep, int NF)
 			if (temp->getItem()->getPID() == ID)
 			{
 				Process* p = temp->getItem();
+				// killing the children and grandchildren
+				sc->KillOrphan(p);
 				addterminate(p); //terminate this process
-				// killing the children and grandchildren
-				KillOrphans(p);
 				RDY.deleteNode(p); //delete it from RDY List
 				setRDY_Length(getRDY_Length() - p->getCpuTime());
 				break;
@@ -67,7 +67,7 @@ void FCFS::sigkill(int timestep, int NF)
 			int IDR = getCurrRun()->getPID();
 			if (IDR == ID)
 			{
-				KillOrphans(getCurrRun());
+				sc->KillOrphan(getCurrRun()); // killing the children and grandchildren
 				setRDY_Length(getRDY_Length() - getCurrRun()->getCpuTime());
 				addterminate(getCurrRun()); //terminate this process
 				setCurrRun(nullptr);// RUN CURRENTLY EMPTY
@@ -81,57 +81,14 @@ void FCFS::sigkill(int timestep, int NF)
 		}
 	}
 }
-Process* FCFS::sigkill1(int timestep, int NF)
-{
-	SNode<int> Q;
-	Q = killSig.peek();
-	int kill = Q.getFirstItem(); // get the kill time
-	int ID = Q.getSecondItem(); // get id to be killed
-	Node<Process*>* temp = RDY.getHead(); // get head
-	if (timestep == kill)
-	{
-		nf++;
-		//check lw el process dy 3ndy hena 
-		while (temp) //traversing the RDY list until I found the process with that ID
-		{
-			if (temp->getItem()->getPID() == ID)
-			{
-				Process* p = temp->getItem();
-				//addterminate(p); //terminate this process
-				return p;
-				// killing the children and grandchildren
-				KillOrphans(p);
-				RDY.deleteNode(p); //delete it from RDY List
-				setRDY_Length(getRDY_Length() - p->getCpuTime());
-				break;
-			}
-			temp = temp->getNext();
-		}
-		if (getCurrRun())
-		{
-			int IDR = getCurrRun()->getPID();
-			if (IDR == ID)
-			{
-				KillOrphans(getCurrRun());
-				setRDY_Length(getRDY_Length() - getCurrRun()->getCpuTime());
-				addterminate(getCurrRun()); //terminate this process
-				setCurrRun(nullptr);// RUN CURRENTLY EMPTY
-			}
 
-		}
-		if (nf == NF)
-		{
-			killSig.dequeue();
-			nf = 0;
-		}
-	}
-}
 void FCFS::ScheduleAlgo(int time)
 {
 	if (getCurrRun()) //if current run contains a process
 	{
 		if (getCurrRun()->getisFinished()) //if the process has finished 
 		{
+			sc->KillOrphan(getCurrRun()); // killing the children and grandchildren
 			addtoterminate(getCurrRun());
 			setCurrRun(nullptr);
 		}
