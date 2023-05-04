@@ -25,8 +25,7 @@ private:
 public:
 	FCFS();  //constructor
 	//void KillOrphans(Process* parent);
-	void sigkill(int timestep, int NF);
-	Process * sigkill1(int timestep, int NF);
+	Process* sigkill(int timestep, int NF);
 	virtual void ScheduleAlgo(int time);
 
 	///////might be removed if not needed/////////////
@@ -44,5 +43,6 @@ public:
 
 	~FCFS();
 };
+
 
 
