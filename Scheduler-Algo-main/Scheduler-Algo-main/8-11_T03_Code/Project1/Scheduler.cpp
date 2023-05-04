@@ -378,3 +378,34 @@
 			min->addToReadyQueue(temp);
 		}
 	}
+
+	//////////////////////ADDEDDDDDDDDDDDDDD BY MIMOOOOOOOOOOOOOOOOOOO/////////////////////////
+	bool Scheduler::migrationrtf(Process*p, int rtf) // bool 34an a3rf a remove mn run wla la
+	{
+		if (p->gettimeRemaining() < rtf)
+		{
+			Processor* min;
+			min = getMinProcessor('s', NF);
+			min->addToReadyQueue(p);  // add to shortest sjf
+			return true;
+		}
+		return false;
+
+	}
+
+	bool Scheduler::migrationmaxw(Process* p, int maxw, int timestep) // bool 34an a3rf a remove mn run wla la
+	{
+		int timerunned = p->getCpuTime() - p->gettimeRemaining();
+		int at = p->getArrivalTime();
+		int waitingtime = timestep - at - timerunned;
+		if (waitingtime > maxw )
+		{
+			Processor* min;
+			min = getMinProcessor('r', NF+NS);
+			min->addToReadyQueue(p);  // add to shortest sjf
+			return true;
+		}
+		return false;
+
+	}
+
