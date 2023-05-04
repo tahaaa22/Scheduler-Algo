@@ -67,7 +67,13 @@ void RR::ScheduleAlgo(int timestep)
     {
         Process* temp = getCurrRun();
         int t = temp->gettimeRemaining();
-        if (Curtime == TS && t > 1) // a5r sec fy el ts
+
+        bool migrate = sc->migrationrtf(temp, RTF);
+        if (migrate == true)
+        {
+             setCurrRun(nullptr);
+        }
+        else if (Curtime == TS && t > 1) // a5r sec fy el ts
         {
             getCurrRun()->execute(timestep); // bt2alal timestep b 1
             Curtime = 0;
@@ -130,6 +136,10 @@ void RR::print_rdy()
 int RR::getRDYCount()
 {
     return RdyQueue.getCount();
+}
+Process* RR::sigkill(int timestep, int NF)
+{
+    return nullptr;
 }
 
 void RR::Loadp(ifstream& inputFile) {
