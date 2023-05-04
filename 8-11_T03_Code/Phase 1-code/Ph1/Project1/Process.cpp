@@ -11,7 +11,7 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT
     AT = 0;
     ID = 0;
     CT = 0;
-    timeRemaining = CT;
+    timeRemaining = CPUtime;
     isBlocked = false;
     isFinished = false;
     ResponseTime = -1;
