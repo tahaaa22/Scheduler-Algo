@@ -26,4 +26,5 @@ SQueue<int> FCFS::killSig;
 char FCFS::Ptype = 'f';
 double FCFS::forkprob = 0;
 int FCFS::MaxW = 0;
+int FCFS::nf = 0;
 
