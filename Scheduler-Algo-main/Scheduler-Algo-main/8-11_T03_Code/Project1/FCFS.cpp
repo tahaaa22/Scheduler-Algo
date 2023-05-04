@@ -8,6 +8,7 @@ FCFS::FCFS()
 }
 ///////might be removed if not needed/////////////
 //bool FCFS::CheckMaxW(Process* p); // used for migration
+// int CalcRdyLength();
 int FCFS::getRDYCount()
 {
 	return RDY.getCount();
@@ -88,8 +89,7 @@ void FCFS::ScheduleAlgo(int time)
 	{
 		if (getCurrRun()->getisFinished()) //if the process has finished 
 		{
-			sc->KillOrphan(getCurrRun()); // killing the children and grandchildren
-			addtoterminate(getCurrRun());
+			sc->RuntoTrm(getCurrRun()); // killing the children and grandchildren then terminating
 			setCurrRun(nullptr);
 		}
 		else     //if the process has not finished yet
