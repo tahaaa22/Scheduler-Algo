@@ -8,9 +8,9 @@ using namespace std;
 Process::Process(){}
 Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT), PID(ID), CPUtime(CT), No_of_IO(Num), IO_queue(N)
 {
-    AT = 0;
-    ID = 0;
-    CT = 0;
+    //AT = 0;
+    //ID = 0;
+    //CT = 0;
     timeRemaining = CT;
     isBlocked = false;
     isFinished = false;
