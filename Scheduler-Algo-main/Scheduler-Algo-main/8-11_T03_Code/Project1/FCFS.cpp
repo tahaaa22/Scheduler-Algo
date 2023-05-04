@@ -88,7 +88,15 @@ void FCFS::ScheduleAlgo(int time)
 {
 	if (getCurrRun()) //if current run contains a process
 	{
-		if (getCurrRun()->getisFinished()) //if the process has finished 
+
+		///////////////////////////////////////////ADDEDDDD BY MIMO/////////////////
+		bool migrate = sc->migrationmaxw(getCurrRun(), MaxW, time);
+		if (migrate == true)
+		{
+			setCurrRun(nullptr);
+		}
+		// hatatha else if 34an ana ha5ly current b null
+		else if (getCurrRun()->getisFinished()) //if the process has finished 
 		{
 			sc->RuntoTrm(getCurrRun()); // killing the children and grandchildren then terminating
 			setCurrRun(nullptr);
