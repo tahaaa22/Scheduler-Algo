@@ -45,7 +45,7 @@ public:
     bool getorphanflag();
     void setisBlocked(bool it);
     void setisFinished(bool it);
-    void setorphanflag();
+    void setorphanflag(bool f);
     bool getisFinished();
     void execute(int currentTimeStep);
     SQueue<int> getIOqueue();
