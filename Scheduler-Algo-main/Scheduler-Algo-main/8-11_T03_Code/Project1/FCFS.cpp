@@ -6,40 +6,42 @@ FCFS::FCFS()
 {
 	settype('f');
 }
-///////might be removed if not needed/////////////
-//bool FCFS::CheckMaxW(Process* p); // used for migration
-// int CalcRdyLength();
+
 int FCFS::getRDYCount()
 {
 	return RDY.getCount();
 }
-///////////////////////////////////////////
 
-//// setRDY_Length(getRDY_Length() - process->getCpuTime()); Add in migration
-	// scheduler fork 
-
-//void FCFS::KillOrphans(Process* parent)
-//{
-//	if ((!parent->getLCH() && !parent->getRCH()) || !parent)
-//	{
-//		return;
-//	}
-//	if (parent->getLCH())
-//	{
-//		KillOrphans(parent->getLCH());
-//		delete parent->getLCH();
-//		parent->setLCH(nullptr);
-//	}
-//	if (parent->getLCH())
-//	{
-//		KillOrphans(parent->getRCH());
-//		delete parent->getRCH();
-//		parent->setRCH(nullptr);
-//	}
-//}
-
-Process* FCFS::sigkill(int timestep, int NF)
+void FCFS::KillOrphan(Process* parent)
 {
+	if ((!parent->getLCH() && !parent->getRCH()) || !parent) //no children or no parent
+	{
+		return;
+	}
+	if (parent->getLCH())
+	{
+		KillOrphan(parent->getLCH()); //the recursive calls will stop when the subroot has LCH = NULL
+		sc->Trm(parent->getLCH()); 
+		setRDY_Length(getRDY_Length() - parent->getLCH()->gettimeRemaining());
+		delete parent->getLCH();
+		parent->setLCH(nullptr); 
+	}
+	if (parent->getLCH())
+	{
+		KillOrphan(parent->getRCH());
+		setRDY_Length(getRDY_Length() - parent->getLCH()->gettimeRemaining());
+		sc->Trm(parent->getRCH());
+		delete parent->getRCH();
+		parent->setRCH(nullptr);
+	}
+}
+
+void FCFS::sigkill(int timestep, int NF)
+{
+	//if more than one process are to be killed at the same timestep ?
+	// Mimo read his note from Amira 
+	// resolve the case mentioned above using a while loop
+
 	SNode<int> Q;
 	Q = killSig.peek();
 	int kill = Q.getFirstItem(); // get the kill time
@@ -48,30 +50,27 @@ Process* FCFS::sigkill(int timestep, int NF)
 	if (timestep == kill)
 	{
 		nf++;
-		//check lw el process dy 3ndy hena 
+		//check if process is in this processor FCFS[nf] RDY
 		while (temp) //traversing the RDY list until I found the process with that ID
 		{
 			if (temp->getItem()->getPID() == ID)
 			{
 				Process* p = temp->getItem();
-				// killing the children and grandchildren
-				sc->KillOrphan(p);
-				//addterminate(p); //terminate this process
+				KillOrphan(p); // killing the children and grandchildren
 				RDY.deleteNode(p); //delete it from RDY List
-				setRDY_Length(getRDY_Length() - p->getCpuTime());
-				return p;
+				setRDY_Length(getRDY_Length() - p->getCpuTime()); //adjusting RDY_Length
+				sc->Trm(p); //terminate this process
 				break;
 			}
 			temp = temp->getNext();
 		}
-		if (getCurrRun())
+		if (getCurrRun()) //check if process is in RUN
 		{
 			int IDR = getCurrRun()->getPID();
 			if (IDR == ID)
 			{
-				sc->KillOrphan(getCurrRun()); // killing the children and grandchildren
-				setRDY_Length(getRDY_Length() - getCurrRun()->getCpuTime());
-				addterminate(getCurrRun()); //terminate this process
+				KillOrphan(getCurrRun()); // killing the children and grandchildren
+				sc->Trm(getCurrRun()); //terminate this process
 				setCurrRun(nullptr);// RUN CURRENTLY EMPTY
 			}
 
@@ -84,66 +83,73 @@ Process* FCFS::sigkill(int timestep, int NF)
 	}
 }
 
-void FCFS::ScheduleAlgo(int time)
+void FCFS::Handle(int timestep) //this functions executes and checks if the process needs trmination
 {
-	if (getCurrRun()) //if current run contains a process
+	while (getCurrRun())
 	{
-
-		///////////////////////////////////////////ADDEDDDD BY MIMO/////////////////
-		bool migrate = sc->migrationmaxw(getCurrRun(), MaxW, time);
+		//handling fork
+		srand(timestep);
+		double forkP = rand() % 100; //generate a random forking probability
+		if (forkP <= forkprob)         //compare the randomly generate dto the one from the input file
+		{
+			sc->fork(getCurrRun());
+		}
+		bool migrate = sc->migrationmaxw(getCurrRun(), MaxW, timestep);
 		if (migrate == true)
 		{
 			setCurrRun(nullptr);
+			continue;
 		}
-		// hatatha else if 34an ana ha5ly current b null
-		else if (getCurrRun()->getisFinished()) //if the process has finished 
+		//handling blk
+		// the line below is equivalent to :
+		// if IO_request time == cpu time - time remaining = time passed since run started
+		int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+		int passed = getCurrRun()->getCpuTime() - getCurrRun()->gettimeRemaining();
+		if (IO_req == passed)
 		{
-			sc->RuntoTrm(getCurrRun()); // killing the children and grandchildren then terminating
+			sc->RuntoBlk(getCurrRun());
+			setCurrRun(nullptr);
+			continue;
+		}
+		getCurrRun()->execute(timestep); //execute
+		if (getCurrRun()->getisFinished())
+		{
+			KillOrphan(getCurrRun());
+			sc->Trm(getCurrRun());
 			setCurrRun(nullptr);
 		}
-		else     //if the process has not finished yet
+		break;
+	}
+}
+
+void FCFS::ScheduleAlgo(int timestep)
+{
+	sigkill(timestep, sc->getNF());
+	Handle(timestep); //equivalent to while run = true (run contains a process)
+	while (!getCurrRun()) //while RUN is empty 
+	{
+		if (!RDY.isEmpty()) //run empty and ready contains processes
 		{
-			getCurrRun()->execute(time);
-
-			//handling fork
-			srand(time);
-			double forkP = rand() % 100; //generate a random forking probability
-			if (forkP <= forkprob)         //compare the randomly generate dto the one from the input file
-			{
-				sc->fork(getCurrRun());
-			}
-
-			//handling blk
-			// the line below is equivalent to :
-			// if IO_request time == cpu time - time remaining = time passed since run started
-			if (getCurrRun()->getIOqueue().peek().getFirstItem() == (getCurrRun()->getCpuTime() - getCurrRun()->gettimeRemaining()))
-			{
-				sc->RuntoBlk(getCurrRun());
-				setCurrRun(nullptr);
-			}
+			Process* temp = RDY.getHead()->getItem(); //First Process In is at the head, and the turn is on this Process to RUN
+			setRDY_Length(getRDY_Length() - temp->getCpuTime()); //Rdy length is decremented as a process is removed from rdy
+			RDY.deleteNode(); //deleting first Process as it is removed to RUN 
+			setCurrRun(temp);
+			Handle(timestep); //handles the current run
 		}
 	}
-	if (!RDY.isEmpty() && !getCurrRun()) //run empty and ready contains processes
-	{
-		Process* temp = RDY.getHead()->getItem(); //First Process In is at the head, and the turn is on this Process to RUN
-		setRDY_Length(getRDY_Length() - temp->getCpuTime()); //Rdy length is decremented as a process is removed from rdy
-		RDY.deleteNode(); //deleting first Process as it is removed to RUN 
-		setCurrRun(temp); //setting the RUN state to this 
-		temp->execute(time);
-	}
-
 }
 
 void FCFS::addToReadyQueue(Process* process) //inserting a process to the RDY 
 {
 	RDY.insertNode(process);
-	UpdateList(process);
 	setRDY_Length(getRDY_Length() + process->getCpuTime());
 }
+
 void FCFS::print_rdy()
 {
 	RDY.Print();
 }
+
 char FCFS::getPtype()
 {
 	return Ptype;
@@ -152,10 +158,12 @@ void FCFS::Loadp(ifstream& inputFile)
 {
 	inputFile >> MaxW;
 }
+
 void FCFS::Loadpf(ifstream& inputFile)
 {
 	inputFile >> forkprob;
 }
+
 void FCFS::Loadkill(ifstream& inputFile)
 {
 	while (inputFile.peek() != EOF)
