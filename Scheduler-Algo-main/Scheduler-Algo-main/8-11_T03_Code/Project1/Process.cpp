@@ -11,6 +11,7 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT
     //AT = 0;
     //ID = 0;
     //CT = 0;
+    orphanflag= false;
     timeRemaining = CT;
     isBlocked = false;
     isFinished = false;
@@ -22,7 +23,14 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT
     LCH = NULL;
     RCH = NULL;
 }
-
+bool Process::getorphanflag()
+{
+    return orphanflag;
+}
+void Process::setorphanflag(bool f)
+{
+    orphanflag=f;
+}
 int Process::getPID() 
 {
     return PID;
