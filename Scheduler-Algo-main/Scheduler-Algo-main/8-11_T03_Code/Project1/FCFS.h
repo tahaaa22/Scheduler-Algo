@@ -8,7 +8,7 @@
 #include "Node.h"
 using namespace std;
 //class Scheduler;
-
+class EDF; // Forward declaration of EDF class
 class FCFS : public Processor
 {
 	//The FCFS is a queue but because of the kill signal that will require accessing 
@@ -16,24 +16,41 @@ class FCFS : public Processor
 private:
 	static SQueue<int> killSig; //Kill Signal Time
 	static char Ptype; // returning type instead of dynamic casting 
-	LinkedList<Process*> RDY;
 	static int MaxW; //to use for check in migration
 	static double forkprob; //fork probability 
 	static int nf; //holder to be incremented until number of FCFS processors, used to make sure all of them were checked in sigkill fn
-	
+	//Scheduler* s; //used to call fork fn
+protected:
+	LinkedList<Process*> RDY;
 public:
+	//////////added by taha////////////
+	virtual void UpdateList(Process* processToAdd) // remember taha that you will call this function in the add to ready also you will need to make private member from it 
+	{
+		if (processToAdd->getDeadLine() < getCurrRun()->getDeadLine())
+		{
+			EDF* edf; 
+			edf->UpdatedList();
+		}
+	}
+	////////////////////////////////
 	FCFS();  //constructor
-	void KillOrphan(Process* parent);
-	void Handle(int timestep);
+	//void KillOrphans(Process* parent);
 	virtual Process* sigkill(int timestep, int NF);
 	virtual void ScheduleAlgo(int time);
+
+	///////might be removed if not needed/////////////
 	virtual int getRDYCount(); //number of processes in processor
+	// int CalcRdyLength();
+	//bool CheckMaxW(Process* p); // used for migration
+	////////////////////////////////////////////////////
+
 	virtual void addToReadyQueue(Process* process); //inserting a process to the RDY 
 	char getPtype();
 	void print_rdy();
 	static void Loadp(ifstream& inputFile); //loading MaxW
 	static void Loadpf(ifstream& inputFile); //loading Forking prob
 	static void Loadkill(ifstream& inputFile); // loading kill signals
+
 	~FCFS();
 };
 

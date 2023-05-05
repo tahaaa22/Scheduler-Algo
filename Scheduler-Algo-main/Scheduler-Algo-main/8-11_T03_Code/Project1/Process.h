@@ -14,13 +14,14 @@ private:
     int TerminationTime;
     int TurnaroundDuration;
     int waitingTime;
+    int deadline; // added by taha
     SNode <int>* IOpairs;
     SQueue<int> IO_queue;
     int timeRemaining;
     int No_of_IO; //no of times user request input or output
     bool isBlocked;
     bool isFinished;
-    bool orphanflag;
+    bool orphanflag; // added by taha
     Process* LCH;
     Process* RCH;
     //int lch_ID;   //1st child ID set to -1 if no children added by Amira
@@ -29,9 +30,11 @@ private:
     
 public:
  Process();
-    Process(int AT, int ID, int CT,int Num, SQueue<int> N); 
+ Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d); //changed by taha
    Process * load(ifstream& inputFile);
     int getPID();
+    bool getorphanflag();
+    void setorphanflag(bool f);
     int getArrivalTime() ;
     int getResponseTime() ;
     void settimeRemaining(int time);
@@ -41,11 +44,10 @@ public:
     void setTerminationTime(int time);
     int getTurnaroundDuration() ;
     int getWaitingTime() ;
+    int getDeadLine(); //added by taha
     bool getisBlocked();
-    bool getorphanflag();
     void setisBlocked(bool it);
     void setisFinished(bool it);
-    void setorphanflag(bool f);
     bool getisFinished();
     void execute(int currentTimeStep);
     SQueue<int> getIOqueue();

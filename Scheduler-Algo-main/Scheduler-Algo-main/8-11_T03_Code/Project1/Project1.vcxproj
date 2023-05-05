@@ -128,6 +128,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="binarySearchTree.h" />
+    <ClInclude Include="EDF.h" />
     <ClInclude Include="FCFS.h" />
     <ClInclude Include="LinkedList.h" />
     <ClInclude Include="Node.h" />
@@ -144,6 +145,7 @@
     <ClInclude Include="UI.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="EDF.cpp" />
     <ClCompile Include="FCFS.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Process.cpp" />

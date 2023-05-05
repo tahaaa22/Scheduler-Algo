@@ -14,7 +14,6 @@ public:
     void ScheduleAlgo(int time);
     virtual void print_rdy();
     ////////////////////////////////////////Added by mimo////////////////////////////////////////
-    virtual Process* sigkill(int timestep, int NF) ;
     void Loadp(ifstream& inputFile);
     virtual  int getRDYCount();
 };

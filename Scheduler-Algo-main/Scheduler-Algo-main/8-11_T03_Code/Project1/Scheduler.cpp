@@ -6,14 +6,54 @@
 		pf = new FCFS;
 		ps = new SJF;
 		pUI = new UI;
-		ArrP = new Processor * [NF + NR + NS];
+		pd = new EDF;
+		ArrP = new Processor * [NF + NR + NS +ND];
 		isFileLoaded = true;
 		NF = 0;
 		NR = 0;
 		NS = 0;
+		ND = 0;
 		TimeStep = 0;
 		char type=0;
 	}
+	void Scheduler::Simulation()
+	{
+		LoadFile();
+		NumProcessor = NF + NS + NR + ND;
+		full();
+		int mode;
+		mode = pUI->ReadMode();
+		cin.ignore();  //Clear any leftover characters in the input buffer
+		// create processors array
+		bool isallterminated = allTerminated();	//simulation is working // btba b 0 fl awl
+		if (mode == 3)
+			pUI->printBeforeSim(); // only condition for mode 3 before simulation 
+		while (!isallterminated && isFileLoaded)
+		{
+			NewtoRdy(TimeStep);
+			addtoBlock();
+			//HandleBlk(TimeStep);
+			isallterminated = allTerminated();
+			// NOW CHOOSING MODES////
+			if (mode == 1)
+			{
+				// PRINTING //
+				Output(TimeStep);
+				getchar();	// Waits for user to press "Enter" 
+			}
+			else if (mode == 2)
+			{
+				// PRINTING //
+				Output(TimeStep);
+				Sleep(25);		//Wait for second
+
+			}
+			incrementTimeStep(); // finally increment time step for next loop
+		}
+		if (mode == 3)  //no need for bring inside loop as it is printed once
+			pUI->printAfterSim();
+	}
+
 	///////////////////Added by Amira //////////////////
 	void Scheduler::fork(Process* parent)
 	{
@@ -33,95 +73,7 @@
 		}
 	}
 	////////////////////////////////////////////////////
-	void Scheduler::KillOrphan(Process* parent)
-	{
-		if ((!parent->getLCH() && !parent->getRCH()) || !parent)
-		{
-			return;
-		}
-		if (parent->getLCH())
-		{
-			KillOrphan(parent->getLCH());
-			TerminatedQueue.enqueue(parent);
-			delete parent->getLCH();
-			parent->setLCH(nullptr);
-		}
-		if (parent->getLCH())
-		{
-			KillOrphan(parent->getRCH());
-			TerminatedQueue.enqueue(parent);
-			delete parent->getRCH();
-			parent->setRCH(nullptr);
-		}
-	}
-	void Scheduler::Simulation()
-	{
-		LoadFile();
-		NumProcessor = NF + NS + NR;
-		full();
-		int mode;
-		mode = pUI->ReadMode();
-		cin.ignore();  //Clear any leftover characters in the input buffer
-		// create processors array
-		
-		
-		if (mode == 1)
-		{
-			bool isallterminated = allTerminated();	//simulation is working // btba b 0 fl awl
-			
-		
-			while (!isallterminated && isFileLoaded)
-			{
-				//Simulation(TimeStep);
-				addtoBlock();
-				//HandleBlk(TimeStep);
-				isallterminated = allTerminated();
-				// PRINTING //
-				Output(TimeStep);
-				getchar();	// Waits for user to press "Enter" 
-				incrementTimeStep();
-				
-				
-			}
-		}//exit of while loop(program)
-		else if (mode == 2)
-		{
-			bool isallterminated = allTerminated();	//simulation is working
 
-			while (!isallterminated && isFileLoaded)
-			{
-				//Simulation(TimeStep);
-				addtoBlock();
-				//HandleBlk(TimeStep);
-				isallterminated = allTerminated();
-
-				// PRINTING //
-				Output(TimeStep);
-				Sleep(25);		//Wait for 1 second
-				incrementTimeStep();
-				
-			}
-
-		}
-		
-
-		else if (mode == 3)
-		{
-			pUI->printBeforeSim();
-
-			bool isallterminated = allTerminated();		//simulation is working
-
-			while (!isallterminated && isFileLoaded)
-			{
-				//Simulation(TimeStep);
-				addtoBlock();
-				isallterminated = allTerminated();
-
-				incrementTimeStep();
-			}
-			pUI->printAfterSim();
-		}
-	}
 	void Scheduler::full()
 	{
 		for (int i = 0; i < NumProcessor; i++)
@@ -137,71 +89,23 @@
 				ArrP[i] = sjf;
 
 			}
-			else
+			else if (i < NF + NS +NR)
 			{
 				RR* rr = new RR();
 				ArrP[i] = rr;
-
+			}
+			else
+			{
+				EDF* df = new EDF();
+				ArrP[i] = df;
 			}
 		}
 	}
-	//void Scheduler::Simulation(int currenttime)
-	//{
-	//	// Seed the random number generator with the current time
-	//	srand(currenttime);
-	//	int random = rand() % 100;
-	//	// Iterate through the new queue and randomly assign each process to a processor
-	//	Process* process;
-	//	NewQueue. peek(process);
-	//	while (!NewQueue.isEmpty() && process->getArrivalTime() == currenttime)
-	//	{
-	//		
-	//		// Get the next process from the new queue
-	//		// Choose a random available processor to assign the process to
-	//		int randomIndex = rand() % NumProcessor ;
-	//		if (randomIndex >= 0 || randomIndex < NumProcessor)
-	//		{
-	//			Processor* processor = ArrP[randomIndex];
-	//			// Enqueue the process to the ready queue of the chosen processor
-	//			if (process->getArrivalTime() == currenttime)
-	//			{
-	//				processor->addToReadyQueue(process);
-	//				NewQueue.dequeue(process);
-
-	//			}
-	//			NewQueue.peek(process);
-	//		}
-	//	}
-	//		// Choose a random available processor to assign the process to
-	//	Process* Pts = NULL;
-	//	Process* ts = NULL;
-	//	for (int i = 0; i < NumProcessor; i++)
-	//	{
-	//		Processor* proc = ArrP[i];
-	//		if (proc)
-	//		proc->ScheduleAlgo(random);
-	//		Pts = ArrP[i]->getTerminated();
-	//		ts = ArrP[i]->getkilltem();
-	//		if (Pts != NULL && ts != NULL)
-	//		{
-	//			TerminatedQueue.enqueue(ts);
-	//			ArrP[i]->addterminate(NULL);
-	//			TerminatedQueue.enqueue(Pts);
-	//			ArrP[i]->addtoterminate(NULL);
-	//		}
-	//		else if (Pts != NULL)
-	//		{
-	//			TerminatedQueue.enqueue(Pts);
-	//			ArrP[i]->addtoterminate(NULL);
-	//		}
-	//		else if(ts != NULL)
-	//		{
-	//			TerminatedQueue.enqueue(ts);
-	//			ArrP[i]->addterminate(NULL);
-	//		}
-	//	}
-	//				
-	//}
+	
+	int Scheduler::getNF()
+	{
+		return NF;
+	}
 	void Scheduler:: incrementTimeStep() 
 	{
 		TimeStep++;
@@ -232,14 +136,12 @@
 			{
 				if (a == 'f' && i == NF) break;
 				if (a == 's' && i == NF+NS) break;
+				if (a == 'r' && i == NF + NS + NR) break;
 				if (ArrP[i]->getRDY_Length() < min->getRDY_Length())
 					min = ArrP[i];
 				
 			}
 			return min;
-		
-		
-		
 	}
 	double Scheduler::StealLimit()
 	{
@@ -295,7 +197,7 @@
 			inputFile >> NF;	// Number of FCFS processor
 			inputFile >> NS;		// Number of SJF processor
 			inputFile >> NR;		// Number of RR processor
-			
+			inputFile >> ND; // Number of ND processor
 
 			//------------------Line 2-----------------------------//
 			// Skip the next line
@@ -354,7 +256,6 @@
 
 	void Scheduler::RuntoTrm(Process* p) 
 	{
-		KillOrphan(p);
 		p->setisFinished(true);
 		TerminatedQueue.enqueue(p);
 	}
@@ -377,6 +278,8 @@
 		else if (FCFS* tmp = dynamic_cast<FCFS*>(min)) {
 			min->addToReadyQueue(temp);
 		}
+		else
+			min->addToReadyQueue(temp);
 	}
 
 	//////////////////////ADDEDDDDDDDDDDDDDD BY MIMOOOOOOOOOOOOOOOOOOO/////////////////////////

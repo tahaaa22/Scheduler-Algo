@@ -22,6 +22,5 @@ public:
     virtual void print_rdy();
     virtual  int getRDYCount();
 ///////////////////////////////////////////////Addddded by mimo/////////////////////////////////////////
-    virtual Process* sigkill(int timestep, int NF);
     static void Loadp(ifstream& inputFile);
 };

@@ -75,6 +75,9 @@
     <ClInclude Include="StructQueue.h">
       <Filter>Data Structures</Filter>
     </ClInclude>
+    <ClInclude Include="EDF.h">
+      <Filter>Processor</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="UI.cpp">
@@ -102,6 +105,9 @@
       <Filter>Processor</Filter>
     </ClCompile>
     <ClCompile Include="Processor.cpp">
+      <Filter>Processor</Filter>
+    </ClCompile>
+    <ClCompile Include="EDF.cpp">
       <Filter>Processor</Filter>
     </ClCompile>
   </ItemGroup>

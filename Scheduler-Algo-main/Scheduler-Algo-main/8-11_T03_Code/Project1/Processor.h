@@ -1,10 +1,8 @@
-
 #pragma once
 #include<iostream>
 #include"Queue.h"
 #include <list>
 #include "Process.h"
-//#include "Scheduler.h"
 using namespace std;
 class Scheduler;
 class Processor 
@@ -137,6 +135,6 @@ public:
     }
     */
  /////////////////////////////////////////ADDEDDDDD BY MIMO/////////////////////////////
-    virtual Process* sigkill(int timestep, int NF) = 0;
+   // virtual Process* sigkill(int timestep, int NF) = 0;
     
 };

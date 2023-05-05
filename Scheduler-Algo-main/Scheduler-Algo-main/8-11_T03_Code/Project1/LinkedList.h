@@ -85,11 +85,11 @@ public:
 	{
 		return p->getNext();
 	}*/
-	bool deleteNode2(T & p) // similar to dequeue // testing -taha
+		T  deleteEDF() // similar to dequeue // testing -taha
 	{
 		if (isEmpty()) // if the list is empty 
 		{
-			return false;
+			return NULL;
 		}
 		else // it acts as a normal dequeue
 		{
@@ -97,12 +97,13 @@ public:
 			if (head == tail) // if list has only 1 element
 			{
 				tail = nullptr;
+				return temp;
 			}
 			head = head->getNext();
-			p = temp ->getItem();
+			return temp;
 			delete temp;
 			count--;
-			return true;
+			
 		}
 	}
 	/*T* getnext(Node<T>* p)

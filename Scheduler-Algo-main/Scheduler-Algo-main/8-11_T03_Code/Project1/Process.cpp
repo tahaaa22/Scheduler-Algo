@@ -6,13 +6,13 @@
 using namespace std; 
 
 Process::Process(){}
-Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT), PID(ID), CPUtime(CT), No_of_IO(Num), IO_queue(N)
+Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), No_of_IO(Num), IO_queue(N), deadline(d) //changed by taha
 {
     //AT = 0;
     //ID = 0;
     //CT = 0;
-    orphanflag= false;
     timeRemaining = CT;
+    orphanflag = false;
     isBlocked = false;
     isFinished = false;
     ResponseTime = -1;
@@ -23,13 +23,13 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N) :ArrivalTime(AT
     LCH = NULL;
     RCH = NULL;
 }
+void Process:: setorphanflag(bool f)
+{
+    orphanflag = f;
+}
 bool Process::getorphanflag()
 {
     return orphanflag;
-}
-void Process::setorphanflag(bool f)
-{
-    orphanflag=f;
 }
 int Process::getPID() 
 {
@@ -45,7 +45,10 @@ int Process::getResponseTime()
 {
     return ResponseTime;
 }
-
+int Process::getDeadLine() // added by taha
+{
+    return deadline;
+}
 
 void Process::settimeRemaining(int time)
 {
@@ -111,31 +114,29 @@ void Process::execute(int currentTimeStep)  // decrement cpu at each time step
         }
     }
 }
-void print()
-{
 
-}
-Process *Process:: load(ifstream& inputFile)
+Process* Process::load(ifstream& inputFile) // changed by taha
 {
-    int AT, ID, CT, N;
+    int AT, ID, CT, N, d;
     char c;
     SQueue<int> IO_queue;
-    Process * Pp = NULL ;
-        inputFile >> AT;
-        inputFile >> ID;
-        inputFile >> CT;
-        inputFile >> N;
-        for (int i = 0; i < N; i++)
-        {
-            int IO_R = 0, IO_D = 0;
-            inputFile >> IO_R;
-            inputFile >> c;
-            inputFile >> IO_D;
-            IOpairs = new SNode<int>(IO_R, IO_D);
-            IO_queue.enqueue({ IOpairs });
-        }
-        Process *p= new Process(AT, ID, CT, N, IO_queue);
-     return p;
+    Process* Pp = NULL;
+    inputFile >> AT;
+    inputFile >> ID;
+    inputFile >> CT;
+    inputFile >> N;
+    for (int i = 0; i < N; i++)
+    {
+        int IO_R = 0, IO_D = 0;
+        inputFile >> IO_R;
+        inputFile >> c;
+        inputFile >> IO_D;
+        IOpairs = new SNode<int>(IO_R, IO_D);
+        IO_queue.enqueue({ IOpairs });
+    }
+    inputFile >> d;
+    Process* p = new Process(AT, ID, CT, N, IO_queue, d);
+    return p;
 }
 SQueue<int> Process::getIOqueue() {
     return IO_queue;
@@ -143,7 +144,19 @@ SQueue<int> Process::getIOqueue() {
 
 ///////////// Added by Amira /////////////
 Process::Process(int AT, int ID, int CT) :ArrivalTime(AT), PID(ID), CPUtime(CT) //overloaded constructr for forking
-{}
+{
+    orphanflag = true;
+    timeRemaining = CT;
+    isBlocked = false;
+    isFinished = false;
+    ResponseTime = -1;
+    TerminationTime = -1;
+    waitingTime = 0;
+    TurnaroundDuration = 0;
+    //No_of_IO = IO.size(); // no of times ha request input/output
+    LCH = nullptr;
+    RCH = nullptr;
+}
 void Process::setRCH(Process* p)
 {
     RCH = p;
@@ -164,65 +177,6 @@ int Process::getCpuTime()
 {
     return CPUtime;
 }
-/////////////////////////////////////////
-
-/*void Process::load()
-{
-    string filename("inputfile.txt");
-    ifstream input(filename);
-    if (!input.is_open())
-    {
-        cout << "Error opening file " << filename << endl;
-        return;
-    }
-    string line;
-   while (getline(input, line))
-    {
-        istringstream iss(line);
-        int AT, ID, CT, N;
-        SQueue<int> IO_queue;
-
-        if (!(iss >> AT >> ID >> CT >> N)) 
-        {
-            cerr << "Error reading input data from file " << filename << endl;
-            return;
-        }
-
-        for (int i = 0; i < N; i++)
-        {
-            int IO_R, IO_D;
-            if (!(iss >> IO_R >> IO_D))
-            {
-                cout << "Error reading input data from file " << filename << std::endl;
-                return;
-            }
-            IOpairs = new SNode<int>(IO_R, IO_D);
-            IO_queue.enqueue({ IOpairs });  
-        }
-        newcreation(AT,ID,CT,IO_queue);
-   // }
-    input.close();
-}*/
-//Process Process::newcreation(int AT,int ID , int CT , SQueue<int> N)
-//{
- //   Process p(AT,ID,CT,N);
- //   return p;
-   
-//}
-/*void Process::requestIO(int currentTimeStep, int inputRequestTime)
-{
-    isBlocked = true;
-    this->inputRequestTime = inputRequestTime;
-}
-
-void Process::completeIO(int currentTimeStep) 
-{
-    isBlocked = false;
-    int timeSpentWaiting = currentTimeStep - inputRequestTime;
-    waitingTime += timeSpentWaiting;
-    timeRemaining -= InputDuration;
-}
-*/
 
 ostream& operator<<(ostream& output, Process* p1)
 {

@@ -11,6 +11,7 @@
 #include "FCFS.h"
 #include "RR.h"
 #include "Processor.h"
+#include "EDF.h"
 #include <Windows.h>
 #include<string>
 using namespace std;
@@ -20,6 +21,7 @@ class Scheduler
 	RR* pr;
 	FCFS* pf;
 	SJF* ps;
+	EDF* pd;
 	UI* pUI;
 	Process* Pp;
 	int ID_Count;     //to be initialized as the number of processes from the input file in the constructor
@@ -27,17 +29,17 @@ class Scheduler
 	int NumProcessor;
 	double Kill, Fork, Migrate, Stealp, Avg_Util, Avg_WT, Avg_RT, Avg_TRT, pMaxW, pRTF;  //percentages
 	int Total_WT, Total_RT, Total_TRT;
-	int NR,NF ,NS , STL, NumProcess, AT ;
+	int NR,NF ,NS,ND, STL, NumProcess, AT ;
 	bool isFileLoaded; // File load Boolean
 	Queue <Process*> NewQueue;
 	Queue <Process*> TerminatedQueue;
 	Queue <Process*> BLKQueue;
 public :
-	void KillOrphan(Process * parent);
 	void full();
 	Scheduler();
 	void incrementTimeStep();
 	int getTimeStep();
+	int getNF();
 	double StealLimit();
 	bool Steal(int STL);
 	void MigrateToSJF();
@@ -52,7 +54,7 @@ public :
 	void addtoBlock();
 	//	INPUT-OUTPUT functions
 	void Output(int currenttime); // link between print functions from UI class and scheduler class so we maintain classes responsibility
-	void LoadFile(); // load inputs for memebers 
+	void LoadFile(); // load inputs for members 
 	void NewtoRdy(int timestep);
 	void RuntoTrm(Process* p);
 	void RuntoBlk(Process* p);

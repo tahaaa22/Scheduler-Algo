@@ -15,10 +15,10 @@ char  SJF::getPtype()
     return Ptype;
 }
 
-Process* SJF::sigkill(int timestep, int NF)
-{
-    return nullptr;
-}
+//Process* SJF::sigkill(int timestep, int NF)
+//{
+//    return nullptr;
+//}
 
 
 void  SJF::ScheduleAlgo(int time)
@@ -51,7 +51,8 @@ void  SJF::print_rdy()
     PQ.Print();
 }
 
-void  SJF::Loadp(ifstream& inputFile) {
+void  SJF::Loadp(ifstream& inputFile)
+{
     return;
 }
 
