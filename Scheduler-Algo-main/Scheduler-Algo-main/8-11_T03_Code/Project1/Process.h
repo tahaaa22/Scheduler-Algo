@@ -20,6 +20,7 @@ private:
     int No_of_IO; //no of times user request input or output
     bool isBlocked;
     bool isFinished;
+    bool orphanflag;
     Process* LCH;
     Process* RCH;
     //int lch_ID;   //1st child ID set to -1 if no children added by Amira
@@ -41,8 +42,10 @@ public:
     int getTurnaroundDuration() ;
     int getWaitingTime() ;
     bool getisBlocked();
+    bool getorphanflag();
     void setisBlocked(bool it);
     void setisFinished(bool it);
+    void setorphanflag();
     bool getisFinished();
     void execute(int currentTimeStep);
     SQueue<int> getIOqueue();
