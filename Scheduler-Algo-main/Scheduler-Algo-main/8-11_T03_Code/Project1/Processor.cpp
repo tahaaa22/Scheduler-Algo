@@ -1,4 +1,5 @@
 #include "Scheduler.h"
+#include "Processor.h"
 Processor:: Processor()
 {
     CurrRun = nullptr;

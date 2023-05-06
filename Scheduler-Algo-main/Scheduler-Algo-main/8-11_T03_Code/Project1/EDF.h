@@ -4,11 +4,17 @@
 class EDF : public Processor
 {
 private:
+	int TotalBusyTime; // time taken inside run for each processor
+	int TotalIdleTime; // total busy time minus time step
+	int TotalTRT; // total turn around time of all processes
 	PriorityQueue <Process*> EDFrdy;
 	int curenttime;
 	static char Ptype;
 public:
 	EDF();
+	virtual Process* gettop() ;
+	virtual double pLoad();
+	virtual double pUtil();
 	void ScheduleAlgo(int time);
 	void addToReadyQueue(Process* p1);
 	char getPtype();

@@ -22,6 +22,9 @@ protected:
    Scheduler * sc;
 public:
     Processor();
+    virtual Process* gettop() = 0;// return top process in the list for stealing
+    virtual double pLoad() = 0; // to measure load balance for each processor
+    virtual double pUtil() = 0; // to measure the time of the processor when it is executing 
    void setRDY_Length(int length);
      void addterminate(Process* pro)  //kill for FCFS
     {

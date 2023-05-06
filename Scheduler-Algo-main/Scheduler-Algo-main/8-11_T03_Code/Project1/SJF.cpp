@@ -2,8 +2,31 @@
 #include "Scheduler.h"
 SJF::SJF() {
     settype('s');
+     TotalBusyTime = 0;
+     TotalIdleTime = 0;
+    TotalTRT = 0;
 }
+Process* SJF::gettop()
+{
+    Process* p;
+    PQ.peek(p);
+    if (p ->getorphanflag())
+    return p;
+    else
+    {
+        PQ.dequeue(p);
+        return p;
+    }
+ }
+double SJF::pLoad()
+{
+    return (TotalBusyTime / TotalTRT) ;
 
+}
+double SJF::pUtil()
+{
+    return (TotalBusyTime / (TotalBusyTime + TotalIdleTime)) ;
+}
 void  SJF::addToReadyQueue(Process* p1) //inserting a process to the RDY 
 {
 
@@ -15,32 +38,45 @@ char  SJF::getPtype()
     return Ptype;
 }
 
-//Process* SJF::sigkill(int timestep, int NF)
-//{
-//    return nullptr;
-//}
-
-
 void  SJF::ScheduleAlgo(int time)
 {
-    if (!PQ.isEmpty() && !getCurrRun()) {
+    if (!PQ.isEmpty() && !getCurrRun())
+    {
         Process* temp;
         PQ.dequeue(temp);
+        if (temp->getfirsttime() == 0)
+        {
+            temp->setResponseTime(time - temp->getArrivalTime());
+            temp->setfirsttime(1);
+        }
         setCurrRun(temp);
         setRDY_Length(getRDY_Length() - temp->getCpuTime());
     }
     else if (getCurrRun())
     {
         getCurrRun()->execute(time);
+        TotalBusyTime++; // taha
+        TotalIdleTime = time - TotalBusyTime; //taha
         if (!getCurrRun()->getIOqueue().isEmpty()) {
 
             if (getCurrRun()->getIOqueue().peek().getFirstItem() == time) {
                 sc->RuntoBlk(getCurrRun());
-                setCurrRun(nullptr);
+                /////////////taha///////////////////
+                if (!PQ.isEmpty()) //run empty and ready contains processes
+                {
+                    Process* temp;
+                    PQ.dequeue(temp);
+                    setCurrRun(temp);
+                }
+                //////////////////////////////////////////
             }
         }
-        else if (getCurrRun()->getisFinished()) {
-            sc->RuntoTrm(getCurrRun());
+        else if (getCurrRun()->getisFinished())
+        {
+            getCurrRun()->setTerminationTime(time);
+            getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
+            TotalTRT += getCurrRun()->getTurnaroundDuration(); //taha
+            sc->Trm(getCurrRun());
             setCurrRun(nullptr);
         }
     }

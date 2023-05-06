@@ -11,6 +11,7 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :Arrival
     //AT = 0;
     //ID = 0;
     //CT = 0;
+    firsttime = 0;
     timeRemaining = CT;
     orphanflag = false;
     isBlocked = false;
@@ -22,6 +23,26 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :Arrival
     //No_of_IO = IO.size(); // no of times ha request input/output
     LCH = NULL;
     RCH = NULL;
+}
+void Process::setwaitingtime(int t)
+{
+    waitingTime = t;
+}
+void Process::setTurnaroundDuration(int t)
+{
+    TurnaroundDuration = t;
+}
+int Process::getfirsttime()
+{
+    return firsttime;
+}
+void Process::setfirsttime(int t)
+{
+    firsttime = t;
+}
+int Process::getTotalIO_D()
+{
+    return totalIO_D;
 }
 void Process:: setorphanflag(bool f)
 {
@@ -119,6 +140,7 @@ Process* Process::load(ifstream& inputFile) // changed by taha
 {
     int AT, ID, CT, N, d;
     char c;
+    totalIO_D = 0;
     SQueue<int> IO_queue;
     Process* Pp = NULL;
     inputFile >> AT;
@@ -131,6 +153,7 @@ Process* Process::load(ifstream& inputFile) // changed by taha
         inputFile >> IO_R;
         inputFile >> c;
         inputFile >> IO_D;
+        totalIO_D += IO_D;
         IOpairs = new SNode<int>(IO_R, IO_D);
         IO_queue.enqueue({ IOpairs });
     }

@@ -4,8 +4,31 @@ RR::RR()
 {
     Curtime = 0;
     settype('r');
+     TotalBusyTime = 0;
+     TotalIdleTime = 0;
+    TotalTRT = 0;
 }
+Process* RR::gettop()
+{
+    Process* p;
+    RdyQueue.peek(p);
+    if (p->getorphanflag())
+        return p;
+    else
+    {
+        RdyQueue.dequeue(p);
+        return p;
+    }
+ }
+double RR::pLoad()
+{
+    return (TotalBusyTime / TotalTRT) ;
 
+}
+double RR::pUtil()
+{
+    return (TotalBusyTime / (TotalBusyTime + TotalIdleTime)) ;
+}
 char RR::getPtype()
 {
     return Ptype;
@@ -16,35 +39,8 @@ char RR::getPtype()
         return qID.getCount();
     }
  */
- /*  virtual void ReadyIDs()
-     {
-         int n = RdyQueue.getCount();
-         for (int i = 0; i < n; i++)
-         {
-             Process* temp;
-             RdyQueue.dequeue(temp);
-             int id = temp->getPID();
-             qID.enqueue(id);
-             RdyQueue.enqueue(temp);
-         }
 
-         qID.Print();
-     }*/
-     /*  virtual void ReadyIDs()
-              {
-                  int n = RdyQueue.getCount();
-                  for (int i = 0; i < n; i++)
-                  {
-                      Process* temp;
-                      RdyQueue.dequeue(temp);
-                      int id = temp->getPID();
-                      qID.enqueue(id);
-                      RdyQueue.enqueue(temp);
-                  }
-
-                  qID.Print();
-              }*/
-
+   
 void RR::addToReadyQueue(Process* p1)
 {
     RdyQueue.enqueue(p1);
@@ -58,6 +54,11 @@ void RR::ScheduleAlgo(int timestep)
     {
         Process* temp;
         RdyQueue.dequeue(temp);
+        if (temp->getfirsttime() == 0)
+        {
+            temp->setResponseTime(timestep - temp->getArrivalTime());
+            temp->setfirsttime(1);
+        }
         setCurrRun(temp);
         Curtime = 0;
         setRDY_Length(getRDY_Length() - temp->getCpuTime()); //bn2s cpu time el fy el run
@@ -71,11 +72,20 @@ void RR::ScheduleAlgo(int timestep)
         bool migrate = sc->migrationrtf(temp, RTF);
         if (migrate == true)
         {
-             setCurrRun(nullptr);
+            if (!RdyQueue.isEmpty()) //run empty and ready contains processes
+            {
+                Process* temp;
+                RdyQueue.dequeue(temp);
+                setCurrRun(temp);
+            }
         }
         else if (Curtime == TS && t > 1) // a5r sec fy el ts
         {
             getCurrRun()->execute(timestep); // bt2alal timestep b 1
+            //////////////taha//////////////////
+            TotalBusyTime++;
+            TotalIdleTime = timestep - TotalBusyTime;
+            ////////////////////////////////////
             Curtime = 0;
 
             // BACK TO RDY QUEUE 
@@ -87,7 +97,10 @@ void RR::ScheduleAlgo(int timestep)
             // FROM RUN TO TERMINATION
             if (t == 0)
             {
-                sc->RuntoTrm(temp);
+                temp->setTerminationTime(timestep);
+                temp->setTurnaroundDuration(temp->getTerminationTime() - temp->getArrivalTime());
+                TotalTRT += temp->getTurnaroundDuration();
+                sc->Trm(temp);
             }
         }
 
@@ -99,11 +112,20 @@ void RR::ScheduleAlgo(int timestep)
                 }
             }
 
-            setCurrRun(nullptr);// RUN CURRENTLY EMPTY
+            if (!RdyQueue.isEmpty()) //run empty and ready contains processes
+            {
+                Process* temp;
+                RdyQueue.dequeue(temp);
+                setCurrRun(temp);
+            }
         }
         else
         {
             getCurrRun()->execute(timestep); //a2alal el timestep
+            ////////////////taha///////////////////
+            TotalBusyTime++;
+            TotalIdleTime = timestep - TotalBusyTime;
+            /////////////////////////////////////////
             Curtime++;
             // ADDDDD COND BLOCK
             if (!getCurrRun()->getIOqueue().isEmpty()) {
@@ -111,14 +133,27 @@ void RR::ScheduleAlgo(int timestep)
                 if (getCurrRun()->getIOqueue().peek().getFirstItem() == timestep)
                 {
                     sc->RuntoBlk(getCurrRun());
-                    setCurrRun(nullptr);
+                    if (!RdyQueue.isEmpty()) //run empty and ready contains processes
+                    {
+                        Process* temp;
+                        RdyQueue.dequeue(temp);
+                        setCurrRun(temp);
+                    }
                     Curtime = 0;
                 }
             }
             else if (getCurrRun()->getisFinished())
             {
-                sc->RuntoTrm(getCurrRun());
-                setCurrRun(nullptr);
+                getCurrRun()->setTerminationTime(timestep);
+                getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
+                TotalTRT += getCurrRun()->getTurnaroundDuration();
+                sc->Trm(getCurrRun());
+                if (!RdyQueue.isEmpty()) //run empty and ready contains processes
+                {
+                    Process* temp;
+                    RdyQueue.dequeue(temp);
+                    setCurrRun(temp);
+                }
                 Curtime = 0;
 
             }
@@ -136,10 +171,6 @@ void RR::print_rdy()
 int RR::getRDYCount()
 {
     return RdyQueue.getCount();
-}
-Process* RR::sigkill(int timestep, int NF)
-{
-    return nullptr;
 }
 
 void RR::Loadp(ifstream& inputFile) {

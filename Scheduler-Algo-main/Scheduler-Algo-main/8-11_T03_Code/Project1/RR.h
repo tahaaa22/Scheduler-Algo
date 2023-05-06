@@ -7,6 +7,9 @@ using namespace std;
 class RR : public Processor
 {
 private:
+    int TotalBusyTime; // time taken inside run for each processor
+    int TotalIdleTime; // total busy time minus time step
+    int TotalTRT; // total turn around time of all processes
     static char Ptype;
     //Queue <int> qID;
     Queue<Process*> RdyQueue;
@@ -15,6 +18,9 @@ private:
     int Curtime;
 public:
     RR();
+    virtual Process* gettop();
+    virtual double pLoad();
+    virtual double pUtil();
     char getPtype();
     virtual void addToReadyQueue(Process* p1);
     virtual void ScheduleAlgo(int timestep);

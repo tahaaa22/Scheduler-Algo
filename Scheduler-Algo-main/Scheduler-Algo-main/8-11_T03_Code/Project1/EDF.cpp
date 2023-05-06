@@ -4,8 +4,31 @@
 EDF::EDF()
 {
 	settype('e');
+	 TotalBusyTime = 0;
+	 TotalIdleTime = 0;
+	TotalTRT = 0;
 }
+Process* EDF::gettop()
+{
+	Process* p;
+	EDFrdy.peek(p);
+	if (p->getorphanflag())
+		return p;
+	else
+	{
+		EDFrdy.dequeue(p);
+		return p;
+	}
+}
+ double EDF::pLoad()
+{
+	return (TotalBusyTime / TotalTRT) ;
 
+}
+double EDF::pUtil()
+{
+	return (TotalBusyTime / (TotalBusyTime + TotalIdleTime)) ;
+}
 void  EDF::addToReadyQueue(Process* p1) //inserting a process to the RDY 
 {
 	if(p1->getDeadLine() < getCurrRun()->getDeadLine())
@@ -29,24 +52,39 @@ void EDF:: ScheduleAlgo(int time) // add processes from the ready list to a new 
 	{
 		Process* temp;
 		EDFrdy.dequeue(temp);
+		if (temp->getfirsttime() == 0)
+		{
+			temp->setResponseTime(time - temp->getArrivalTime());
+			temp->setfirsttime(1);
+		}
 		setCurrRun(temp);
 		setRDY_Length(getRDY_Length() - temp->getCpuTime());
 	}
 	else if (getCurrRun())
 	{
 		getCurrRun()->execute(time);
+		TotalBusyTime++;
+		TotalIdleTime = time - TotalBusyTime;
 		if (!getCurrRun()->getIOqueue().isEmpty())
 		{
 
 			if (getCurrRun()->getIOqueue().peek().getFirstItem() == time)
 			{
 				sc->RuntoBlk(getCurrRun());
-				setCurrRun(nullptr);
+				if (!EDFrdy.isEmpty()) //run empty and ready contains processes
+				{
+					Process* temp;
+					EDFrdy.dequeue(temp);
+					setCurrRun(temp);
+				}
 			}
 		}
 		else if (getCurrRun()->getisFinished()) 
 		{
-			sc->RuntoTrm(getCurrRun());
+			getCurrRun()->setTerminationTime(time);
+			getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
+			TotalTRT += getCurrRun() ->getTurnaroundDuration();
+			sc->Trm(getCurrRun());
 			setCurrRun(nullptr);
 		}
 	}	
@@ -61,3 +99,4 @@ int  EDF::getRDYCount()
 {
 	return EDFrdy.getCount();
 }
+char EDF::Ptype = 'e';

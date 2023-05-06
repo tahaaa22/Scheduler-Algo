@@ -8,6 +8,8 @@ class Process
 {
 private:
     int PID;
+    int totalIO_D; // added by taha for output file
+    int firsttime; //to check response time - added by taha 
     int ArrivalTime;
     int ResponseTime;
     int CPUtime;
@@ -32,6 +34,11 @@ public:
  Process();
  Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d); //changed by taha
    Process * load(ifstream& inputFile);
+   void setwaitingtime(int t);
+   void setTurnaroundDuration(int t);
+   void setfirsttime(int t);
+   int getfirsttime();
+   int getTotalIO_D();
     int getPID();
     bool getorphanflag();
     void setorphanflag(bool f);

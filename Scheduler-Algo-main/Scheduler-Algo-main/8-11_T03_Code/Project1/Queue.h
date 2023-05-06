@@ -85,7 +85,19 @@ public:
 		delPtr = nullptr;
 		itemCount--;
 	}
-
+	bool dequeueOT(T& value)
+	{
+		if (isEmpty())
+			return false;
+		value = front->getItem();
+		Node<T>* delPtr = front;
+		front = front->getNext();
+		delPtr->setNext(nullptr);
+		delete delPtr;
+		return true;
+		delPtr = nullptr;
+		itemCount--;
+	}
 	/*
 	* Function: peek.
 	* Assigns the value of the first element in the queue to a reference variable of type T.

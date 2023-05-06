@@ -5,14 +5,37 @@ using namespace std;
 FCFS::FCFS()
 {
 	settype('f');
+	 TotalBusyTime= 0; 
+	 TotalIdleTime=0;
+	TotalTRT = 0;
 }
+Process* FCFS:: gettop()
+{
+	Process* p = RDY.getHead()->getItem(); // peeking process at the top due to stealing 
+	if (p->getorphanflag())
+		return p;
+	else
+	{
+		RDY.deleteNode(p);
+		return p;
+	}
+	
+ }
+double FCFS:: pLoad()
+{
+	return (TotalBusyTime / TotalTRT) ;
 
+}
+double FCFS::pUtil()
+{
+	return (TotalBusyTime / (TotalBusyTime + TotalIdleTime));
+}
 int FCFS::getRDYCount()
 {
 	return RDY.getCount();
 }
 
-void FCFS::KillOrphan(Process* parent)
+void FCFS::KillOrphan(Process* parent, int time)
 {
 	if ((!parent->getLCH() && !parent->getRCH()) || !parent) //no children or no parent
 	{
@@ -20,17 +43,27 @@ void FCFS::KillOrphan(Process* parent)
 	}
 	if (parent->getLCH())
 	{
-		KillOrphan(parent->getLCH()); //the recursive calls will stop when the subroot has LCH = NULL
-		sc->Trm(parent->getLCH()); 
+		KillOrphan(parent->getLCH(), time); //the recursive calls will stop when the subroot has LCH = NULL
+		sc->Trm(parent->getLCH());
+		///////////////////////////taha///////////////////////////////////////
+		parent->getLCH()->setTerminationTime(time); ///added by taha
+		parent->getLCH()->setTurnaroundDuration(parent->getLCH()->getTerminationTime() - parent->getLCH()->getArrivalTime());
+		TotalTRT += parent->getLCH()->getTurnaroundDuration();
+		///////////////////////////////////////////////////////////////////////////
 		setRDY_Length(getRDY_Length() - parent->getLCH()->gettimeRemaining());
 		delete parent->getLCH();
-		parent->setLCH(nullptr); 
+		parent->setLCH(nullptr);
 	}
 	if (parent->getLCH())
 	{
-		KillOrphan(parent->getRCH());
+		KillOrphan(parent->getRCH(), time);
 		setRDY_Length(getRDY_Length() - parent->getLCH()->gettimeRemaining());
-		sc->Trm(parent->getRCH());
+		sc->Trm(parent->getRCH()); // added by taha
+		//////////////////////////////taha/////////////////////////////////
+		parent->getRCH()->setTerminationTime(time);
+		parent->getRCH()->setTurnaroundDuration(parent->getRCH()->getTerminationTime() - parent->getRCH()->getArrivalTime());
+		TotalTRT += parent->getRCH()->getTurnaroundDuration();
+		///////////////////////////////////////////////////////////////////
 		delete parent->getRCH();
 		parent->setRCH(nullptr);
 	}
@@ -55,10 +88,14 @@ void FCFS::sigkill(int timestep, int NF)
 		{
 			if (temp->getItem()->getPID() == ID)
 			{
+				sc->setpKill(sc->getpKill()+1);
 				Process* p = temp->getItem();
-				KillOrphan(p); // killing the children and grandchildren
+				KillOrphan(p, timestep); // killing the children and grandchildren
 				RDY.deleteNode(p); //delete it from RDY List
 				setRDY_Length(getRDY_Length() - p->getCpuTime()); //adjusting RDY_Length
+				p->setTerminationTime(timestep);
+				p->setTurnaroundDuration(p->getTerminationTime() - p->getArrivalTime());
+				TotalTRT += p->getTurnaroundDuration();
 				sc->Trm(p); //terminate this process
 				break;
 			}
@@ -69,7 +106,11 @@ void FCFS::sigkill(int timestep, int NF)
 			int IDR = getCurrRun()->getPID();
 			if (IDR == ID)
 			{
-				KillOrphan(getCurrRun()); // killing the children and grandchildren
+				sc->setpKill(sc->getpKill() + 1);
+				KillOrphan(getCurrRun(), timestep); // killing the children and grandchildren
+				getCurrRun()->setTerminationTime(timestep);
+				getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
+				TotalTRT += getCurrRun()->getTurnaroundDuration();
 				sc->Trm(getCurrRun()); //terminate this process
 				setCurrRun(nullptr);// RUN CURRENTLY EMPTY
 			}
@@ -83,7 +124,7 @@ void FCFS::sigkill(int timestep, int NF)
 	}
 }
 
-void FCFS::Handle(int timestep) //this functions executes and checks if the process needs trmination
+void FCFS::Handle(int timestep) //this functions executes and checks if the process needs termination
 {
 	while (getCurrRun())
 	{
@@ -112,12 +153,20 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 			continue;
 		}
 		getCurrRun()->execute(timestep); //execute
+		/////////////////taha////////////////////////
+		TotalBusyTime++;
+		TotalIdleTime = timestep - TotalBusyTime;
+		//////////////////////////////////////////
 		if (getCurrRun()->getisFinished())
 		{
-			KillOrphan(getCurrRun());
+			KillOrphan(getCurrRun(), timestep);
+			getCurrRun()->setTerminationTime(timestep);
+			getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
+			TotalTRT += getCurrRun()->getTurnaroundDuration();
 			sc->Trm(getCurrRun());
 			setCurrRun(nullptr);
 		}
+
 		break;
 	}
 }
@@ -132,7 +181,12 @@ void FCFS::ScheduleAlgo(int timestep)
 		{
 			Process* temp = RDY.getHead()->getItem(); //First Process In is at the head, and the turn is on this Process to RUN
 			setRDY_Length(getRDY_Length() - temp->getCpuTime()); //Rdy length is decremented as a process is removed from rdy
-			RDY.deleteNode(); //deleting first Process as it is removed to RUN 
+			RDY.deleteNode(); //deleting first Process as it is removed to RUN
+			if (temp->getfirsttime() == 0)
+			{
+				temp->setResponseTime(timestep - temp->getArrivalTime());
+				temp->setfirsttime(1);
+			}
 			setCurrRun(temp);
 			Handle(timestep); //handles the current run
 		}

@@ -13,6 +13,7 @@
 		NR = 0;
 		NS = 0;
 		ND = 0;
+		pSteal = 0;
 		TimeStep = 0;
 		char type=0;
 	}
@@ -53,10 +54,30 @@
 		if (mode == 3)  //no need for bring inside loop as it is printed once
 			pUI->printAfterSim();
 	}
+	//////////////////////////////////taha////////////////////////
+	void Scheduler::Steal()
+	{
+		if (STL == TimeStep)
+		{
+			Processor*  shortest = getMinProcessor(1, 0);
+			Processor * longest = getMaxProcessor();
+			double Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
+		while (Plimit > 40)
+			{
+			if (!longest->gettop()->getorphanflag())
+			{
+				pSteal++;
+				shortest->addToReadyQueue(longest->gettop());
+			}
+				double Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
+			}
+		}
+	}
 
 	///////////////////Added by Amira //////////////////
 	void Scheduler::fork(Process* parent)
 	{
+		pFork++; // for output file
 		Process* child = new Process(TimeStep, ID_Count + 1, parent->gettimeRemaining());
 		if (parent->getLCH() || parent->getRCH())  //There is <2 children
 		{
@@ -143,12 +164,12 @@
 			}
 			return min;
 	}
-	double Scheduler::StealLimit()
+	/*double Scheduler::StealLimit() // m4 me87tagha f 7aga m4 hatenfa3
 	{
 		int shortest = getMinProcessor(1,0)->getRDY_Length();
 		int longest = getMaxProcessor()->getRDY_Length();
-		return (longest - shortest) / longest;
-	}
+		return ((longest - shortest) / longest) * 100;
+	}*/
 
 
 	void  Scheduler::BlktoRdy() 
@@ -166,11 +187,97 @@
 				}
 			}
 	}
+	void Scheduler::OutputFile()
+	{
+		ofstream OutputFile;
+		Total_WT = 0;
+		Total_RT = 0;
+		Total_TRT = 0;
+		Avg_Util = 0;
+		Process* process;
+		OutputFile.open("OutputFiles/" + ofname, ios::out);
+		OutputFile << "TT\tPID\tAT\tCT\tIO_D\tWT\tRT\tTRT" << endl;
+		while (TerminatedQueue.dequeueOT(process)) //printing finished processes
+		{
 
+			process->setwaitingtime(process->getTurnaroundDuration() - process->getCpuTime());
+			OutputFile << process->getTerminationTime() << "\t" << process->getPID() << "\t" << process->getArrivalTime() << "\t";
+			OutputFile << "\t" << process->getCpuTime() << "\t" << process->getTotalIO_D() << "\t" << process->getWaitingTime() << "\t" << process->getResponseTime() << "\t" << process->getTurnaroundDuration();
+			OutputFile << "\t" << process->getCpuTime();
 
+			OutputFile << endl;// end of process
+			Total_WT += process->getWaitingTime();
+			Total_RT += process->getResponseTime();
+			Total_TRT += process->getTurnaroundDuration();
+		}
+		OutputFile << "------------------------------------------------------------------------------------------" << endl;
+		OutputFile << endl;
+		OutputFile << endl;
+		OutputFile << "Processes: " << NumProcess << endl;
+		OutputFile << "Avg WT = " << Total_WT / NumProcess << "\t" << "Avg RT = " << Total_RT / NumProcess << "\t" << "Avg TRT = " << Total_TRT / NumProcess << endl;
+		OutputFile << "Migration %:" << "\t" << "RTF=" << (pRTF / NumProcess) * 100 << "%\t" << "MaxW = " << (pMaxW / NumProcess) * 100 << endl;
+		OutputFile << "Work Steal%: " << (pSteal / NumProcess) << "%" << endl;
+		OutputFile << "Forked Process: " << (pFork / NumProcess) * 100 << "%" << endl;
+		OutputFile << "Killed Process: " << (pKill / NumProcess) * 100 << "%" << endl;
+		OutputFile << endl;
+		OutputFile << endl;
+		OutputFile << "Processors: " << NumProcessor << " [" << NF << " FCFS, " << NS << " SJF, " << NR << " RR, " << ND << " EDF]" << endl;
+		OutputFile << "Processor Load" << endl;
+		for (int i = 0; i < NumProcessor; i++)
+		{
+			if (ArrP[i] != NULL)
+			{
+				if (i < NF)
+				{
+					OutputFile << "P" << i + 1 << "="<<ArrP[i]->pLoad() * 100 <<"%,\t";
+				}
+				else if (i < NF + NS)
+				{
+					OutputFile << "P" << i + 1 << "=" << ArrP[i]->pLoad() * 100 << "%,\t";
+				}
+				else if (i< NF+NS+NR)
+				{
+					OutputFile << "P" << i + 1 << "=" << ArrP[i]->pLoad() * 100 << "%,\t";
+				}
+				else
+					OutputFile << "P" << i + 1 << "=" << ArrP[i]->pLoad() * 100 << "%\t";
+			}
+		}
+		OutputFile << endl;
+		OutputFile << "Processor Utiliz" << endl;
+		for (int i = 0; i < NumProcessor; i++)
+		{
+			if (ArrP[i] != NULL)
+			{
+				if (i < NF)
+				{
+					OutputFile << "P" << i + 1 << "=" << ArrP[i]->pUtil() * 100 << "%,\t";
+					Avg_Util += ArrP[i]->pUtil();
+				}
+				else if (i < NF + NS)
+				{
+					OutputFile << "P" << i + 1 << "=" << ArrP[i]->pUtil() * 100 << "%,\t";
+					Avg_Util += ArrP[i]->pUtil();
+				}
+				else if (i < NF + NS + NR)
+				{
+					OutputFile << "P" << i + 1 << "=" << ArrP[i]->pUtil() * 100 << "%,\t";
+					Avg_Util += ArrP[i]->pUtil();
+				}
+				else
+				{
+					OutputFile << "P" << i + 1 << "=" << ArrP[i]->pUtil() * 100 << "%\t";
+					Avg_Util += ArrP[i]->pUtil();
+				}
+			}
+		}
+		OutputFile << endl;
+		OutputFile << "Avg utilization = "<< (Avg_Util/ NumProcessor)*100 <<"%"<<endl;
+		OutputFile.close();
+	}
 	void Scheduler::Output(int time)
 	{
-		pUI->Print1(TimeStep,NumProcessor,ArrP , NF, NS , NR);
+		pUI->Print1(TimeStep,NumProcessor,ArrP , NF, NS , NR, ND);
 		pUI->Print2(BLKQueue, BLKQueue.getCount());
 		pUI-> Print3(NumProcessor, ArrP);
 		pUI->Print4(TerminatedQueue, TerminatedQueue.getCount());
@@ -254,7 +361,7 @@
 	}
 
 
-	void Scheduler::RuntoTrm(Process* p) 
+	void Scheduler::Trm(Process* p)
 	{
 		p->setisFinished(true);
 		TerminatedQueue.enqueue(p);
@@ -287,6 +394,7 @@
 	{
 		if (p->gettimeRemaining() < rtf)
 		{
+			pRTF++; // for output file
 			Processor* min;
 			min = getMinProcessor('s', NF);
 			min->addToReadyQueue(p);  // add to shortest sjf
@@ -303,6 +411,7 @@
 		int waitingtime = timestep - at - timerunned;
 		if (waitingtime > maxw )
 		{
+			pMaxW++; // for output file
 			Processor* min;
 			min = getMinProcessor('r', NF+NS);
 			min->addToReadyQueue(p);  // add to shortest sjf
@@ -311,4 +420,11 @@
 		return false;
 
 	}
-
+	int Scheduler::getpKill()
+	{
+		return pKill;
+	 }
+	void Scheduler::setpKill(int n)
+	{
+		pKill = n;
+	}

@@ -15,7 +15,7 @@ public:
 	bool isEmpty() const { return tail == nullptr; }
 
 	Node <T> *getHead() { return head; }
-	T * getHead1() { return head; }
+	T  getHead1() { return head; }
 	Node <T> * getTail() { return tail; }
 
 	int getCount() const { return count; }
@@ -85,7 +85,7 @@ public:
 	{
 		return p->getNext();
 	}*/
-		T  deleteEDF() // similar to dequeue // testing -taha
+		T  deleteEDF() // similar to dequeue // returning process deleted-taha
 	{
 		if (isEmpty()) // if the list is empty 
 		{

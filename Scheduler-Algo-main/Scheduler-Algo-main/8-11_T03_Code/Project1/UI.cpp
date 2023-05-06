@@ -31,7 +31,7 @@ int UI::ReadMode()
 
 
 //Printing the Process Scheduler Status
-void UI:: Print1 (int time, int NumProcessor, Processor ** ArrP , int NF, int NS, int NR )
+void UI:: Print1 (int time, int NumProcessor, Processor ** ArrP , int NF, int NS, int NR, int ND )
 {
 	clear();
 	cout << "Current Timestep:" << time << endl;
@@ -54,9 +54,16 @@ void UI:: Print1 (int time, int NumProcessor, Processor ** ArrP , int NF, int NS
 					ArrP[i]->print_rdy();
 					cout << endl;
 				}
-				else
+				else if (i < NF+NS+NR)
 				{
 					cout << "Processor " << i + 1 << "[RR]";
+					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
+					ArrP[i]->print_rdy();
+					cout << endl;
+				}
+				else
+				{
+					cout << "Processor " << i + 1 << "[EDF]";
 					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
 					ArrP[i]->print_rdy();
 					cout << endl;

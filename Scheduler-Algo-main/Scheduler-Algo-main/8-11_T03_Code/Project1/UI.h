@@ -28,7 +28,7 @@ public:
 	int ReadMode();
 
 	// Printing the Process Scheduler Status
-	void Print1(int time, int NumProcessor, Processor** ArrP, int NF, int NS, int NR);
+	void Print1(int time, int NumProcessor, Processor** ArrP, int NF, int NS, int NR, int ND);
 	void Print2(Queue<Process*> BLKqueue, int BLKcount);
 	void Print3(int NumProcessor, Processor** ArrP);
 	void Print4(Queue<Process*>  TRMqueue, int trmcount );

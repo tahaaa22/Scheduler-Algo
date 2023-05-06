@@ -4,11 +4,17 @@
 class SJF : public Processor
 {
 private:
+    int TotalBusyTime; // time taken inside run for each processor
+    int TotalIdleTime; // total busy time minus time step
+    int TotalTRT; // total turn around time of all processes
     PriorityQueue<Process*> PQ;
     int curenttime;
     static char Ptype;
 public:
     SJF();
+    virtual Process* gettop();
+    virtual double pLoad();
+    virtual double pUtil();
     void addToReadyQueue(Process* p1);
     char getPtype();
     void ScheduleAlgo(int time);
