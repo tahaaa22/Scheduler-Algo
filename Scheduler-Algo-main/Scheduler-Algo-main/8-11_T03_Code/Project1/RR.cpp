@@ -69,23 +69,25 @@ void RR::ScheduleAlgo(int timestep)
         Process* temp = getCurrRun();
         int t = temp->gettimeRemaining();
 
-        bool migrate = sc->migrationrtf(temp, RTF);
-        if (migrate == true)
+        bool migrate = true;
+        while (migrate)
         {
-            if (!RdyQueue.isEmpty()) //run empty and ready contains processes
+            migrate = sc->migrationrtf(temp, RTF);
+            if (migrate == true)
             {
-                Process* temp;
-                RdyQueue.dequeue(temp);
-                setCurrRun(temp);
+                if (!RdyQueue.isEmpty()) //run empty and ready contains processes
+                {
+                    Process* temp;
+                    RdyQueue.dequeue(temp);
+                    setCurrRun(temp);
+                }
             }
         }
-        else if (Curtime == TS && t > 1) // a5r sec fy el ts
+        if (Curtime == TS && t > 1) // a5r sec fy el ts
         {
             getCurrRun()->execute(timestep); // bt2alal timestep b 1
-            //////////////taha//////////////////
             TotalBusyTime++;
             TotalIdleTime = timestep - TotalBusyTime;
-            ////////////////////////////////////
             Curtime = 0;
 
             // BACK TO RDY QUEUE 
@@ -122,10 +124,8 @@ void RR::ScheduleAlgo(int timestep)
         else
         {
             getCurrRun()->execute(timestep); //a2alal el timestep
-            ////////////////taha///////////////////
             TotalBusyTime++;
             TotalIdleTime = timestep - TotalBusyTime;
-            /////////////////////////////////////////
             Curtime++;
             // ADDDDD COND BLOCK
             if (!getCurrRun()->getIOqueue().isEmpty()) {
