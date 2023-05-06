@@ -47,7 +47,7 @@ public :
 	void  BlktoRdy();
 	void Simulation(); // read modes from UI class to make different implementation for each mode
 	bool allTerminated(); // check if the terminated queue has equal number of processes entered to stop simulation 
-	void addtoBlock();
+	//void addtoBlock();
 	void NewtoRdy(int timestep);
 	void Trm(Process* p);
 	void RuntoBlk(Process* p);
@@ -72,7 +72,7 @@ public :
 	/////////////////////////////////////////
 	int getTimeStep();
 	int getNF();
-	int getpKill();
+	double getpKill();
 	Processor* getMaxProcessor();
 	Processor* getMinProcessor(char a, int n); //true gets min of all types false gets min fcfs
 	/////////////////////////////////////////

@@ -1,33 +1,34 @@
 #include "RR.h"
 #include "Scheduler.h"
-RR::RR()
+RR::RR(Scheduler * sch)
 {
     Curtime = 0;
     settype('r');
-     TotalBusyTime = 0;
-     TotalIdleTime = 0;
+    TotalBusyTime = 0;
+    TotalIdleTime = 0;
     TotalTRT = 0;
+    sc = sch;
 }
 Process* RR::gettop()
 {
-    Process* p;
+    Process* p = NULL;
     RdyQueue.peek(p);
-    if (p->getorphanflag())
+    if (p &&(p->getorphanflag()))
         return p;
     else
     {
         RdyQueue.dequeue(p);
         return p;
     }
- }
+}
 double RR::pLoad()
 {
-    return (TotalBusyTime / TotalTRT) ;
+    return (TotalBusyTime / TotalTRT);
 
 }
 double RR::pUtil()
 {
-    return (TotalBusyTime / (TotalBusyTime + TotalIdleTime)) ;
+    return (TotalBusyTime / (TotalBusyTime + TotalIdleTime));
 }
 char RR::getPtype()
 {
@@ -40,7 +41,7 @@ char RR::getPtype()
     }
  */
 
-   
+
 void RR::addToReadyQueue(Process* p1)
 {
     RdyQueue.enqueue(p1);
@@ -61,9 +62,10 @@ void RR::ScheduleAlgo(int timestep)
         }
         setCurrRun(temp);
         Curtime = 0;
-        setRDY_Length(getRDY_Length() - temp->getCpuTime()); //bn2s cpu time el fy el run
+         setRDY_Length(getRDY_Length() - temp->getCpuTime()); //bn2s cpu time el fy el run
 
     }
+
     else if (getCurrRun())  //run not empty
     {
         Process* temp = getCurrRun();
@@ -104,22 +106,22 @@ void RR::ScheduleAlgo(int timestep)
                 TotalTRT += temp->getTurnaroundDuration();
                 sc->Trm(temp);
             }
-        }
-
             // FROM RUN TO BLOCK
-            if (!getCurrRun()->getIOqueue().isEmpty()) {
+            if (!getCurrRun()->getIOqueue().isEmpty())
+            {
 
-                if (temp->getIOqueue().peek().getFirstItem() == timestep) {
+                if (temp->getIOqueue().peek().getFirstItem() == timestep)
+                {
                     sc->RuntoBlk(temp);
                 }
             }
-
             if (!RdyQueue.isEmpty()) //run empty and ready contains processes
             {
                 Process* temp;
                 RdyQueue.dequeue(temp);
                 setCurrRun(temp);
             }
+
         }
         else
         {
@@ -128,7 +130,8 @@ void RR::ScheduleAlgo(int timestep)
             TotalIdleTime = timestep - TotalBusyTime;
             Curtime++;
             // ADDDDD COND BLOCK
-            if (!getCurrRun()->getIOqueue().isEmpty()) {
+            if (!getCurrRun()->getIOqueue().isEmpty())
+            {
 
                 if (getCurrRun()->getIOqueue().peek().getFirstItem() == timestep)
                 {
@@ -160,8 +163,9 @@ void RR::ScheduleAlgo(int timestep)
 
 
         }
-
     }
+
+}
 
 void RR::print_rdy()
 {

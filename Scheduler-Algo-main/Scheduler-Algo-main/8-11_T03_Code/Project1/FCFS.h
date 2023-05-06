@@ -26,20 +26,34 @@ private:
 	//Scheduler* s; //used to call fork fn
 
 public:
-	FCFS();  //constructor
+	FCFS(Scheduler *);  //constructor
+
 	virtual Process* gettop() ;
+
 	void sigkill(int timestep, int NF);
+
 	virtual double pLoad();
+
 	virtual double pUtil();
+
 	virtual void ScheduleAlgo(int time);
+
 	void KillOrphan(Process* parent, int time);
+
 	void Handle(int timestep);
+
 	virtual int getRDYCount(); //number of processes in processor
+
 	virtual void addToReadyQueue(Process* process); //inserting a process to the RDY 
+
 	char getPtype();
+
 	void print_rdy();
+
 	static void Loadp(ifstream& inputFile); //loading MaxW
+
 	static void Loadpf(ifstream& inputFile); //loading Forking prob
+
 	static void Loadkill(ifstream& inputFile); // loading kill signals
 
 	~FCFS();

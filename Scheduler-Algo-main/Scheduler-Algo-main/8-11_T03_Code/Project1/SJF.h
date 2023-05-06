@@ -10,14 +10,15 @@ private:
     PriorityQueue<Process*> PQ;
     int curenttime;
     static char Ptype;
+
 public:
-    SJF();
+    SJF(Scheduler *);
     virtual Process* gettop();
     virtual double pLoad();
     virtual double pUtil();
     void addToReadyQueue(Process* p1);
     char getPtype();
-    void ScheduleAlgo(int time);
+    virtual void ScheduleAlgo(int time);
     virtual void print_rdy();
     ////////////////////////////////////////Added by mimo////////////////////////////////////////
     void Loadp(ifstream& inputFile);

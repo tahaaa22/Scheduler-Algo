@@ -1,16 +1,18 @@
 #include "SJF.h"
 #include "Scheduler.h"
-SJF::SJF() {
+SJF::SJF(Scheduler * sch) 
+{
     settype('s');
      TotalBusyTime = 0;
      TotalIdleTime = 0;
     TotalTRT = 0;
+    sc = sch;
 }
 Process* SJF::gettop()
 {
-    Process* p;
+    Process* p= NULL ;
     PQ.peek(p);
-    if (p ->getorphanflag())
+    if (p && (p ->getorphanflag()))
     return p;
     else
     {
@@ -40,6 +42,7 @@ char  SJF::getPtype()
 
 void  SJF::ScheduleAlgo(int time)
 {
+    
     if (!PQ.isEmpty() && !getCurrRun())
     {
         Process* temp;

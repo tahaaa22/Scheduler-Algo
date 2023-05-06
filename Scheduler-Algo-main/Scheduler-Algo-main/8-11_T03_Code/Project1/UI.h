@@ -14,10 +14,6 @@ using namespace std;
 
 class UI
 {
-private:
-	RR* pr;
-	FCFS* pf;
-	SJF* ps;
 public:
 	
 	void clear(); // to clear console after each time step

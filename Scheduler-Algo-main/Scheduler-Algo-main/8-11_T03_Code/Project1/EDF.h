@@ -11,11 +11,11 @@ private:
 	int curenttime;
 	static char Ptype;
 public:
-	EDF();
+	EDF(Scheduler *);
 	virtual Process* gettop() ;
 	virtual double pLoad();
 	virtual double pUtil();
-	void ScheduleAlgo(int time);
+	virtual void ScheduleAlgo(int time);
 	void addToReadyQueue(Process* p1);
 	char getPtype();
 	virtual void print_rdy();

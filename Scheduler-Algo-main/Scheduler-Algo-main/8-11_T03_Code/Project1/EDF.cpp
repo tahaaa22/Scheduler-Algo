@@ -1,18 +1,19 @@
 #include "EDF.h"
 #include "Scheduler.h"
 
-EDF::EDF()
+EDF::EDF(Scheduler * sch)
 {
 	settype('e');
 	 TotalBusyTime = 0;
 	 TotalIdleTime = 0;
 	TotalTRT = 0;
+	sc = sch;
 }
 Process* EDF::gettop()
 {
-	Process* p;
+	Process* p = NULL ;
 	EDFrdy.peek(p);
-	if (p->getorphanflag())
+	if (p&&(p->getorphanflag()))
 		return p;
 	else
 	{
@@ -31,14 +32,18 @@ double EDF::pUtil()
 }
 void  EDF::addToReadyQueue(Process* p1) //inserting a process to the RDY 
 {
-	if(p1->getDeadLine() < getCurrRun()->getDeadLine())
+	if (p1 && getCurrRun())
 	{
-		EDFrdy.enqueue(getCurrRun(), getCurrRun()->getDeadLine());
-		setCurrRun(p1);
-		setRDY_Length(getRDY_Length() + getCurrRun()->gettimeRemaining());
+		if (p1->getDeadLine() < getCurrRun()->getDeadLine())
+		{
+			EDFrdy.enqueue(getCurrRun(), getCurrRun()->getDeadLine());
+			setCurrRun(p1);
+			setRDY_Length(getRDY_Length() + getCurrRun()->gettimeRemaining());
+		}
+		EDFrdy.enqueue(p1, p1->getDeadLine());
+		setRDY_Length(getRDY_Length() + p1->getCpuTime());
 	}
-	EDFrdy.enqueue(p1, p1->getDeadLine());
-	setRDY_Length(getRDY_Length() + p1->getCpuTime());
+
 }
 
 char  EDF::getPtype()

@@ -2,28 +2,33 @@
 #include "Scheduler.h"
 using namespace std;
 
-FCFS::FCFS()
+FCFS::FCFS(Scheduler * sch)
 {
 	settype('f');
-	 TotalBusyTime= 0; 
-	 TotalIdleTime=0;
+	TotalBusyTime = 0;
+	TotalIdleTime = 0;
 	TotalTRT = 0;
+	sc = sch;
 }
-Process* FCFS:: gettop()
+Process* FCFS::gettop()
 {
-	Process* p = RDY.getHead()->getItem(); // peeking process at the top due to stealing 
-	if (p->getorphanflag())
-		return p;
-	else
+	if (RDY.getHead())
 	{
-		RDY.deleteNode(p);
-		return p;
+		Process* p = RDY.getHead()->getItem(); // peeking process at the top due to stealing 
+		if (p && (p->getorphanflag()))
+			return p;
+		else
+		{
+			RDY.deleteNode(p);
+			if (p)
+				return p;
+		}
 	}
-	
- }
-double FCFS:: pLoad()
+
+}
+double FCFS::pLoad()
 {
-	return (TotalBusyTime / TotalTRT) ;
+	return (TotalBusyTime / TotalTRT);
 
 }
 double FCFS::pUtil()
@@ -88,7 +93,7 @@ void FCFS::sigkill(int timestep, int NF)
 		{
 			if (temp->getItem()->getPID() == ID)
 			{
-				sc->setpKill(sc->getpKill()+1);
+				sc->setpKill(sc->getpKill() + 1);
 				Process* p = temp->getItem();
 				KillOrphan(p, timestep); // killing the children and grandchildren
 				RDY.deleteNode(p); //delete it from RDY List
@@ -130,6 +135,7 @@ void FCFS::sigkill(int timestep, int NF)
 
 void FCFS::Handle(int timestep) //this functions executes and checks if the process needs termination
 {
+
 	while (getCurrRun())
 	{
 		//handling fork
@@ -145,7 +151,7 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 			migrate = sc->migrationmaxw(getCurrRun(), MaxW, timestep);
 			if (migrate == true)
 			{
-				Process* temp = RDY.getHead()->getItem(); 
+				Process* temp = RDY.getHead()->getItem();
 				setCurrRun(temp);
 				continue;
 			}
@@ -184,7 +190,7 @@ void FCFS::ScheduleAlgo(int timestep)
 {
 	sigkill(timestep, sc->getNF());
 	Handle(timestep); //equivalent to while run = true (run contains a process)
-	while (!getCurrRun()) //while RUN is empty 
+	while (!getCurrRun() ) //while RUN is empty 
 	{
 		if (!RDY.isEmpty()) //run empty and ready contains processes
 		{
@@ -199,12 +205,15 @@ void FCFS::ScheduleAlgo(int timestep)
 			setCurrRun(temp);
 			Handle(timestep); //handles the current run
 		}
+		else
+			break;
 	}
 }
 
 void FCFS::addToReadyQueue(Process* process) //inserting a process to the RDY 
 {
 	RDY.insertNode(process);
+	if (process)
 	setRDY_Length(getRDY_Length() + process->getCpuTime());
 }
 

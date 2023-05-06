@@ -1,4 +1,5 @@
-#include "Scheduler.h"
+#pragma once
+//#include "Scheduler.h"
 #include "Processor.h"
 Processor:: Processor()
 {
@@ -7,9 +8,4 @@ Processor:: Processor()
     BusyCount = 0;
     Total_CPUtime = 0;
     Total_TRT = 0;
-    //sc = new  Scheduler;
-}
-void Processor ::setRDY_Length(int length)
-{
-    RDY_Length = length;
 }

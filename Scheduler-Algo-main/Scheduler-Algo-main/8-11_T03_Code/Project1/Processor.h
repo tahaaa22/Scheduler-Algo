@@ -22,68 +22,66 @@ protected:
    Scheduler * sc;
 public:
     Processor();
+
     virtual Process* gettop() = 0;// return top process in the list for stealing
+
     virtual double pLoad() = 0; // to measure load balance for each processor
+
     virtual double pUtil() = 0; // to measure the time of the processor when it is executing 
-   void setRDY_Length(int length);
+
+   void setRDY_Length(int length)
+   {
+       RDY_Length = length;
+   }
+
      void addterminate(Process* pro)  //kill for FCFS
     {
          Terminatekill = pro;
     }
+
      Process* getkilltem() // get killed process to termination
     {
         return Terminatekill;
     }
+
     void addtoterminate(Process* p)  //rename to setTerminate after debugging
     {
         Terminate = p;
     }
+
     Process* getTerminated()
     {
         return Terminate;
     }
-    //virtual void ReadyIDs() = 0;   // it fills qID AND CALLS print of DS
+   
     void addtoBLK(Process* process)
     {
         BLK = process;
     }
+
     Process* getBLK()
     {
         return BLK;
     }
-
-    //virtual void addtoBLK(Process*& process)
-    //{
-    //    if (getCurrRun() != NULL)
-    //    {
-    //       // if (getCurrRun()->getisBlocked())
-    //            process = getCurrRun();
-    //    }
-    //}
-    //virtual void addtoterminate(Process* & process)
-    //{
-    //    if (getCurrRun() != NULL)
-    //    {
-    //       //if (getCurrRun()->getisFinished())
-    //          //  process = getCurrRun();
-    //    }
-    //    return;
-    //}
    
-    virtual int getRDYCount() = 0;
-   // virtual Process* getNextProcess() = 0;       
+    virtual int getRDYCount() = 0;  
+
     virtual void addToReadyQueue(Process *process) = 0;  // processor or scheduler
+
     virtual void ScheduleAlgo(int time) = 0;  //new
+
     virtual void print_rdy() = 0;
+
     void setCurrRun(Process* p)
     {     //new
         CurrRun = p;
     }
+
     Process* getCurrRun()
     {      //new 
         return CurrRun;
     }
-   // virtual int readycount() = 0;
+  
     int getRDY_Length()
     {
         return RDY_Length;
@@ -98,13 +96,10 @@ public:
     {
         type = a;
     }
+
     virtual char getPtype() = 0;
 
-    ///*  bool isBusy() 
-    //  {
-    //      if (RDY_Length == 0) return false;
-    //      else return true;
-    //  }*/
+    
     bool isBusy() // return true of currrun if working // dh feha 8lt need fix 
     {
         if (CurrRun) return true;
@@ -118,26 +113,5 @@ public:
     int getTotal_TRT() {
         return Total_TRT;
     }
-    //friend ostream& operator<<(ostream& output, Processor * p1);
-
-    ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    ////me7tag as2al mo3ed 3ala haga hena / momken tet3ml btare2a tanya ashal b kteer gowa kol processor fa lama a4ofoko ha2oloko yarab afteker bs
-   ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-    
-     /*void unblockProcesses()
-    {
-        for ( Process * it = blockedProcesses.getHead(); it != nullptr; it = it->next) {
-            if (it->isBlockedProcess()) {
-               // if (it->decrementBlockedTime()) { // Check if blocked duration has ended also waiting for func decrement
-                    addToReadyQueue(it);
-                    it->next = nullptr; // Remove from the blocked queue
-                    break; // Exit the loop after unblocking one element
-                }
-            }
-        }
-    }
-    */
- /////////////////////////////////////////ADDEDDDDD BY MIMO/////////////////////////////
-   // virtual Process* sigkill(int timestep, int NF) = 0;
-    
+  
 };

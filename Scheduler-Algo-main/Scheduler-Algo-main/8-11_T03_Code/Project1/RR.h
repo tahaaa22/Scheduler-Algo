@@ -16,8 +16,9 @@ private:
     static int TS;    //Timeslice
     static int RTF;
     int Curtime;
+    Scheduler* sc;
 public:
-    RR();
+    RR(Scheduler * );
     virtual Process* gettop();
     virtual double pLoad();
     virtual double pUtil();

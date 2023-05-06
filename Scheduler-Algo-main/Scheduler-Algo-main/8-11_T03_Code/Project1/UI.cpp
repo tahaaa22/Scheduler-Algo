@@ -3,9 +3,6 @@
 
 UI::UI()
 {
-	pf = new FCFS;
-	ps = new SJF;
-	pr= new RR;
 }
 
 void UI::clear()
