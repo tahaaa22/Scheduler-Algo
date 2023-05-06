@@ -1,4 +1,4 @@
-#include "Scheduler.h"
+include "Scheduler.h"
 
 	Scheduler::Scheduler()
 	{
@@ -409,15 +409,18 @@
 		int timerunned = p->getCpuTime() - p->gettimeRemaining();
 		int at = p->getArrivalTime();
 		int waitingtime = timestep - at - timerunned;
-		if (waitingtime > maxw )
+		if (!p->getorphanflag())
 		{
-			pMaxW++; // for output file
-			Processor* min;
-			min = getMinProcessor('r', NF+NS);
-			min->addToReadyQueue(p);  // add to shortest sjf
-			return true;
+			if (waitingtime > maxw)
+			{
+				pMaxW++; // for output file
+				Processor* min;
+				min = getMinProcessor('r', NF + NS);
+				min->addToReadyQueue(p);  // add to shortest sjf
+				return true;
+			}
+			return false;
 		}
-		return false;
 
 	}
 	int Scheduler::getpKill()
