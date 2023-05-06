@@ -80,7 +80,7 @@ void FCFS::sigkill(int timestep, int NF)
 	int kill = Q.getFirstItem(); // get the kill time
 	int ID = Q.getSecondItem(); // get id to be killed
 	Node<Process*>* temp = RDY.getHead(); // get head
-	if (timestep == kill)
+	while (timestep == kill)
 	{
 		nf++;
 		//check if process is in this processor FCFS[nf] RDY
@@ -119,6 +119,10 @@ void FCFS::sigkill(int timestep, int NF)
 		if (nf == NF)
 		{
 			killSig.dequeue();
+			Q = killSig.peek();
+			kill = Q.getFirstItem(); // get the kill time
+			ID = Q.getSecondItem(); // get id to be killed
+			temp = RDY.getHead(); // get head
 			nf = 0;
 		}
 	}
@@ -135,11 +139,16 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 		{
 			sc->fork(getCurrRun());
 		}
-		bool migrate = sc->migrationmaxw(getCurrRun(), MaxW, timestep);
-		if (migrate == true)
+		bool migrate = true;
+		while (migrate)
 		{
-			setCurrRun(nullptr);
-			continue;
+			migrate = sc->migrationmaxw(getCurrRun(), MaxW, timestep);
+			if (migrate == true)
+			{
+				Process* temp = RDY.getHead()->getItem(); 
+				setCurrRun(temp);
+				continue;
+			}
 		}
 		//handling blk
 		// the line below is equivalent to :
