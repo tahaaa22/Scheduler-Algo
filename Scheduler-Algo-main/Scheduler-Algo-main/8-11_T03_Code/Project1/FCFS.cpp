@@ -188,25 +188,32 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 
 void FCFS::ScheduleAlgo(int timestep)
 {
-	sigkill(timestep, sc->getNF());
-	Handle(timestep); //equivalent to while run = true (run contains a process)
-	while (!getCurrRun() ) //while RUN is empty 
+	if (getisOverheated())
 	{
-		if (!RDY.isEmpty()) //run empty and ready contains processes
+		setOverheatTime(getOverheatTime() - 1);
+		if (getOverheatTime() == 0) setisOverheated(false);
+	}
+	else {
+		sigkill(timestep, sc->getNF());
+		Handle(timestep); //equivalent to while run = true (run contains a process)
+		while (!getCurrRun()) //while RUN is empty 
 		{
-			Process* temp = RDY.getHead()->getItem(); //First Process In is at the head, and the turn is on this Process to RUN
-			setRDY_Length(getRDY_Length() - temp->getCpuTime()); //Rdy length is decremented as a process is removed from rdy
-			RDY.deleteNode(); //deleting first Process as it is removed to RUN
-			if (temp->getfirsttime() == 0)
+			if (!RDY.isEmpty()) //run empty and ready contains processes
 			{
-				temp->setResponseTime(timestep - temp->getArrivalTime());
-				temp->setfirsttime(1);
+				Process* temp = RDY.getHead()->getItem(); //First Process In is at the head, and the turn is on this Process to RUN
+				setRDY_Length(getRDY_Length() - temp->getCpuTime()); //Rdy length is decremented as a process is removed from rdy
+				RDY.deleteNode(); //deleting first Process as it is removed to RUN
+				if (temp->getfirsttime() == 0)
+				{
+					temp->setResponseTime(timestep - temp->getArrivalTime());
+					temp->setfirsttime(1);
+				}
+				setCurrRun(temp);
+				Handle(timestep); //handles the current run
 			}
-			setCurrRun(temp);
-			Handle(timestep); //handles the current run
+			else
+				break;
 		}
-		else
-			break;
 	}
 }
 
@@ -247,6 +254,13 @@ void FCFS::Loadkill(ifstream& inputFile)
 		SNode<int>* kill = new SNode <int>(time, pid);
 		killSig.enqueue(kill);
 	}
+}
+
+Process* FCFS:: eject() 
+{
+	Process* temp = RDY.getHead()->getItem();
+	RDY.deleteNode();
+	return temp;
 }
 
 FCFS :: ~FCFS()

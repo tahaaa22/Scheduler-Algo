@@ -23,4 +23,5 @@ public:
     ////////////////////////////////////////Added by mimo////////////////////////////////////////
     void Loadp(ifstream& inputFile);
     virtual  int getRDYCount();
+    Process* eject();
 };

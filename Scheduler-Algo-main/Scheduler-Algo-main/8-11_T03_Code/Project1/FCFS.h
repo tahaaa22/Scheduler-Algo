@@ -56,6 +56,8 @@ public:
 
 	static void Loadkill(ifstream& inputFile); // loading kill signals
 
+	Process* eject(); //added by omar
+
 	~FCFS();
 };
 

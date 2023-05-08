@@ -36,6 +36,8 @@ class Scheduler
 	Queue <Process*> TerminatedQueue;
 	Queue <Process*> BLKQueue;
 	string ofname; // output file name
+	int OverheatConstant;
+	
 public :
 	Scheduler();
 	void full();
@@ -79,8 +81,5 @@ public :
 	//				setters				   //
 	/////////////////////////////////////////
 	void setpKill(int n);
-
-
-
-
+	void Overheat(Processor* p);
 };

@@ -50,8 +50,13 @@ void RR::addToReadyQueue(Process* p1)
 
 void RR::ScheduleAlgo(int timestep)
 {
+    if (getisOverheated())
+    {
+        setOverheatTime(getOverheatTime() - 1);
+        if (getOverheatTime() == 0) setisOverheated(false);
+    }
     //rdy queue msh empty w mafya4 current run bardo
-    if (!RdyQueue.isEmpty() && !getCurrRun())
+    else if (!RdyQueue.isEmpty() && !getCurrRun())
     {
         Process* temp;
         RdyQueue.dequeue(temp);
@@ -182,6 +187,13 @@ void RR::Loadp(ifstream& inputFile) {
     inputFile >> RTF;
 
 }
+
+Process* RR::eject() {
+    Process* temp;
+    RdyQueue.dequeue(temp);
+    return temp;
+}
+
 char RR::Ptype = 'r';
 
 int RR::TS = 0;

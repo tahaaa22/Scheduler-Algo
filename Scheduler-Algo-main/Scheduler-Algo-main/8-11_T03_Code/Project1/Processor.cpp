@@ -8,4 +8,7 @@ Processor:: Processor()
     BusyCount = 0;
     Total_CPUtime = 0;
     Total_TRT = 0;
+    isOverheated = false;
+    OverheatTime = 0;
 }
+

@@ -31,7 +31,6 @@ double SJF::pUtil()
 }
 void  SJF::addToReadyQueue(Process* p1) //inserting a process to the RDY 
 {
-
     PQ.enqueue(p1, p1->gettimeRemaining());
     setRDY_Length(getRDY_Length() + p1->getCpuTime());
 }
@@ -42,8 +41,12 @@ char  SJF::getPtype()
 
 void  SJF::ScheduleAlgo(int time)
 {
-    
-    if (!PQ.isEmpty() && !getCurrRun())
+    if (getisOverheated()) 
+    {
+        setOverheatTime(getOverheatTime() - 1);
+        if (getOverheatTime() == 0) setisOverheated(false);
+    }
+    else if (!PQ.isEmpty() && !getCurrRun())
     {
         Process* temp;
         PQ.dequeue(temp);
@@ -98,6 +101,13 @@ void  SJF::Loadp(ifstream& inputFile)
 int  SJF::getRDYCount()
 {
     return PQ.getCount();
+}
+
+Process* SJF::eject() 
+{
+    Process* temp;
+    PQ.dequeue(temp);
+    return temp;
 }
 
 

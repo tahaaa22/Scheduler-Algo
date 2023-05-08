@@ -104,4 +104,11 @@ int  EDF::getRDYCount()
 {
 	return EDFrdy.getCount();
 }
+
+Process* EDF::eject()
+{
+	Process* temp;
+	EDFrdy.dequeue(temp);
+	return temp;
+}
 char EDF::Ptype = 'e';

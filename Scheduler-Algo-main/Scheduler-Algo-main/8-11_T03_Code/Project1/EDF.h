@@ -20,4 +20,5 @@ public:
 	char getPtype();
 	virtual void print_rdy();
 	virtual int getRDYCount();
+	Process* eject();
 };

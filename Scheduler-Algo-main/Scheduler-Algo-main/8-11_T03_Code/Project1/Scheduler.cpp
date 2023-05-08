@@ -16,6 +16,7 @@ Scheduler::Scheduler()
 	pSteal = 0;
 	TimeStep = 0;
 	char type = 0;
+	OverheatConstant = 0;
 }
 void Scheduler::Simulation()
 {
@@ -31,6 +32,12 @@ void Scheduler::Simulation()
 		pUI->printBeforeSim(); // only condition for mode 3 before simulation 
 	while (!isallterminated && isFileLoaded)
 	{
+		srand(TimeStep);
+		int random = rand() % 100;
+		int r = rand() % NumProcessor;
+		if (random == r) {
+			Overheat(ArrP[r]);
+		}
 		NewtoRdy(TimeStep);
 		for (int i = 0; i < NumProcessor; i++)
 			ArrP[i]->ScheduleAlgo(TimeStep);
@@ -162,16 +169,21 @@ Processor* Scheduler::getMaxProcessor()
 }
 Processor* Scheduler::getMinProcessor(char a, int n)
 {
-
+	int k = n;
 	Processor* min = ArrP[n];
+	while (min->getisOverheated()) {
+		k++;
+		min = ArrP[k];
+	}
 	for (int i = n; i < NumProcessor; i++)
 	{
-		if (a == 'f' && i == NF) break;
-		if (a == 's' && i == NF + NS) break;
-		if (a == 'r' && i == NF + NS + NR) break;
-		if (ArrP[i]->getRDY_Length() < min->getRDY_Length())
-			min = ArrP[i];
-
+		if (!ArrP[n]->getisOverheated()) {
+			if (a == 'f' && i == NF) break;
+			if (a == 's' && i == NF + NS) break;
+			if (a == 'r' && i == NF + NS + NR) break;
+			if (ArrP[i]->getRDY_Length() < min->getRDY_Length())
+				min = ArrP[i];
+		}
 	}
 	return min;
 }
@@ -338,6 +350,8 @@ void Scheduler::LoadFile()
 		NewQueue.enqueue(p);
 	}
 	//------------------Line 6-----------------------------//
+	inputFile >> OverheatConstant;
+	//------------------Line 7-----------------------------//
 	pf->Loadkill(inputFile);
 
 }
@@ -386,7 +400,7 @@ void Scheduler::RuntoBlk(Process* p) {
 	BLKQueue.enqueue(p);
 }
 
-void Scheduler::AddtoRdy(Process* temp) {
+void Scheduler::AddtoRdy(Process* temp) {  //replace command with tmp->addToReadyQueue(temp); ????
 
 	Processor* min;
 	min = getMinProcessor(1, 0);
@@ -444,4 +458,17 @@ double Scheduler::getpKill()
 void Scheduler::setpKill(int n)
 {
 	pKill = n;
+}
+
+void Scheduler::Overheat(Processor* p) 
+{
+	p->setisOverheated(true);
+	AddtoRdy(p->getCurrRun());
+	p->setCurrRun(nullptr);
+	p->setOverheatTime(OverheatConstant);
+	int k = 0;
+	while (p->getRDYCount() > 0) {
+		AddtoRdy(p->eject());  //needs dynamic casting?????
+		k++;
+	}
 }
