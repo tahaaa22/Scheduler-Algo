@@ -32,10 +32,10 @@ void Scheduler::Simulation()
 		pUI->printBeforeSim(); // only condition for mode 3 before simulation 
 	while (!isallterminated && isFileLoaded)
 	{
-		srand(TimeStep);
+		srand(time(0));
 		int random = rand() % 100;
 		int r = rand() % NumProcessor;
-		if (random == r) {
+		if (random < 5) {
 			Overheat(ArrP[r]);
 		}
 		NewtoRdy(TimeStep);
