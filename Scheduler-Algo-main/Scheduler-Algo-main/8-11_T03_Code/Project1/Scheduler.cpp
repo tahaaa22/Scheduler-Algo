@@ -67,7 +67,7 @@ void Scheduler::Simulation()
 //////////////////////////////////taha////////////////////////
 void Scheduler::Steal()
 {
-	if (STL == TimeStep)
+	if (TimeStep % STL == 0)
 	{
 		Processor* shortest = getMinProcessor(1, 0);
 		Processor* longest = getMaxProcessor();
