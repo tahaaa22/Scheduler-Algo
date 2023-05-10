@@ -16,3 +16,5 @@ debug
 7. update run state for all schedule algo to make multiple actions
  
 8. check idle varible for each processor 3a4an 8lt
+9. condition in the max and min to return false if all queues are empty except one or all them have same length exept one 
+10. after line 9 make condition in steal and migration to stop if max or min returns false
