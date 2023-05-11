@@ -50,13 +50,8 @@ void RR::addToReadyQueue(Process* p1)
 
 void RR::ScheduleAlgo(int timestep)
 {
-    if (getisOverheated())
-    {
-        setOverheatTime(getOverheatTime() - 1);
-        if (getOverheatTime() == 0) setisOverheated(false);
-    }
     //rdy queue msh empty w mafya4 current run bardo
-    else if (!RdyQueue.isEmpty() && !getCurrRun())
+    if (!RdyQueue.isEmpty() && !getCurrRun())
     {
         Process* temp;
         RdyQueue.dequeue(temp);
@@ -66,6 +61,8 @@ void RR::ScheduleAlgo(int timestep)
             temp->setfirsttime(1);
         }
         setCurrRun(temp);
+        int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+        getCurrRun()->setblktime(IO_req + timestep);
         Curtime = 0;
          setRDY_Length(getRDY_Length() - temp->getCpuTime()); //bn2s cpu time el fy el run
 
@@ -87,6 +84,8 @@ void RR::ScheduleAlgo(int timestep)
                     Process* temp;
                     RdyQueue.dequeue(temp);
                     setCurrRun(temp);
+                    int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+                    getCurrRun()->setblktime(IO_req + timestep);
                 }
             }
         }
@@ -114,9 +113,9 @@ void RR::ScheduleAlgo(int timestep)
             // FROM RUN TO BLOCK
             if (!getCurrRun()->getIOqueue().isEmpty())
             {
-
-                if (temp->getIOqueue().peek().getFirstItem() == timestep)
+                if (getCurrRun()->getblktime() == timestep)
                 {
+                    getCurrRun()->setnumIO(getCurrRun()->getnumIO() - 1);
                     sc->RuntoBlk(temp);
                 }
             }
@@ -125,6 +124,9 @@ void RR::ScheduleAlgo(int timestep)
                 Process* temp;
                 RdyQueue.dequeue(temp);
                 setCurrRun(temp);
+                int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+                getCurrRun()->setblktime(IO_req + timestep);
+               
             }
 
         }
@@ -138,14 +140,17 @@ void RR::ScheduleAlgo(int timestep)
             if (!getCurrRun()->getIOqueue().isEmpty())
             {
 
-                if (getCurrRun()->getIOqueue().peek().getFirstItem() == timestep)
+                if (getCurrRun()->getblktime() == timestep)
                 {
+                    getCurrRun()->setnumIO(getCurrRun()->getnumIO() - 1);
                     sc->RuntoBlk(getCurrRun());
                     if (!RdyQueue.isEmpty()) //run empty and ready contains processes
                     {
                         Process* temp;
                         RdyQueue.dequeue(temp);
                         setCurrRun(temp);
+                        int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+                        getCurrRun()->setblktime(IO_req + timestep);
                     }
                     Curtime = 0;
                 }
@@ -161,6 +166,8 @@ void RR::ScheduleAlgo(int timestep)
                     Process* temp;
                     RdyQueue.dequeue(temp);
                     setCurrRun(temp);
+                    int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+                    getCurrRun()->setblktime(IO_req + timestep);
                 }
                 Curtime = 0;
 
@@ -187,13 +194,6 @@ void RR::Loadp(ifstream& inputFile) {
     inputFile >> RTF;
 
 }
-
-Process* RR::eject() {
-    Process* temp;
-    RdyQueue.dequeue(temp);
-    return temp;
-}
-
 char RR::Ptype = 'r';
 
 int RR::TS = 0;

@@ -31,6 +31,7 @@ double SJF::pUtil()
 }
 void  SJF::addToReadyQueue(Process* p1) //inserting a process to the RDY 
 {
+
     PQ.enqueue(p1, p1->gettimeRemaining());
     setRDY_Length(getRDY_Length() + p1->getCpuTime());
 }
@@ -41,12 +42,8 @@ char  SJF::getPtype()
 
 void  SJF::ScheduleAlgo(int time)
 {
-    if (getisOverheated()) 
-    {
-        setOverheatTime(getOverheatTime() - 1);
-        if (getOverheatTime() == 0) setisOverheated(false);
-    }
-    else if (!PQ.isEmpty() && !getCurrRun())
+    
+    if (!PQ.isEmpty() && !getCurrRun())
     {
         Process* temp;
         PQ.dequeue(temp);
@@ -56,6 +53,8 @@ void  SJF::ScheduleAlgo(int time)
             temp->setfirsttime(1);
         }
         setCurrRun(temp);
+        int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+        getCurrRun()->setblktime(IO_req + time);
         setRDY_Length(getRDY_Length() - temp->getCpuTime());
     }
     else if (getCurrRun())
@@ -63,9 +62,11 @@ void  SJF::ScheduleAlgo(int time)
         getCurrRun()->execute(time);
         TotalBusyTime++; // taha
         TotalIdleTime = time - TotalBusyTime; //taha
-        if (!getCurrRun()->getIOqueue().isEmpty()) {
-
-            if (getCurrRun()->getIOqueue().peek().getFirstItem() == time) {
+        if (!getCurrRun()->getIOqueue().isEmpty())
+        {
+            if (getCurrRun()->getblktime() == time) 
+            {
+                getCurrRun()->setnumIO(getCurrRun()->getnumIO() - 1);
                 sc->RuntoBlk(getCurrRun());
                 /////////////taha///////////////////
                 if (!PQ.isEmpty()) //run empty and ready contains processes
@@ -73,6 +74,8 @@ void  SJF::ScheduleAlgo(int time)
                     Process* temp;
                     PQ.dequeue(temp);
                     setCurrRun(temp);
+                    int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+                    getCurrRun()->setblktime(IO_req + time);
                 }
                 //////////////////////////////////////////
             }
@@ -83,7 +86,16 @@ void  SJF::ScheduleAlgo(int time)
             getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
             TotalTRT += getCurrRun()->getTurnaroundDuration(); //taha
             sc->Trm(getCurrRun());
-            setCurrRun(nullptr);
+            /////////////taha///////////////////
+            if (!PQ.isEmpty()) //run empty and ready contains processes
+            {
+                Process* temp;
+                PQ.dequeue(temp);
+                setCurrRun(temp);
+                int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+                getCurrRun()->setblktime(IO_req + time);
+            }
+            //////////////////////////////////////////
         }
     }
 }
@@ -101,13 +113,6 @@ void  SJF::Loadp(ifstream& inputFile)
 int  SJF::getRDYCount()
 {
     return PQ.getCount();
-}
-
-Process* SJF::eject() 
-{
-    Process* temp;
-    PQ.dequeue(temp);
-    return temp;
 }
 
 

@@ -17,8 +17,6 @@ private:
     int BusyCount;     //incremented every time step during running
     int Total_CPUtime;  //increases when new process is added to rdy queue
     int Total_TRT;      //increases every time process is moved to the terminate list
-    int OverheatTime;
-    bool isOverheated;
    
 protected:
    Scheduler * sc;
@@ -114,24 +112,6 @@ public:
 
     int getTotal_TRT() {
         return Total_TRT;
-    }
-
-    void setisOverheated(bool b) {
-        isOverheated = b;
-    }
-
-    bool getisOverheated() {
-        return isOverheated;
-    }
-
-    virtual Process* eject() = 0;
-
-    void setOverheatTime(int n) {
-        OverheatTime = n;
-    }
-
-    int getOverheatTime() {
-        return OverheatTime;
     }
   
 };

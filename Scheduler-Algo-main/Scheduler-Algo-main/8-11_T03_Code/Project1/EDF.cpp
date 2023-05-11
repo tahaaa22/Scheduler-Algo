@@ -32,17 +32,26 @@ double EDF::pUtil()
 }
 void  EDF::addToReadyQueue(Process* p1) //inserting a process to the RDY 
 {
-	if (p1 && getCurrRun())
-	{
+    if (EDFrdy.isEmpty() && !getCurrRun())
+    {
+        EDFrdy.enqueue(p1, p1->getDeadLine());
+        setRDY_Length(getRDY_Length() + p1->getCpuTime());
+    }
+      else if (getCurrRun())
+	  {
 		if (p1->getDeadLine() < getCurrRun()->getDeadLine())
 		{
+            
 			EDFrdy.enqueue(getCurrRun(), getCurrRun()->getDeadLine());
 			setCurrRun(p1);
 			setRDY_Length(getRDY_Length() + getCurrRun()->gettimeRemaining());
 		}
-		EDFrdy.enqueue(p1, p1->getDeadLine());
-		setRDY_Length(getRDY_Length() + p1->getCpuTime());
-	}
+        else
+        {
+            EDFrdy.enqueue(p1, p1->getDeadLine());
+            setRDY_Length(getRDY_Length() + p1->getCpuTime());
+        }
+	  }
 
 }
 
@@ -51,48 +60,64 @@ char  EDF::getPtype()
 	return Ptype;
 }
 
-void EDF:: ScheduleAlgo(int time) // add processes from the ready list to a new list to fix order  
+void EDF::ScheduleAlgo(int time)
 {
-	if (!EDFrdy.isEmpty() && !getCurrRun()) 
-	{
-		Process* temp;
-		EDFrdy.dequeue(temp);
-		if (temp->getfirsttime() == 0)
-		{
-			temp->setResponseTime(time - temp->getArrivalTime());
-			temp->setfirsttime(1);
-		}
-		setCurrRun(temp);
-		setRDY_Length(getRDY_Length() - temp->getCpuTime());
-	}
-	else if (getCurrRun())
-	{
-		getCurrRun()->execute(time);
-		TotalBusyTime++;
-		TotalIdleTime = time - TotalBusyTime;
-		if (!getCurrRun()->getIOqueue().isEmpty())
-		{
 
-			if (getCurrRun()->getIOqueue().peek().getFirstItem() == time)
-			{
-				sc->RuntoBlk(getCurrRun());
-				if (!EDFrdy.isEmpty()) //run empty and ready contains processes
-				{
-					Process* temp;
-					EDFrdy.dequeue(temp);
-					setCurrRun(temp);
-				}
-			}
-		}
-		else if (getCurrRun()->getisFinished()) 
-		{
-			getCurrRun()->setTerminationTime(time);
-			getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
-			TotalTRT += getCurrRun() ->getTurnaroundDuration();
-			sc->Trm(getCurrRun());
-			setCurrRun(nullptr);
-		}
-	}	
+    if (!EDFrdy.isEmpty() && !getCurrRun())
+    {
+        Process* temp;
+        EDFrdy.dequeue(temp);
+        if (temp->getfirsttime() == 0)
+        {
+            temp->setResponseTime(time - temp->getArrivalTime());
+            temp->setfirsttime(1);
+        }
+        setCurrRun(temp);
+        int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+        getCurrRun()->setblktime(IO_req + time);
+        setRDY_Length(getRDY_Length() - temp->getCpuTime());
+    }
+    else if (getCurrRun())
+    {
+        getCurrRun()->execute(time);
+        TotalBusyTime++; // taha
+        TotalIdleTime = time - TotalBusyTime; //taha
+        if (!getCurrRun()->getIOqueue().isEmpty())
+        {
+            if (getCurrRun()->getblktime() == time)
+            {
+                getCurrRun()->setnumIO(getCurrRun()->getnumIO() - 1);
+                sc->RuntoBlk(getCurrRun());
+                /////////////taha///////////////////
+                if (!EDFrdy.isEmpty()) //run empty and ready contains processes
+                {
+                    Process* temp;
+                    EDFrdy.dequeue(temp);
+                    setCurrRun(temp);
+                    int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+                    getCurrRun()->setblktime(IO_req + time);
+                }
+                //////////////////////////////////////////
+            }
+        }
+        else if (getCurrRun()->getisFinished())
+        {
+            getCurrRun()->setTerminationTime(time);
+            getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
+            TotalTRT += getCurrRun()->getTurnaroundDuration(); //taha
+            sc->Trm(getCurrRun());
+            /////////////taha///////////////////
+            if (!EDFrdy.isEmpty()) //run empty and ready contains processes
+            {
+                Process* temp;
+                EDFrdy.dequeue(temp);
+                setCurrRun(temp);
+                int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+                getCurrRun()->setblktime(IO_req + time);
+            }
+            //////////////////////////////////////////
+        }
+    }
 }
 
 void  EDF::print_rdy()
@@ -103,12 +128,5 @@ void  EDF::print_rdy()
 int  EDF::getRDYCount()
 {
 	return EDFrdy.getCount();
-}
-
-Process* EDF::eject()
-{
-	Process* temp;
-	EDFrdy.dequeue(temp);
-	return temp;
 }
 char EDF::Ptype = 'e';

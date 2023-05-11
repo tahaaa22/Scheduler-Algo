@@ -8,6 +8,8 @@ Scheduler::Scheduler()
 	ps = new SJF(this);
 	pUI = new UI;
 	pd = new EDF(this);
+	minflag = false;
+	maxflag = false;
 	isFileLoaded = true;
 	NF = 0;
 	NR = 0;
@@ -16,7 +18,6 @@ Scheduler::Scheduler()
 	pSteal = 0;
 	TimeStep = 0;
 	char type = 0;
-	OverheatConstant = 0;
 }
 void Scheduler::Simulation()
 {
@@ -32,12 +33,6 @@ void Scheduler::Simulation()
 		pUI->printBeforeSim(); // only condition for mode 3 before simulation 
 	while (!isallterminated && isFileLoaded)
 	{
-		srand(time(0));
-		int random = rand() % 100;
-		int r = rand() % NumProcessor;
-		if (random < 5) {
-			Overheat(ArrP[r]);
-		}
 		NewtoRdy(TimeStep);
 		for (int i = 0; i < NumProcessor; i++)
 			ArrP[i]->ScheduleAlgo(TimeStep);
@@ -71,22 +66,25 @@ void Scheduler::Steal()
 	{
 		Processor* shortest = getMinProcessor(1, 0);
 		Processor* longest = getMaxProcessor();
-		double Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
-		if (shortest->getRDY_Length())
+		if (longest->getRDY_Length() != 0)
 		{
-			while (Plimit > 40)
+			if (minflag == false && maxflag == false)
 			{
-				Process* x = longest->gettop();
-				if (shortest && longest && x && !x->getorphanflag())
+				double Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
+				while (Plimit > 40)
 				{
-					pSteal++;
-					shortest->addToReadyQueue(longest->gettop());
+					Process* x = longest->gettop();
+					if (shortest && longest && x && !x->getorphanflag())
+					{
+						pSteal++;
+						shortest->addToReadyQueue(longest->gettop());
+					}
+					shortest = getMinProcessor(1, 0);
+					longest = getMaxProcessor();
+					Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
+					if (shortest->getRDY_Length() == 0)
+						break;
 				}
-				shortest = getMinProcessor(1, 0);
-				longest = getMaxProcessor();
-				Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
-				if (shortest->getRDY_Length())
-					break;
 			}
 		}
 	}
@@ -159,32 +157,52 @@ bool Scheduler::allTerminated()
 }
 Processor* Scheduler::getMaxProcessor()
 {
+	int count = 0;
 	Processor* max = ArrP[0];
 	for (int i = 0; i < NumProcessor; i++)
 	{
 		if (ArrP[i]->getRDY_Length() > max->getRDY_Length())
 			max = ArrP[i];
 	}
+	for (int i = 0; i < NumProcessor; i++)
+	{
+		if (ArrP[i]->getRDY_Length() == max->getRDY_Length())
+		{
+			max = ArrP[i];
+			count++;
+		}
+	}
+	if (count != 1)
+		maxflag = true;
+	else
+		maxflag = false;
 	return max;
 }
 Processor* Scheduler::getMinProcessor(char a, int n)
 {
-	int k = n;
+	int count = 0;
 	Processor* min = ArrP[n];
-	while (min->getisOverheated()) {
-		k++;
-		min = ArrP[k];
+	for (int i = n; i < NumProcessor; i++)
+	{
+		if (a == 'f' && i == NF) break;
+		if (a == 's' && i == NF + NS) break;
+		if (a == 'r' && i == NF + NS + NR) break;
+		if (ArrP[i]->getRDY_Length() < min->getRDY_Length())
+			min = ArrP[i];
+
 	}
 	for (int i = n; i < NumProcessor; i++)
 	{
-		if (!ArrP[n]->getisOverheated()) {
-			if (a == 'f' && i == NF) break;
-			if (a == 's' && i == NF + NS) break;
-			if (a == 'r' && i == NF + NS + NR) break;
-			if (ArrP[i]->getRDY_Length() < min->getRDY_Length())
-				min = ArrP[i];
-		}
+		if (a == 'f' && i == NF) break;
+		if (a == 's' && i == NF + NS) break;
+		if (a == 'r' && i == NF + NS + NR) break;
+		if (ArrP[i]->getRDY_Length() == min->getRDY_Length())
+			count++;
 	}
+	if (count != 1)
+		minflag = true;
+	else
+		minflag = false;
 	return min;
 }
 /*double Scheduler::StealLimit() // m4 me87tagha f 7aga m4 hatenfa3
@@ -350,8 +368,6 @@ void Scheduler::LoadFile()
 		NewQueue.enqueue(p);
 	}
 	//------------------Line 6-----------------------------//
-	inputFile >> OverheatConstant;
-	//------------------Line 7-----------------------------//
 	pf->Loadkill(inputFile);
 
 }
@@ -400,7 +416,7 @@ void Scheduler::RuntoBlk(Process* p) {
 	BLKQueue.enqueue(p);
 }
 
-void Scheduler::AddtoRdy(Process* temp) {  //replace command with tmp->addToReadyQueue(temp); ????
+void Scheduler::AddtoRdy(Process* temp) {
 
 	Processor* min;
 	min = getMinProcessor(1, 0);
@@ -420,16 +436,21 @@ void Scheduler::AddtoRdy(Process* temp) {  //replace command with tmp->addToRead
 //////////////////////ADDEDDDDDDDDDDDDDD BY MIMOOOOOOOOOOOOOOOOOOO/////////////////////////
 bool Scheduler::migrationrtf(Process* p, int rtf) // bool 34an a3rf a remove mn run wla la
 {
-	if (p->gettimeRemaining() < rtf)
+	if (minflag == false)
 	{
-		pRTF++; // for output file
-		Processor* min;
-		min = getMinProcessor('s', NF);
-		min->addToReadyQueue(p);  // add to shortest sjf
-		return true;
+		if (p->gettimeRemaining() < rtf)
+		{
+			pRTF++; // for output file
+			Processor* min;
+			min = getMinProcessor('s', NF);
+			if (NS != 0)
+			{
+				min->addToReadyQueue(p);  // add to shortest sjf
+				return true;
+			}
+		}
 	}
 	return false;
-
 }
 
 bool Scheduler::migrationmaxw(Process* p, int maxw, int timestep) // bool 34an a3rf a remove mn run wla la
@@ -437,19 +458,24 @@ bool Scheduler::migrationmaxw(Process* p, int maxw, int timestep) // bool 34an a
 	int timerunned = p->getCpuTime() - p->gettimeRemaining();
 	int at = p->getArrivalTime();
 	int waitingtime = timestep - at - timerunned;
-	if (!p->getorphanflag())
+	if (minflag == false)
 	{
-		if (waitingtime > maxw)
+		if (!p->getorphanflag())
 		{
-			pMaxW++; // for output file
-			Processor* min;
-			min = getMinProcessor('r', NF + NS);
-			min->addToReadyQueue(p);  // add to shortest sjf
-			return true;
+			if (waitingtime > maxw)
+			{
+				pMaxW++; // for output file
+				Processor* min;
+				min = getMinProcessor('r', NF + NS);
+				if (NR != 0)
+				{
+					min->addToReadyQueue(p);  // add to shortest sjf
+					return true;
+				}
+			}
 		}
-		return false;
 	}
-
+	return false;
 }
 double Scheduler::getpKill()
 {
@@ -458,17 +484,4 @@ double Scheduler::getpKill()
 void Scheduler::setpKill(int n)
 {
 	pKill = n;
-}
-
-void Scheduler::Overheat(Processor* p) 
-{
-	p->setisOverheated(true);
-	AddtoRdy(p->getCurrRun());
-	p->setCurrRun(nullptr);
-	p->setOverheatTime(OverheatConstant);
-	int k = 0;
-	while (p->getRDYCount() > 0) {
-		AddtoRdy(p->eject());  //needs dynamic casting?????
-		k++;
-	}
 }

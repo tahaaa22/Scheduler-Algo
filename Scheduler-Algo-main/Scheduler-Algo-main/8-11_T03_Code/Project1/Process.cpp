@@ -6,11 +6,12 @@
 using namespace std; 
 
 Process::Process(){}
-Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), No_of_IO(Num), IO_queue(N), deadline(d) //changed by taha
+Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), numIO(Num), IO_queue(N), deadline(d) //changed by taha
 {
     //AT = 0;
     //ID = 0;
     //CT = 0;
+    timeblk = 0;
     firsttime = 0;
     timeRemaining = CT;
     orphanflag = false;
@@ -23,6 +24,22 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :Arrival
     //No_of_IO = IO.size(); // no of times ha request input/output
     LCH = NULL;
     RCH = NULL;
+}
+int Process::getnumIO()
+{
+    return numIO;
+}
+void Process::setnumIO(int t)
+{
+    numIO = t;
+}
+void Process::setblktime(int t)
+{
+    timeblk = t;
+}
+int Process::getblktime()
+{
+    return timeblk;
 }
 void Process::setwaitingtime(int t)
 {
@@ -147,6 +164,7 @@ Process* Process::load(ifstream& inputFile) // changed by taha
     inputFile >> ID;
     inputFile >> CT;
     inputFile >> N;
+    numIO = N; // this number used to know how many IO resources needed in the blk function
     for (int i = 0; i < N; i++)
     {
         int IO_R = 0, IO_D = 0;

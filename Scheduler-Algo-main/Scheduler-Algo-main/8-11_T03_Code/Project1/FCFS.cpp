@@ -121,6 +121,7 @@ void FCFS::sigkill(int timestep, int NF)
 			}
 
 		}
+
 		if (nf == NF)
 		{
 			killSig.dequeue();
@@ -130,6 +131,8 @@ void FCFS::sigkill(int timestep, int NF)
 			temp = RDY.getHead(); // get head
 			nf = 0;
 		}
+		else
+			break;
 	}
 }
 
@@ -159,14 +162,20 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 		//handling blk
 		// the line below is equivalent to :
 		// if IO_request time == cpu time - time remaining = time passed since run started
-		int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+		// /////////////////////////////////taha///////////////////////////
+		//int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
 		int passed = getCurrRun()->getCpuTime() - getCurrRun()->gettimeRemaining();
-		if (IO_req == passed)
+		if (getCurrRun()->getnumIO() > 0)
 		{
-			sc->RuntoBlk(getCurrRun());
-			setCurrRun(nullptr);
-			continue;
+			if (getCurrRun()->getblktime() == timestep)
+			{
+				getCurrRun()->setnumIO(getCurrRun()->getnumIO() - 1);
+				sc->RuntoBlk(getCurrRun());
+				setCurrRun(nullptr);
+				continue;
+			}
 		}
+		///////////////////////////////////////////////////////////////////////////
 		getCurrRun()->execute(timestep); //execute
 		/////////////////taha////////////////////////
 		TotalBusyTime++;
@@ -188,32 +197,27 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 
 void FCFS::ScheduleAlgo(int timestep)
 {
-	if (getisOverheated())
+	sigkill(timestep, sc->getNF());
+	Handle(timestep); //equivalent to while run = true (run contains a process)
+	while (!getCurrRun() ) //while RUN is empty 
 	{
-		setOverheatTime(getOverheatTime() - 1);
-		if (getOverheatTime() == 0) setisOverheated(false);
-	}
-	else {
-		sigkill(timestep, sc->getNF());
-		Handle(timestep); //equivalent to while run = true (run contains a process)
-		while (!getCurrRun()) //while RUN is empty 
+		if (!RDY.isEmpty()) //run empty and ready contains processes
 		{
-			if (!RDY.isEmpty()) //run empty and ready contains processes
+			Process* temp = RDY.getHead()->getItem(); //First Process In is at the head, and the turn is on this Process to RUN
+			setRDY_Length(getRDY_Length() - temp->getCpuTime()); //Rdy length is decremented as a process is removed from rdy
+			RDY.deleteNode(); //deleting first Process as it is removed to RUN
+			if (temp->getfirsttime() == 0)
 			{
-				Process* temp = RDY.getHead()->getItem(); //First Process In is at the head, and the turn is on this Process to RUN
-				setRDY_Length(getRDY_Length() - temp->getCpuTime()); //Rdy length is decremented as a process is removed from rdy
-				RDY.deleteNode(); //deleting first Process as it is removed to RUN
-				if (temp->getfirsttime() == 0)
-				{
-					temp->setResponseTime(timestep - temp->getArrivalTime());
-					temp->setfirsttime(1);
-				}
-				setCurrRun(temp);
-				Handle(timestep); //handles the current run
+				temp->setResponseTime(timestep - temp->getArrivalTime());
+				temp->setfirsttime(1);
 			}
-			else
-				break;
+			setCurrRun(temp);
+			int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
+			getCurrRun()->setblktime(IO_req + timestep);
+			Handle(timestep); //handles the current run
 		}
+		else
+			break;
 	}
 }
 
@@ -254,13 +258,6 @@ void FCFS::Loadkill(ifstream& inputFile)
 		SNode<int>* kill = new SNode <int>(time, pid);
 		killSig.enqueue(kill);
 	}
-}
-
-Process* FCFS:: eject() 
-{
-	Process* temp = RDY.getHead()->getItem();
-	RDY.deleteNode();
-	return temp;
 }
 
 FCFS :: ~FCFS()

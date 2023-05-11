@@ -13,6 +13,8 @@ private:
     int ArrivalTime;
     int ResponseTime;
     int CPUtime;
+    int timeblk;
+    int numIO;
     int TerminationTime;
     int TurnaroundDuration;
     int waitingTime;
@@ -34,6 +36,10 @@ public:
  Process();
  Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d); //changed by taha
    Process * load(ifstream& inputFile);
+   int getnumIO();
+   void setnumIO(int t);
+   void setblktime(int t);
+   int getblktime();
    void setwaitingtime(int t);
    void setTurnaroundDuration(int t);
    void setfirsttime(int t);

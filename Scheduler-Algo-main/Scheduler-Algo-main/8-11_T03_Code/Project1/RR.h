@@ -30,5 +30,4 @@ public:
     virtual  int getRDYCount();
 ///////////////////////////////////////////////Addddded by mimo/////////////////////////////////////////
     static void Loadp(ifstream& inputFile);
-    Process* eject();  //added by omar
 };

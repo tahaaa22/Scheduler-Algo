@@ -26,6 +26,8 @@ class Scheduler
 	Process* Pp;
 	int ID_Count;     //to be initialized as the number of processes from the input file in the constructor
 	int TimeStep; 
+	bool minflag;
+	bool maxflag;
 	int NumProcessor;
 	double pKill = 0;
 	double pFork, Migrate, pSteal, Avg_Util, Avg_WT, Avg_RT, Avg_TRT, pMaxW, pRTF;  //percentages
@@ -36,16 +38,16 @@ class Scheduler
 	Queue <Process*> TerminatedQueue;
 	Queue <Process*> BLKQueue;
 	string ofname; // output file name
-	int OverheatConstant;
-	
 public :
 	Scheduler();
 	void full();
 	void incrementTimeStep();
 	//double StealLimit();
 	void Steal();
-	void MigrateToSJF();
-	void MigrateToRR();
+	//////////////////////Added by mimo//////////////////////////
+	bool migrationrtf(Process* p, int rtf);
+	bool migrationmaxw(Process* p, int maxw, int timestep);
+	////////////////////////////////////////////////////////////
 	void  BlktoRdy();
 	void Simulation(); // read modes from UI class to make different implementation for each mode
 	bool allTerminated(); // check if the terminated queue has equal number of processes entered to stop simulation 
@@ -65,9 +67,7 @@ public :
 	void fork(Process* parent);
 	//////////////////////////////////////////////////////////
 	
-	//////////////////////Added by mimo//////////////////////////
-	bool migrationrtf(Process* p, int rtf);
-	bool migrationmaxw(Process* p, int maxw, int timestep);
+	
 
 	/////////////////////////////////////////
 	//				Getters				   //
@@ -81,5 +81,8 @@ public :
 	//				setters				   //
 	/////////////////////////////////////////
 	void setpKill(int n);
-	void Overheat(Processor* p);
+
+
+
+
 };
