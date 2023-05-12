@@ -13,3 +13,4 @@ total trt 8alat sjf (div by zero)
 input file update for overheat
 blk to run bayez f RR debug 
 check linking error between processor and subclass
+check ready length for EDF btgeb negative 
