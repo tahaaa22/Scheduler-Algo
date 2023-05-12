@@ -15,3 +15,4 @@ debug
 7. check idle varible for each processor 3a4an 8lt
 8. after line 9 make condition in steal and migration to stop if max or min returns false - done bs waiting to test migration
 9. debug from run to blk in sjf and edf
+you should add in oout put file precentage deadline
