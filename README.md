@@ -10,3 +10,4 @@ debug
 8. after line 9 make condition in steal and migration to stop if max or min returns false - done bs waiting to test migration
 you should add in oout put file precentage deadline
 total trt 8alat sjf (div by zero)
+input file update for overheat
