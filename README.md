@@ -12,3 +12,4 @@ you should add in oout put file precentage deadline
 total trt 8alat sjf (div by zero)
 input file update for overheat
 blk to run bayez f RR debug 
+check linking error between processor and subclass
