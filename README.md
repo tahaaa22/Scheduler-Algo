@@ -14,3 +14,4 @@ input file update for overheat
 blk to run bayez f RR debug 
 check linking error between processor and subclass
 check ready length for EDF btgeb negative 
+![image](https://github.com/tahaaa22/Scheduler-Algo/assets/128100857/accd9d47-1aec-479f-9a00-54023dfc2085)
