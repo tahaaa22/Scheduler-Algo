@@ -3,11 +3,10 @@ debug:
 
 1.sigkill //waiting for mohamed ismail.
 
-3.check deletes li kol el dynamic allocations.
+2.check deletes li kol el dynamic allocations.
 
-4.you should add in oout put file precentage deadline.
-
-6.check linking error between processor and subclass // waiting for mohamed ismail.
+3. waiting time for killed oorphans will be wrong as they wont execute all the needed CPU time. // waiting for mohamed ismail
+4.check linking error between processor and subclass // waiting for mohamed ismail.
 
 ![image](https://github.com/tahaaa22/Scheduler-Algo/assets/128100857/c43d968b-4530-4210-8f09-ced5e118af17)
 
