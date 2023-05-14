@@ -3,13 +3,9 @@ debug:
 
 1.sigkill //waiting for mohamed ismail.
 
-2.zabbat el display output el overheat.
-
 3.check deletes li kol el dynamic allocations.
 
 4.you should add in oout put file precentage deadline.
-
-5.input file update for overheat.
 
 6.check linking error between processor and subclass // waiting for mohamed ismail.
 
