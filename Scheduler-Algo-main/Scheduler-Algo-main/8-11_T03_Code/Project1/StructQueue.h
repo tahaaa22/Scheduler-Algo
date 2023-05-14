@@ -44,13 +44,16 @@ public:
         }
         if (isEmpty())
         {
-            front = back = newNode;
+            front = back;
+            front = newNode;
+            back = newNode;
         }
         else
         {
             back->setNext(newNode);
             back = newNode;
         }
+        if (newNode->getFirstItem() != 0)
         itemCount++;
     }
 
@@ -72,12 +75,35 @@ public:
         T value2 = front->getSecondItem();
         SNode<T>* delPtr = front;
         front = front->getNext();
-        if (!front) {
+      /*  if (!front) 
+        {
             back = nullptr;
-        }
+        }*/
         delPtr->setNext(nullptr);
+        delete delPtr;
+        delPtr = NULL;
         itemCount--;
         return SNode<T>(value1, value2);
+    }
+
+    void dequeueR()
+    {
+        //SNode<T> emptyNode;
+        if (isEmpty())
+        {
+            return ;
+        }
+        SNode<T>* delPtr = front;
+        front = front->getNext();
+       /* if (!front)
+        {
+            back = nullptr;
+        }*/
+        delPtr->setNext(nullptr);
+        delete delPtr;
+        delPtr = NULL;
+        itemCount--;
+       
     }
 
     /*
@@ -87,18 +113,25 @@ public:
     * Returns:
     *  - SNode<T>: The first node's data as an SNode object.
     */
-    SNode<T> peek() const
+    SNode<T>* peek() 
     {
-        SNode<T> emptyNode;
         if (isEmpty())
         {
-            return emptyNode;
+            return NULL;
         }
         T value1 = front->getFirstItem();
         T value2 = front->getSecondItem();
-        return SNode<T>(value1, value2);
+        SNode<T>* nod = new SNode <T> (value1, value2);
+        return nod;
     }
-
+    SNode<T>* peekR()
+    {
+        if (isEmpty())
+        {
+            return NULL ;
+        }
+        return front;
+    }
     /*
      Function: size
      Returns the number of elements in the queue.

@@ -37,8 +37,8 @@ public:
 		{
 			T temp;
 			dequeue(temp);
-		}
-		itemCount = 0;*/
+		}*/
+		itemCount = 0;
 	}
 
 	/*
@@ -124,7 +124,7 @@ public:
 		return front == nullptr;
 	}
 
-	int getCount() const
+	int getCount() 
 	{
 		return itemCount;
 	}

@@ -34,7 +34,7 @@ private:
     
 public:
  Process();
- Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d); //changed by taha
+ Process(int AT, int ID, int CT, int TDuration, int Num, SQueue<int> N, int d); //changed by taha
    Process * load(ifstream& inputFile);
    int getnumIO();
    void setnumIO(int t);
@@ -63,7 +63,7 @@ public:
     void setisFinished(bool it);
     bool getisFinished();
     void execute(int currentTimeStep);
-    SQueue<int> getIOqueue();
+    SQueue<int> * getIOqueue();
     ///////////// Added by Amira /////////////
     Process(int AT, int ID, int CT); //overloaded constructor for forking
     void setRCH(Process* p);

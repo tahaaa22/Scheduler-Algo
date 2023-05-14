@@ -41,6 +41,8 @@ void UI:: Print1 (int time, int NumProcessor, Processor ** ArrP , int NF, int NS
 				{
 					cout << "Processor " << i + 1 << "[FCFS]";
 					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
+					if (ArrP[i]->getisOverheated())
+						cout << "FCFS Processor is over heated !" ;
 					ArrP[i]->print_rdy();
 					cout << endl;
 				}
@@ -48,20 +50,29 @@ void UI:: Print1 (int time, int NumProcessor, Processor ** ArrP , int NF, int NS
 				{
 					cout << "Processor " << i + 1 << "[SJF]";
 					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
-					ArrP[i]->print_rdy();
-					cout << endl;
+					if (ArrP[i]->getisOverheated())
+						cout << "SJF Processor is over heated !" ;
+					
+						ArrP[i]->print_rdy();
+						cout << endl;
 				}
 				else if (i < NF+NS+NR)
 				{
 					cout << "Processor " << i + 1 << "[RR]";
 					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
-					ArrP[i]->print_rdy();
-					cout << endl;
+					if (ArrP[i]->getisOverheated())
+					cout << "RR Processor is over heated !" ;
+					
+						ArrP[i]->print_rdy();
+						cout << endl;
+			
 				}
 				else
 				{
 					cout << "Processor " << i + 1 << "[EDF]";
 					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
+					if (ArrP[i]->getisOverheated())
+						cout << " EDF Processor is over heated !";
 					ArrP[i]->print_rdy();
 					cout << endl;
 				}

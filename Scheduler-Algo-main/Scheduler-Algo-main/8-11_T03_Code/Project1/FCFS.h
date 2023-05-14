@@ -14,9 +14,9 @@ class FCFS : public Processor
 	//The FCFS is a queue but because of the kill signal that will require accessing 
 	// a process in the middle of the queue the structure is now a LinkedList
 private:
-	int TotalBusyTime; // time taken inside run for each processor
-	int TotalIdleTime; // total busy time minus time step
-	int TotalTRT; // total turn around time of all processes
+	//int TotalBusyTime; // time taken inside run for each processor
+	//int TotalIdleTime; // total busy time minus time step
+	//int TotalTRT; // total turn around time of all processes
 	static SQueue<int> killSig; //Kill Signal Time
 	static char Ptype; // returning type instead of dynamic casting 
 	LinkedList<Process*> RDY;
@@ -28,11 +28,14 @@ private:
 public:
 	FCFS(Scheduler *);  //constructor
 
+
+	Process* eject();
+	/*int getRDY_Length();*/
 	virtual Process* gettop() ;
 
 	void sigkill(int timestep, int NF);
 
-	virtual double pLoad();
+	//virtual double pLoad();
 
 	virtual double pUtil();
 
@@ -55,6 +58,10 @@ public:
 	static void Loadpf(ifstream& inputFile); //loading Forking prob
 
 	static void Loadkill(ifstream& inputFile); // loading kill signals
+
+	bool isfound(Process* p); //checks if orphan is in processor
+
+	void deleteNodeK(Process* p); //to be called in scheduler for killing
 
 	~FCFS();
 };

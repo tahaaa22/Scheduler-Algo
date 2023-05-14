@@ -12,8 +12,12 @@ public:
 	int count;
 	LinkedList() : head(nullptr), tail(nullptr), count(0) {}
 
-	bool isEmpty() const { return tail == nullptr; }
+	bool isEmpty() const 
+	{ 
+		return (tail == nullptr && head == nullptr);
+	}
 
+	
 	Node <T> *getHead() { return head; }
 	T  getHead1() { return head; }
 	Node <T> * getTail() { return tail; }
@@ -46,22 +50,25 @@ public:
 			temp = temp->getNext();
 		}
 
-		if (!temp->getNext()) // if the node to be deleted is not found in the list
+		if (!temp->getNext()) // if the node to be deleted is not found in the list or p equal null
 		{
 			return false;
 		}
 
 		Node<T>* nodeToDelete = temp->getNext();
-		temp->setNext(nodeToDelete->getNext());
-		if (!nodeToDelete->getNext()) // if the node to be deleted is the tail node
-		{
-			tail = temp;
-		}
-		delete nodeToDelete;
-		count--;
-		return true;
+			temp->setNext(nodeToDelete->getNext());
+			if (!nodeToDelete->getNext()) // if the node to be deleted is the tail node
+			{
+				tail = temp;
+			}
+			delete nodeToDelete;
+			count--;
+			return true;
 	}
-
+	T peek()
+	{
+		return (head->getItem());
+	}
 	bool deleteNode() // similar to dequeue
 	{
 		if (isEmpty()) // if the list is empty 
@@ -114,20 +121,23 @@ public:
 	void insertNode( T  p)  // insert at tail and equivalent to enqueue
 	{
 		Node<T>* Process = new Node<T>;
-		Process->setItem(p);
-		if (isEmpty())
+		if (p)
 		{
-			Process->setNext(nullptr);
-			tail = Process;
-			head = Process;
+			Process->setItem(p);
+			if (isEmpty())
+			{
+				Process->setNext(nullptr);
+				tail = Process;
+				head = Process;
+			}
+			else
+			{
+				tail->setNext(Process);
+				Process->setNext(nullptr);
+				tail = Process;
+			}
+			count++;
 		}
-		else
-		{
-			tail->setNext(Process);
-			Process->setNext(nullptr);
-			tail = Process;
-		}
-		count++;
 	}
 
 	bool isFound(const T& p) // test
@@ -166,7 +176,9 @@ public:
 		Node<T>* temp = getHead();
 		while (temp)
 		{
-			cout << temp->getItem() ;
+			cout << temp->getItem();
+			if (temp->getNext())
+				cout << " , ";
 			temp = temp->getNext();
 		}
 	}

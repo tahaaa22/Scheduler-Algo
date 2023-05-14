@@ -18,13 +18,15 @@ using namespace std;
 class Scheduler
 {
 	Processor ** ArrP;
+	Processor* p;
 	RR* pr;
 	FCFS* pf;
 	SJF* ps;
 	EDF* pd;
 	UI* pUI;
 	Process* Pp;
-	int ID_Count;     //to be initialized as the number of processes from the input file in the constructor
+	int OverheatConstant;
+	//int ID_Count;     //to be initialized as the number of processes from the input file in the constructor
 	int TimeStep; 
 	bool minflag;
 	bool maxflag;
@@ -44,6 +46,7 @@ public :
 	void incrementTimeStep();
 	//double StealLimit();
 	void Steal();
+	void Overheat(Processor* p);
 	//////////////////////Added by mimo//////////////////////////
 	bool migrationrtf(Process* p, int rtf);
 	bool migrationmaxw(Process* p, int maxw, int timestep);
@@ -65,6 +68,7 @@ public :
 	void OutputFile();
 	//////////////////////Added by Amira//////////////////////////
 	void fork(Process* parent);
+	void Kill(Process* orphan); //search for orphan and kill
 	//////////////////////////////////////////////////////////
 	
 	

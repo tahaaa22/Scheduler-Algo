@@ -7,5 +7,9 @@ Processor:: Processor()
     RDY_Length = 0;
     BusyCount = 0;
     Total_CPUtime = 0;
-    Total_TRT = 0;
+    TotalBusyTime = 0;
+    TotalIdleTime = 0;
+    type = 'p';
+     OverheatTime=0;
+     isOverheated = false;
 }

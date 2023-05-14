@@ -1,57 +1,75 @@
 #include "EDF.h"
 #include "Scheduler.h"
 
-EDF::EDF(Scheduler * sch)
+EDF :: EDF(Scheduler * sch)
 {
 	settype('e');
-	 TotalBusyTime = 0;
-	 TotalIdleTime = 0;
-	TotalTRT = 0;
 	sc = sch;
+    warenyreadylen = 0;
 }
 Process* EDF::gettop()
 {
 	Process* p = NULL ;
 	EDFrdy.peek(p);
 	if (p&&(p->getorphanflag()))
-		return p;
+		return NULL;
 	else
 	{
-		EDFrdy.dequeue(p);
-		return p;
+        if (p)
+        {
+            EDFrdy.dequeue(p);
+            if (getRDY_Length() < 0)
+                int t = 0;
+            warenyreadylen = getRDY_Length() - p->gettimeRemaining();
+            setRDY_Length(warenyreadylen);
+            return p;
+        }
+        else
+            return NULL;
 	}
 }
- double EDF::pLoad()
-{
-	return (TotalBusyTime / TotalTRT) ;
-
-}
+ 
 double EDF::pUtil()
 {
 	return (TotalBusyTime / (TotalBusyTime + TotalIdleTime)) ;
 }
 void  EDF::addToReadyQueue(Process* p1) //inserting a process to the RDY 
 {
-    if (EDFrdy.isEmpty() && !getCurrRun())
+    if (getRDY_Length() < 0)
+        int t = 0;
+  
+    if (p1)
     {
-        EDFrdy.enqueue(p1, p1->getDeadLine());
-        setRDY_Length(getRDY_Length() + p1->getCpuTime());
-    }
-      else if (getCurrRun())
-	  {
-		if (p1->getDeadLine() < getCurrRun()->getDeadLine())
-		{
-            
-			EDFrdy.enqueue(getCurrRun(), getCurrRun()->getDeadLine());
-			setCurrRun(p1);
-			setRDY_Length(getRDY_Length() + getCurrRun()->gettimeRemaining());
-		}
-        else
+        if (!getCurrRun())
         {
+            warenyreadylen = getRDY_Length() + p1->gettimeRemaining();
+            setRDY_Length(warenyreadylen);
             EDFrdy.enqueue(p1, p1->getDeadLine());
-            setRDY_Length(getRDY_Length() + p1->getCpuTime());
+            
         }
-	  }
+        else 
+        {
+            if (p1->getDeadLine() < getCurrRun()->getDeadLine())
+            {
+                warenyreadylen = getRDY_Length() + getCurrRun()->gettimeRemaining();
+                setRDY_Length(warenyreadylen);
+                EDFrdy.enqueue(getCurrRun(), getCurrRun()->getDeadLine());
+                setCurrRun(p1);
+                if (getCurrRun()->getnumIO() != 0)
+                {
+                    int IO_req = getCurrRun()->getIOqueue()->peekR()->getFirstItem();
+                    getCurrRun()->setblktime(IO_req + sc->getTimeStep());
+                }
+            }
+            else
+            {
+                warenyreadylen = getRDY_Length() + p1->gettimeRemaining();
+                setRDY_Length(warenyreadylen);
+                EDFrdy.enqueue(p1, p1->getDeadLine());
+            }
+        }
+       
+    }
 
 }
 
@@ -60,65 +78,112 @@ char  EDF::getPtype()
 	return Ptype;
 }
 
-void EDF::ScheduleAlgo(int time)
+Process* EDF::eject()
+{
+    Process* temp;
+    EDFrdy.dequeue(temp);
+    warenyreadylen = getRDY_Length() - temp->gettimeRemaining();
+    setRDY_Length(warenyreadylen);
+    return temp;
+}
+
+
+
+void EDF::Handle(int timestep) //this functions executes and checks if the process needs termination
 {
 
-    if (!EDFrdy.isEmpty() && !getCurrRun())
+    while (getCurrRun())
     {
-        Process* temp;
-        EDFrdy.dequeue(temp);
-        if (temp->getfirsttime() == 0)
+        if (currenttime == timestep)
         {
-            temp->setResponseTime(time - temp->getArrivalTime());
-            temp->setfirsttime(1);
+            TotalBusyTime++;
+            TotalIdleTime = timestep - TotalBusyTime;
         }
-        setCurrRun(temp);
-        int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
-        getCurrRun()->setblktime(IO_req + time);
-        setRDY_Length(getRDY_Length() - temp->getCpuTime());
-    }
-    else if (getCurrRun())
-    {
-        getCurrRun()->execute(time);
-        TotalBusyTime++; // taha
-        TotalIdleTime = time - TotalBusyTime; //taha
-        if (!getCurrRun()->getIOqueue().isEmpty())
+        currenttime++;
+
+        //handling blk//
+        if (getCurrRun()->getnumIO() > 0)
         {
-            if (getCurrRun()->getblktime() == time)
+            if (getCurrRun()->getblktime() == timestep)
             {
                 getCurrRun()->setnumIO(getCurrRun()->getnumIO() - 1);
                 sc->RuntoBlk(getCurrRun());
-                /////////////taha///////////////////
-                if (!EDFrdy.isEmpty()) //run empty and ready contains processes
-                {
-                    Process* temp;
-                    EDFrdy.dequeue(temp);
-                    setCurrRun(temp);
-                    int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
-                    getCurrRun()->setblktime(IO_req + time);
-                }
-                //////////////////////////////////////////
+                setCurrRun(nullptr);
+                continue;
             }
         }
-        else if (getCurrRun()->getisFinished())
+        ///////////////////////////////////////////////////////////////////////////
+
+        getCurrRun()->execute(timestep); //execute
+        if (getCurrRun()->getisFinished())
         {
-            getCurrRun()->setTerminationTime(time);
+           // getCurrRun()->setTerminationTime(timestep);
             getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
-            TotalTRT += getCurrRun()->getTurnaroundDuration(); //taha
+            //TotalTRT += getCurrRun()->getTurnaroundDuration(); // waiting for DR to remove 
             sc->Trm(getCurrRun());
-            /////////////taha///////////////////
+            setCurrRun(nullptr);
+        }
+
+        break;
+    }
+}
+
+void EDF::ScheduleAlgo(int timestep)
+{
+    currenttime = timestep;
+    if (getisOverheated())
+    {
+        int t = getOverheatTime(); // processor 1
+        setOverheatTime(getOverheatTime() - 1);
+        if (getOverheatTime() == 0) setisOverheated(false);
+    }
+    else
+    {
+        Handle(timestep); //equivalent to while run = true (run contains a process)
+        while (!getCurrRun()) //while RUN is empty 
+        {
             if (!EDFrdy.isEmpty()) //run empty and ready contains processes
             {
-                Process* temp;
-                EDFrdy.dequeue(temp);
+                Process* temp; //First Process In is at the head, and the turn is on this Process to RUN
+                EDFrdy.dequeue(temp); //deleting first Process as it is removed to RUN
                 setCurrRun(temp);
-                int IO_req = getCurrRun()->getIOqueue().peek().getFirstItem();
-                getCurrRun()->setblktime(IO_req + time);
+                if (getRDY_Length() < 0)
+                    int t = 0;
+                setRDY_Length(getRDY_Length() - temp->gettimeRemaining()); //Rdy length is decremented as a process is removed from rdy 
+                if (temp->getfirsttime() == 0)
+                {
+                    temp->setResponseTime(timestep - temp->getArrivalTime());
+                    temp->setfirsttime(1);
+                }
+                if (getCurrRun()->getnumIO() != 0)
+                {
+                    int IO_req = getCurrRun()->getIOqueue()->peekR()->getFirstItem();
+                    getCurrRun()->setblktime(IO_req + timestep);
+                }
+                Handle(timestep); //handles the current run
             }
-            //////////////////////////////////////////
+            else
+            {
+                break;
+            }
         }
     }
 }
+//void EDF :: RDYlength()
+//{
+//    setRDY_Length(0);
+//    if (EDFrdy.isEmpty())
+//    {
+//        setRDY_Length(0);
+//        return;
+//    }
+//    PQNode <Process*>* curQPtr = EDFrdy.getHead();
+//    while (curQPtr)
+//    {
+//        setRDY_Length(getRDY_Length() + curQPtr->getItem()->gettimeRemaining());
+//        curQPtr = curQPtr->getNext();
+//    }
+//}
 
 void  EDF::print_rdy()
 {
@@ -130,3 +195,7 @@ int  EDF::getRDYCount()
 	return EDFrdy.getCount();
 }
 char EDF::Ptype = 'e';
+EDF::~EDF()
+{
+
+ }

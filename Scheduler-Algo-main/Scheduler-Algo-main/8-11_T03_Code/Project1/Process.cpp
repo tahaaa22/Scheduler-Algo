@@ -6,7 +6,7 @@
 using namespace std; 
 
 Process::Process(){}
-Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), numIO(Num), IO_queue(N), deadline(d) //changed by taha
+Process::Process(int AT, int ID, int CT, int TDuration , int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), totalIO_D(TDuration), numIO(Num), IO_queue(N), deadline(d) //changed by taha
 {
     //AT = 0;
     //ID = 0;
@@ -17,13 +17,18 @@ Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :Arrival
     orphanflag = false;
     isBlocked = false;
     isFinished = false;
-    ResponseTime = -1;
-    TerminationTime = -1;
+    ResponseTime = 0;
+    TerminationTime = 0;
     waitingTime = 0;
     TurnaroundDuration = 0;
     //No_of_IO = IO.size(); // no of times ha request input/output
     LCH = NULL;
     RCH = NULL;
+}
+
+SQueue<int>* Process::getIOqueue()
+{
+    return & IO_queue;
 }
 int Process::getnumIO()
 {
@@ -116,7 +121,7 @@ void Process::setTerminationTime(int time)
 
 int Process::getTurnaroundDuration() 
 {
-    return TerminationTime - ArrivalTime;
+    return TurnaroundDuration;
 }
 
 int Process::getWaitingTime() 
@@ -143,7 +148,8 @@ bool Process::getisFinished()
 
 void Process::execute(int currentTimeStep)  // decrement cpu at each time step 
 {
-    if (timeRemaining > 0) {
+    if (timeRemaining > 0)
+    {
         timeRemaining--;
         if (timeRemaining == 0) 
         {
@@ -157,7 +163,7 @@ Process* Process::load(ifstream& inputFile) // changed by taha
 {
     int AT, ID, CT, N, d;
     char c;
-    totalIO_D = 0;
+    int t = 0; // for total IO duration 
     SQueue<int> IO_queue;
     Process* Pp = NULL;
     inputFile >> AT;
@@ -171,27 +177,32 @@ Process* Process::load(ifstream& inputFile) // changed by taha
         inputFile >> IO_R;
         inputFile >> c;
         inputFile >> IO_D;
-        totalIO_D += IO_D;
+        t += IO_D;
         IOpairs = new SNode<int>(IO_R, IO_D);
-        IO_queue.enqueue({ IOpairs });
+        IO_queue.enqueue( IOpairs ); // shelt {} mn IOpairs
     }
+    if (N == 0)
+    {
+        IOpairs = new SNode<int>(0, 0);
+        IO_queue.enqueue(IOpairs);
+    }
+    IO_queue; // testing
     inputFile >> d;
-    Process* p = new Process(AT, ID, CT, N, IO_queue, d);
+    Process* p = new Process(AT, ID, CT, t, N, IO_queue, d);
     return p;
 }
-SQueue<int> Process::getIOqueue() {
-    return IO_queue;
-}
+
 
 ///////////// Added by Amira /////////////
 Process::Process(int AT, int ID, int CT) :ArrivalTime(AT), PID(ID), CPUtime(CT) //overloaded constructr for forking
 {
+
     orphanflag = true;
     timeRemaining = CT;
     isBlocked = false;
     isFinished = false;
-    ResponseTime = -1;
-    TerminationTime = -1;
+    ResponseTime = 0;
+    TerminationTime = 0;
     waitingTime = 0;
     TurnaroundDuration = 0;
     //No_of_IO = IO.size(); // no of times ha request input/output

@@ -15,6 +15,7 @@ private:
 
 public:
 	PriorityQueue();
+	PQNode <T>* getHead();
 	bool isEmpty() const;
 	int getCount() const;
 	bool enqueue(const T& newEntry, const int& prio);
@@ -35,7 +36,13 @@ Function: PriorityQueue()
 The constructor of the PriorityQueue class.
 
 */
-
+////////////////////FOR TESTING ONLY///////////////////////////////////////
+template <typename T>
+PQNode <T> * PriorityQueue<T> :: getHead()
+{
+	return frontPtr;
+}
+///////////////////////////////////////////////////////////
 template <typename T>
 PriorityQueue<T>::PriorityQueue()
 {
