@@ -26,6 +26,7 @@ void Scheduler::Simulation()
 	NumProcessor = NF + NS + NR + ND;
 	full();
 	int mode;
+	pUI->printwelcome();
 	mode = pUI->ReadMode();
 	cin.ignore();  //Clear any leftover characters in the input buffer
 	// create processors array
@@ -67,6 +68,7 @@ void Scheduler::Simulation()
 	}
 	if (mode == 3)  //no need for bring inside loop as it is printed once
 		pUI->printAfterSim();
+	pUI->printending();
 	    OutputFile();
 }
 void Scheduler::Overheat(Processor* p)
