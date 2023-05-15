@@ -3,7 +3,7 @@ debug:
 
 1.sigkill //waiting for mohamed ismail.
 
-2.check deletes li kol el dynamic allocations.
+2.check deletes li kol el dynamic allocations, also make a readme file to explain the whole project while commenting.
 
 3. waiting time for killed oorphans will be wrong as they wont execute all the needed CPU time. // waiting for mohamed ismail
 
