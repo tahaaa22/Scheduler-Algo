@@ -17,6 +17,7 @@ private:
 	//int TotalBusyTime; // time taken inside run for each processor
 	//int TotalIdleTime; // total busy time minus time step
 	//int TotalTRT; // total turn around time of all processes
+	static int actualp; // actual processor i am currently in
 	static SQueue<int> killSig; //Kill Signal Time
 	static char Ptype; // returning type instead of dynamic casting 
 	LinkedList<Process*> RDY;
@@ -26,16 +27,13 @@ private:
 	//Scheduler* s; //used to call fork fn
 
 public:
-	FCFS(Scheduler *);  //constructor
-
+	FCFS(Scheduler *);  
 
 	Process* eject();
-	/*int getRDY_Length();*/
+	
 	virtual Process* gettop() ;
 
-	void sigkill(int timestep, int NF);
-
-	//virtual double pLoad();
+	void sigkill(int timestep, int NF, int pnow);
 
 	virtual double pUtil();
 

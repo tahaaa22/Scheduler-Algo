@@ -5,6 +5,6 @@ int main()
 {
 	Scheduler s;
 	s. Simulation();
-	cout <<endl <<"Simulation endedddd :)" << endl;
+	//cout <<endl <<"Simulation endedddd :)" << endl;
 	return 0;
 }

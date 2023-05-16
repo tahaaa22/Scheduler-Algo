@@ -7,9 +7,7 @@ private:
 	//int TotalBusyTime; // time taken inside run for each processor
 	//int TotalIdleTime; // total busy time minus time step
 	//int TotalTRT; // total turn around time of all processes
-	PriorityQueue <Process*> EDFrdy;
-	int warenyreadylen;
-	
+	PriorityQueue <Process*> EDFrdy;  // EDF ready list
 	static char Ptype;
 public:
 	EDF(Scheduler *);

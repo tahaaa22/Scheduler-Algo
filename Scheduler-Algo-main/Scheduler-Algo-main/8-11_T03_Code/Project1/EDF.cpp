@@ -5,7 +5,6 @@ EDF :: EDF(Scheduler * sch)
 {
 	settype('e');
 	sc = sch;
-    warenyreadylen = 0;
 }
 Process* EDF::gettop()
 {
@@ -20,8 +19,7 @@ Process* EDF::gettop()
             EDFrdy.dequeue(p);
             if (getRDY_Length() < 0)
                 int t = 0;
-            warenyreadylen = getRDY_Length() - p->gettimeRemaining();
-            setRDY_Length(warenyreadylen);
+            setRDY_Length(getRDY_Length() - p->gettimeRemaining());
             return p;
         }
         else
@@ -42,8 +40,7 @@ void  EDF::addToReadyQueue(Process* p1) //inserting a process to the RDY
     {
         if (!getCurrRun())
         {
-            warenyreadylen = getRDY_Length() + p1->gettimeRemaining();
-            setRDY_Length(warenyreadylen);
+            setRDY_Length(getRDY_Length() + p1->gettimeRemaining());
             EDFrdy.enqueue(p1, p1->getDeadLine());
             
         }
@@ -51,8 +48,7 @@ void  EDF::addToReadyQueue(Process* p1) //inserting a process to the RDY
         {
             if (p1->getDeadLine() < getCurrRun()->getDeadLine())
             {
-                warenyreadylen = getRDY_Length() + getCurrRun()->gettimeRemaining();
-                setRDY_Length(warenyreadylen);
+                setRDY_Length(getRDY_Length() + getCurrRun()->gettimeRemaining());
                 EDFrdy.enqueue(getCurrRun(), getCurrRun()->getDeadLine());
                 setCurrRun(p1);
                 if (getCurrRun()->getnumIO() != 0)
@@ -63,8 +59,7 @@ void  EDF::addToReadyQueue(Process* p1) //inserting a process to the RDY
             }
             else
             {
-                warenyreadylen = getRDY_Length() + p1->gettimeRemaining();
-                setRDY_Length(warenyreadylen);
+                setRDY_Length(getRDY_Length() + p1->gettimeRemaining());
                 EDFrdy.enqueue(p1, p1->getDeadLine());
             }
         }
@@ -82,8 +77,7 @@ Process* EDF::eject()
 {
     Process* temp;
     EDFrdy.dequeue(temp);
-    warenyreadylen = getRDY_Length() - temp->gettimeRemaining();
-    setRDY_Length(warenyreadylen);
+    setRDY_Length(getRDY_Length() - temp->gettimeRemaining());
     return temp;
 }
 
@@ -112,11 +106,17 @@ void EDF::Handle(int timestep) //this functions executes and checks if the proce
                 continue;
             }
         }
-        ///////////////////////////////////////////////////////////////////////////
-
-        getCurrRun()->execute(timestep); //execute
+  
+       ///////////////////////////////////////////////////////////////////////////
+        if (getCurrRun()->getfirsttime() == 1)
+            getCurrRun()->setfirsttime(2);
+        else if (getCurrRun()->getfirsttime() == 2)
+            getCurrRun()->execute(timestep); //execute
+        ////////////////////////////////////////////////////////////////////////////
         if (getCurrRun()->getisFinished())
         {
+            if (getCurrRun()->getPID() == 11)
+                int t = 0;
            // getCurrRun()->setTerminationTime(timestep);
             getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
             //TotalTRT += getCurrRun()->getTurnaroundDuration(); // waiting for DR to remove 
@@ -195,7 +195,5 @@ int  EDF::getRDYCount()
 	return EDFrdy.getCount();
 }
 char EDF::Ptype = 'e';
-EDF::~EDF()
-{
 
- }
+EDF::~EDF() {}

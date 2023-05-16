@@ -12,13 +12,14 @@ private:
    // int TotalTRT; // total turn around time of all processes
     static char Ptype;
     Queue<Process*> RdyQueue;
-    static int TS;    //Timeslice
-    static int RTF;
+    static int TS;   //Timeslice
+    static int RTF;  // used in migration 
     int Curtime;
     Scheduler* sc;
    
 public:
     RR(Scheduler*);
+    ~RR();
     void RDYlength();
     Process* eject();
     virtual Process* gettop();
@@ -26,10 +27,8 @@ public:
     char getPtype();
     virtual void addToReadyQueue(Process* p1);
     virtual void ScheduleAlgo(int timestep);
-    bool CheckRTF(Process* p1);
     virtual void print_rdy();
     virtual  int getRDYCount();
     void Handle(int timestep);
-    ///////////////////////////////////////////////Addddded by mimo/////////////////////////////////////////
     static void Loadp(ifstream& inputFile);
 };

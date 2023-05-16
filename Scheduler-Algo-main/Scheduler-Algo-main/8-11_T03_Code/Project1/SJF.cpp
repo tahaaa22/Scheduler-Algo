@@ -1,35 +1,13 @@
 #include "SJF.h"
 #include "Scheduler.h"
+
 SJF::SJF(Scheduler * sch) 
 {
     settype('s');
-     //TotalBusyTime = 0;
-     //TotalIdleTime = 0;
-   // TotalTRT = 0;
     sc = sch;
 }
-//int SJF::getRDY_Length()
-//{
-//    int sum = 0;
-//    PriorityQueue<Process*> PQ1;
-//
-//    Process* temp;
-//    while (!PQ.isEmpty())
-//    {
-//        PQ.dequeue(temp);
-//        sum += temp->gettimeRemaining();
-//        PQ1.enqueue(temp);
-//
-//    }
 
-   // Process* temp;
-   /* while (curQPtr)
-    {
-        cout << curQPtr->getItem();
-        if (curQPtr->getNext())
-            cout << ", ";
-        curQPtr = curQPtr->getNext();
-    }*/
+SJF::~SJF() {}
 
 Process* SJF::gettop()
 {
@@ -67,7 +45,7 @@ char  SJF::getPtype()
     return Ptype;
 }
 
-Process* SJF::eject()
+Process* SJF::eject()   
 {
     Process* temp;
     PQ.dequeue(temp);
@@ -88,6 +66,7 @@ void SJF::Handle(int timestep) //this functions executes and checks if the proce
         }
         currenttime++;
 
+
         //handling blk//
         if (getCurrRun()->getnumIO() > 0)
         {
@@ -99,11 +78,18 @@ void SJF::Handle(int timestep) //this functions executes and checks if the proce
                 continue;
             }
         }
-        ///////////////////////////////////////////////////////////////////////////
+       
+       ///////////////////////////////////////////////////////////////////////////
+        if (getCurrRun()->getfirsttime() == 1)
+            getCurrRun()->setfirsttime(2);
+        else if (getCurrRun()->getfirsttime() == 2)
+            getCurrRun()->execute(timestep); //execute
+        ////////////////////////////////////////////////////////////////////////////
 
-        getCurrRun()->execute(timestep); //execute
         if (getCurrRun()->getisFinished())
         {
+            if (getCurrRun()->getPID() == 11)
+                int t = 0;
           //  getCurrRun()->setTerminationTime(timestep);
             getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
             //TotalTRT += getCurrRun()->getTurnaroundDuration(); // waiting for DR to remove 
@@ -117,14 +103,6 @@ void SJF::Handle(int timestep) //this functions executes and checks if the proce
 
 void SJF::ScheduleAlgo(int timestep)
 {
-    if (getisOverheated())
-    {
-        int t = getOverheatTime(); // processor 1
-        setOverheatTime(getOverheatTime() - 1);
-        if (getOverheatTime() == 0) setisOverheated(false);
-    }
-    else
-    {
         currenttime = timestep;
         if (getisOverheated())
         {
@@ -159,95 +137,9 @@ void SJF::ScheduleAlgo(int timestep)
                     break;
             }
         }
-    }
+    
 }
 
-
-
-//void  SJF::ScheduleAlgo(int time)
-//{
-//if (getisOverheated())
-//{
-//    setOverheatTime(getOverheatTime() - 1);
-//    if (getOverheatTime() == 0) setisOverheated(false);
-//}
-//    
-//else if (!PQ.isEmpty() && !getCurrRun())
-//{
-//    Process* temp;
-//    PQ.dequeue(temp);
-//    setRDY_Length(getRDY_Length() - temp->gettimeRemaining());
-//    if (temp->getfirsttime() == 0)
-//    {
-//        temp->setResponseTime(time - temp->getArrivalTime());
-//        temp->setfirsttime(1);
-//    }
-//    setCurrRun(temp);
-//    if (getCurrRun()->getnumIO() != 0)
-//    {
-//        int IO_req = getCurrRun()->getIOqueue()->peek()->getFirstItem();
-//        getCurrRun()->setblktime(IO_req + time);
-//    }
-//}
-//else if (getCurrRun())
-//{
-//    if (currenttime == time)
-//    {
-//        TotalBusyTime++;
-//        TotalIdleTime = time - TotalBusyTime;
-//    }
-//    currenttime++;
-//    getCurrRun()->execute(time);
-//    TotalBusyTime++; // taha
-//    TotalIdleTime = time - TotalBusyTime; //taha
-//    if (getCurrRun()->getnumIO() != 0)
-//    {
-//        if (getCurrRun()->getblktime() == time) 
-//        {
-//            getCurrRun()->setnumIO(getCurrRun()->getnumIO() - 1);
-//            sc->RuntoBlk(getCurrRun());
-//            setCurrRun(NULL);
-//            /////////////taha///////////////////
-//            if (!PQ.isEmpty()) //run empty and ready contains processes
-//            {
-//                Process* temp;
-//                PQ.dequeue(temp);
-//                setRDY_Length(getRDY_Length() - temp->gettimeRemaining());
-//                setCurrRun(temp);
-//                if (getCurrRun()->getnumIO() != 0)
-//                {
-//                    int IO_req = getCurrRun()->getIOqueue()->peek()->getFirstItem();
-//                    getCurrRun()->setblktime(IO_req + time);
-//                }
-//            }
-//            //////////////////////////////////////////
-//        }
-//    }
-//    else if (getCurrRun()->getisFinished())
-//    {
-//        getCurrRun()->setTerminationTime(time);
-//        getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
-//        //TotalTRT += getCurrRun()->getTurnaroundDuration(); //taha - waiting for DR to remove 
-//        sc->Trm(getCurrRun());
-//        /////////////taha///////////////////
-//        if (!PQ.isEmpty()) //run empty and ready contains processes
-//        {
-//            Process* temp;
-//            PQ.dequeue(temp);
-//            setRDY_Length(getRDY_Length() - temp->gettimeRemaining());
-//            setCurrRun(temp);
-//            if (getCurrRun()->getnumIO() != 0)
-//            {
-//                int IO_req = getCurrRun()->getIOqueue()->peek()->getFirstItem();
-//                getCurrRun()->setblktime(IO_req + time);
-//            }
-//        }
-//        else
-//            setCurrRun(NULL );
-//        //////////////////////////////////////////
-//    }
-//}
-//}
 
 void  SJF::print_rdy()
 {

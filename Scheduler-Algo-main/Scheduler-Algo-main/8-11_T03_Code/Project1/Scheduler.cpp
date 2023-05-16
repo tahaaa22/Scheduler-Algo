@@ -19,11 +19,38 @@ Scheduler::Scheduler()
 	pSteal = 0;
 	TimeStep = 1;
 	char type = 0;
+	Blkcounter = 0;
 }
+
+Scheduler::~Scheduler()
+{
+	delete pr;
+	delete pf;
+	delete ps;
+	delete pd;
+	//delete pUI;
+	delete Pp;
+	for (int i = 0; i < NumProcessor; i++)
+	{
+		delete ArrP[i];
+	}
+	while (!TerminatedQueue.isEmpty()) {
+		Process* del;
+		TerminatedQueue.dequeue(del);
+		delete del;
+	}
+}
+
 void Scheduler::Simulation()
 {
 	LoadFile();
 	NumProcessor = NF + NS + NR + ND;
+	if (NumProcessor == 0)
+	{
+		pUI->printwarning();
+		pUI->printending();
+		return;
+	}
 	full();
 	int mode;
 	pUI->printwelcome();
@@ -43,7 +70,8 @@ void Scheduler::Simulation()
 			Overheat(ArrP[r]);
 		}
 		NewtoRdy(TimeStep);
-		
+		if (TimeStep == 20)
+			int amira = 0;
 		for (int i = 0; i < NumProcessor; i++)
 		{
 			ArrP[i]->ScheduleAlgo(TimeStep);
@@ -62,7 +90,7 @@ void Scheduler::Simulation()
 		{
 			// PRINTING //
 			Output(TimeStep);
-			Sleep(700);		//Wait for second
+			Sleep(100);		//Wait for second
 		}
 		incrementTimeStep(); // finally increment time step for next loop
 	}
@@ -73,16 +101,34 @@ void Scheduler::Simulation()
 }
 void Scheduler::Overheat(Processor* p)
 {
+	int counter = 0; // to check if all processors of type FCFS are overheated
+	bool allFCFSOverheated = false; // to check of all FCFS processors are overheated or not
 	p->setisOverheated(true);
-	AddtoRdy(p->getCurrRun());
+
+	if (getMinProcessor(1, 0) == NULL && p->getCurrRun()) // if all processors are overheated all processes in the ready and the run will be terminated
+		Trm(p->getCurrRun());
+	else
+		AddtoRdy(p->getCurrRun());
+
 	p->setCurrRun(nullptr);
 	p->setOverheatTime(OverheatConstant);
-	int k = 0;
+	
 	while (p->getRDYCount() > 0) 
 	{
-		AddtoRdy(p->eject());  //needs dynamic casting?????
-		//NewQueue.enqueue(p->eject());
-		k++;
+		Process* temp = p->eject();
+		if (getMinProcessor(1, 0) == NULL)// if all processors are overheated all processes in the ready and the run will be terminated
+			Trm(temp);
+		else
+		{
+			while (counter < NF && ArrP[counter]->getisOverheated())
+				counter++;
+			if (counter == NF)
+				allFCFSOverheated = true;
+			if (allFCFSOverheated && getMinProcessor('f', 0) && temp->getorphanflag())
+				Trm(temp);
+			else
+			AddtoRdy(temp);
+		}
 	}
 }
 //////////////////////////////////taha////////////////////////
@@ -111,7 +157,7 @@ void Scheduler::Steal()
 						longest = getMaxProcessor();
 						int t = longest->getRDY_Length(); //testing 
 						int m = shortest->getRDY_Length(); //testing
-						if (longest->getRDY_Length() != 0)
+						if (longest->getRDY_Length() != 0) // to make sure that Plimit is not 100 precent when shortest is zero length
 						{
 							Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
 						}
@@ -132,8 +178,7 @@ void Scheduler::fork(Process* parent)
 {
 	if (!parent->getLCH() || !parent->getRCH())  //There is <2 children
 	{
-		Process* child = new Process(TimeStep, NumProcess + 1, parent->gettimeRemaining());
-		//Process* child = new Process(TimeStep, NumProcess +1, parent -> gettimeRemaining(), 0 ,  )
+		Process* child = new Process(TimeStep, NumProcess + 1, parent->gettimeRemaining(), parent);
 		pFork++; // for output file
 		NumProcess++;
 		Processor* f = getMinProcessor('f', 0);
@@ -148,7 +193,6 @@ void Scheduler::fork(Process* parent)
 			parent->setRCH(child);
 			return;
 		}
-
 	}
 }
 ////////////////////////////////////////////////////
@@ -179,6 +223,16 @@ void Scheduler::full()
 			ArrP[i] = df;
 		}
 	}
+}
+
+ FCFS* Scheduler::GetFCFSprocessor(int n)
+{
+	Processor* kill = ArrP[n];
+	if (FCFS* tmp = dynamic_cast<FCFS*>(kill))
+	{
+		return tmp;
+	}
+
 }
 
 int Scheduler::getNF()
@@ -225,21 +279,13 @@ Processor* Scheduler::getMaxProcessor()
 Processor* Scheduler::getMinProcessor(char a, int n)
 {
 	int count = 0;
-		/*int k = n;
-		Processor* min = ArrP[n];
-		while (min->getisOverheated() && k <= NumProcessor) 
-		{
-			k++;
-			min = ArrP[k];
-		}*/
-	//Processor* min = ArrP[n];
-	//int w = 0;
 	while (n < NumProcessor && ArrP[n]->getisOverheated())
 		n++;
 	if (n == NumProcessor)
 		return NULL ;
 
 		Processor* min = ArrP[n];
+		int m1 = min->getRDY_Length();
 	for (int i = n +1; i < NumProcessor; i++)
 	{
 		if (ArrP[i]->getisOverheated())
@@ -247,34 +293,17 @@ Processor* Scheduler::getMinProcessor(char a, int n)
 		if (a == 'f' && i == NF) break;
 		if (a == 's' && i == NF + NS) break;
 		if (a == 'r' && i == NF + NS + NR) break;
+		int m2 = ArrP[i]->getRDY_Length();
 		if (ArrP[i]->getRDY_Length() < min->getRDY_Length())
 			min = ArrP[i];
 
 
 	}
 
-
-
-	//Processor* min = NULL;
-	//for (int i = n; i < NumProcessor; i++)
-	//{
-	//	int mini = INFINITE;
-	//	if (a == 'f' && i == NF) break;
-	//	if (a == 's' && i == NF + NS) break;
-	//	if (a == 'r' && i == NF + NS + NR) break;
-	//	if (ArrP[i]->getRDY_Length() < mini && ArrP[i]->getisOverheated() == false)
-	//	{
-	//		min = ArrP[i];
-	//		mini = ArrP[i]->getRDY_Length();
-	//		//int awel = ArrP[0]->getRDY_Length(); // 1 //over heated
-	//		//int tany = ArrP[1]->getRDY_Length(); // 1
-	//		//int talet = ArrP[2]->getRDY_Length();// 1
-	//		//int rabe3 = ArrP[3]->getRDY_Length();// 1
-	//	}
-
-	//}
 	for (int i = n; i < NumProcessor; i++)
 	{
+		if (ArrP[i]->getisOverheated())
+			continue;
 		if (a == 'f' && i == NF) break;
 		if (a == 's' && i == NF + NS) break;
 		if (a == 'r' && i == NF + NS + NR) break;
@@ -293,19 +322,19 @@ void  Scheduler::BlktoRdy()
 {
 	if (!BLKQueue.isEmpty())
 	{
-		SQueue <int>* amira = BLKQueue.getHead()->getItem()->getIOqueue();
 		int ionum = BLKQueue.getHead()->getItem()->getIOqueue()->peekR()->getSecondItem();
-		int rem_io_time = ionum - 1;
-		BLKQueue.getHead()->getItem()->getIOqueue()->peekR()->setSecondItem(rem_io_time);
-		//int ahmed = BLKQueue.getHead()->getItem()->getIOqueue().peek()->getSecondItem();
-		if (rem_io_time == 0)
+		Blkcounter++; // counter to check if the duration of the IO resources is done or not
+		if (Blkcounter == ionum)
 		{
-			//int in = BLKQueue.getHead()->getItem()->getIOqueue()->peekR()->getFirstItem();// testing 
+			BLKQueue.getHead()->getItem()->setTotalIO_D(BLKQueue.getHead()->getItem()->getTotalIO_D()   + ionum ); // sum of durations that is done for each process for output file 
+			Blkcounter = 0;
 			BLKQueue.getHead()->getItem()->getIOqueue()->dequeueR();
-			//int i = BLKQueue.getHead()->getItem()->getIOqueue()->peekR()->getFirstItem(); // testing
 			Process* temp;
 			BLKQueue.dequeue(temp);
-			AddtoRdy(temp);
+			if (getMinProcessor(1, 0) == NULL)
+				Trm(temp);
+			else
+				AddtoRdy(temp);
 		}
 	}
 }
@@ -318,19 +347,24 @@ void Scheduler::OutputFile()
 	Avg_Util = 0;
 	int earlyDeadLine = 0;
 	Process* process;
-	string createFile = "";
-	string path = "/8-11_T03_Code\Project1\OutputFiles";
-	OutputFile.open("OutputFiles/" + path + ".txt", ios::out);
+	//string createFile = "";
+	string folderName = "OutputFiles";
+	string fileName = "output_" + to_string(time(nullptr)) + ".txt";
+	string filePath = folderName + "/" + fileName;
+
+	// Open the file for writing
+	OutputFile.open(filePath, ios::out);
+	//string path = "/8-11_T03_Code\Project1\OutputFiles";
+	//OutputFile.open("OutputFiles/" + path + ".txt", ios::out);
 	//OutputFile.open(createFile.c_str());
 	//OutputFile.open("OutputFiles.txt" );
 	OutputFile << "TT\tPID\tAT\tCT\tIO_D\tWT\tRT\tTRT\tDL" << endl;
-	//int a1 = ArrP[0] ->getRDY_Length(); // testing
-	//int  a2 = ArrP[1]->getRDY_Length(); // testing 
-	//int  a3 = ArrP[2]->getRDY_Length(); // testing 
-	//int  a4 = ArrP[3]->getRDY_Length(); // testing 
 	while (TerminatedQueue.dequeueOT(process)) //printing finished processes
 	{
+		if (process->getPID() == 12)
+			int t = process->getWaitingTime();
 		process->getTotalIO_D();//testing 
+		if (process ->getorphanflag() == false && process->getiskilled() == false)
 		process->setwaitingtime(process->getTurnaroundDuration() - process->getCpuTime());
 		OutputFile << process->getTerminationTime() << "\t" << process->getPID() << "\t" << process->getArrivalTime() ;
 		OutputFile << "\t" << process->getCpuTime() << "\t" << process->getTotalIO_D() << "\t" << process->getWaitingTime() << "\t" << process->getResponseTime() << "\t" << process->getTurnaroundDuration();
@@ -472,16 +506,7 @@ void Scheduler::LoadFile()
 
 }
 
-Scheduler::~Scheduler()
-{
-	/*for (int i = 0; i < NumProcessor; i++)
-	{
-		delete ArrP[i];
-	}
-	delete[] ArrP;*/
-	if (pUI)
-		delete pUI;
-}
+
 void Scheduler::NewtoRdy(int timestep) 
 {
 	Process* temp;
@@ -516,6 +541,7 @@ void Scheduler::Kill(Process* orphan)
 			bool found = ((FCFS*)ArrP[i])->isfound(orphan);
 			if (found)
 			{
+				Trm(orphan);
 				((FCFS*)ArrP[i])->deleteNodeK(orphan);
 			}
 		}
@@ -574,7 +600,7 @@ bool Scheduler::migrationrtf(Process* p, int rtf) // bool 34an a3rf a remove mn 
 				pRTF++; // for output file
 				Processor* min;
 				min = getMinProcessor('s', NF);
-				if (NS != 0)
+				if (NS != 0 && min)
 				{
 					min->addToReadyQueue(p);  // add to shortest sjf
 					return true;
@@ -599,7 +625,7 @@ bool Scheduler::migrationmaxw(Process* p, int maxw, int timestep) // bool 34an a
 				pMaxW++; // for output file
 				Processor* min;
 				min = getMinProcessor('r', NF + NS);
-				if (NR != 0)
+				if (NR != 0  && min)
 				{
 					min->addToReadyQueue(p);  // add to shortest sjf
 					return true;

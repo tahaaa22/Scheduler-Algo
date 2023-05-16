@@ -8,6 +8,7 @@ class Process
 {
 private:
     int PID;
+    bool iskilled;
     int totalIO_D; // added by taha for output file
     int firsttime; //to check response time - added by taha 
     int ArrivalTime;
@@ -26,6 +27,7 @@ private:
     bool isBlocked;
     bool isFinished;
     bool orphanflag; // added by taha
+    Process* Parent;
     Process* LCH;
     Process* RCH;
     //int lch_ID;   //1st child ID set to -1 if no children added by Amira
@@ -34,9 +36,13 @@ private:
     
 public:
  Process();
- Process(int AT, int ID, int CT, int TDuration, int Num, SQueue<int> N, int d); //changed by taha
+ Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d); //changed by taha
+ Process(int AT, int ID, int CT, Process* parent); //overloaded constructor for forking
    Process * load(ifstream& inputFile);
+   Process* getParent(); //getter for forked child to parent
    int getnumIO();
+   void setiskilled(bool t);
+   bool getiskilled();
    void setnumIO(int t);
    void setblktime(int t);
    int getblktime();
@@ -45,6 +51,7 @@ public:
    void setfirsttime(int t);
    int getfirsttime();
    int getTotalIO_D();
+   void setTotalIO_D(int t);
     int getPID();
     bool getorphanflag();
     void setorphanflag(bool f);

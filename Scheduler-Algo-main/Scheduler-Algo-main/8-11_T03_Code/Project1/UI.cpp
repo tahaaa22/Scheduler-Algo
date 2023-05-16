@@ -58,9 +58,38 @@ void UI::printwelcome()
 	clear();
 	
 }
+void UI::printwarning()
+{
+	string message = "No processors in the system to start please make sure you entered processors.";
+
+	// get console window size
+	CONSOLE_SCREEN_BUFFER_INFO csbi;
+	GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+	int width = csbi.srWindow.Right - csbi.srWindow.Left + 1;
+	int height = csbi.srWindow.Bottom - csbi.srWindow.Top + 1;
+
+	// calculate message position
+	int messageWidth = message.length();
+	int messageHeight = 1;
+	int x = (width - messageWidth) / 2;
+	int y = (height - messageHeight) / 2;
+
+	// set cursor position
+	COORD pos = { x, y };
+	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+
+	// print message
+	for (char c : message)
+	{
+		cout << c;
+		Sleep(100);
+	}
+	Sleep(1000);
+
+}
 void UI:: Print1 (int time, int NumProcessor, Processor ** ArrP , int NF, int NS, int NR, int ND )
 {
-	clear();
+	//clear();
 	cout << "Current Timestep:" << time << endl;
 	cout << "--------------------RDY processes--------------------" << endl;	
 		for (int i = 0; i < NumProcessor; i++)

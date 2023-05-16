@@ -6,24 +6,36 @@
 using namespace std; 
 
 Process::Process(){}
-Process::Process(int AT, int ID, int CT, int TDuration , int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), totalIO_D(TDuration), numIO(Num), IO_queue(N), deadline(d) //changed by taha
+Process::Process(int AT, int ID, int CT , int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), numIO(Num), IO_queue(N), deadline(d) //changed by taha
 {
-    //AT = 0;
-    //ID = 0;
-    //CT = 0;
+    Parent = nullptr;
     timeblk = 0;
     firsttime = 0;
     timeRemaining = CT;
     orphanflag = false;
     isBlocked = false;
     isFinished = false;
+    iskilled = false;
     ResponseTime = 0;
     TerminationTime = 0;
-    waitingTime = 0;
+    waitingTime = -1;
     TurnaroundDuration = 0;
     //No_of_IO = IO.size(); // no of times ha request input/output
     LCH = NULL;
     RCH = NULL;
+}
+
+void Process::setiskilled(bool t)
+{
+    iskilled = t;
+}
+bool Process::getiskilled()
+{
+    return iskilled;
+}
+Process* Process::getParent()
+{
+    return Parent;
 }
 
 SQueue<int>* Process::getIOqueue()
@@ -61,6 +73,10 @@ int Process::getfirsttime()
 void Process::setfirsttime(int t)
 {
     firsttime = t;
+}
+void Process::setTotalIO_D(int t)
+{
+    totalIO_D = t;
 }
 int Process::getTotalIO_D()
 {
@@ -163,7 +179,7 @@ Process* Process::load(ifstream& inputFile) // changed by taha
 {
     int AT, ID, CT, N, d;
     char c;
-    int t = 0; // for total IO duration 
+    //int t = 0; // for total IO duration 
     SQueue<int> IO_queue;
     Process* Pp = NULL;
     inputFile >> AT;
@@ -177,7 +193,7 @@ Process* Process::load(ifstream& inputFile) // changed by taha
         inputFile >> IO_R;
         inputFile >> c;
         inputFile >> IO_D;
-        t += IO_D;
+       // t += IO_D;
         IOpairs = new SNode<int>(IO_R, IO_D);
         IO_queue.enqueue( IOpairs ); // shelt {} mn IOpairs
     }
@@ -188,15 +204,15 @@ Process* Process::load(ifstream& inputFile) // changed by taha
     }
     IO_queue; // testing
     inputFile >> d;
-    Process* p = new Process(AT, ID, CT, t, N, IO_queue, d);
+    Process* p = new Process(AT, ID, CT, N, IO_queue, d);
     return p;
 }
 
 
 ///////////// Added by Amira /////////////
-Process::Process(int AT, int ID, int CT) :ArrivalTime(AT), PID(ID), CPUtime(CT) //overloaded constructr for forking
+Process::Process(int AT, int ID, int CT, Process * parent) :ArrivalTime(AT), PID(ID), CPUtime(CT), Parent(parent) //overloaded constructr for forking
 {
-
+    firsttime = 0;
     orphanflag = true;
     timeRemaining = CT;
     isBlocked = false;
@@ -241,4 +257,9 @@ ostream& operator<<(ostream& output, Process* p1)
     output << "Waiting time: " << p1->waitingTime << "\n";*/
    return output;
 }
-Process::~Process(){}
+Process::~Process()
+{
+    delete Parent;
+    delete LCH;
+    delete RCH;
+}

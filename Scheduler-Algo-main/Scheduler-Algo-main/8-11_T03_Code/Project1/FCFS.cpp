@@ -60,55 +60,48 @@ int FCFS::getRDYCount()
 	return RDY.getCount();
 }
 
-void FCFS::KillOrphan(Process* parent, int time)
+void FCFS::KillOrphan(Process* subRoot, int time)
 {
-	//if (parent->getPID() > 0 && parent ->getPID() =< sNumProcess)
-	if ((!parent->getLCH() && !parent->getRCH()) || !parent) //no children or no parent
+	if ((!subRoot->getLCH() && !subRoot->getRCH()) || !subRoot) //no children or no parent
 	{
 		return;
 	}
-	if (parent->getLCH())
+	if (subRoot->getLCH())
 	{
-		KillOrphan(parent->getLCH(), time); //the recursive calls will stop when the subroot has LCH = NULL
-		sc->Trm(parent->getLCH());
-
-		parent->getLCH()->setTerminationTime(time); ///added by taha
-		parent->getLCH()->setTurnaroundDuration(parent->getLCH()->getTerminationTime() - parent->getLCH()->getArrivalTime());
-		//TotalTRT += parent->getLCH()->getTurnaroundDuration(); //waiting for DR to remove
-		
-		Process * temp =parent->getLCH();
-		sc->Kill(temp);
-		parent->setLCH(nullptr);
+		KillOrphan(subRoot->getLCH(), time);
+		subRoot->getLCH()->setwaitingtime(subRoot->getLCH()->gettimeRemaining());
+		subRoot->getLCH()->setTerminationTime(time); ///added by taha
+		subRoot->getLCH()->setTurnaroundDuration(subRoot->getLCH()->getTerminationTime() - subRoot->getLCH()->getArrivalTime());
+		sc->Kill(subRoot->getLCH());
+		subRoot->setLCH(nullptr);
 	}
-	if (parent->getLCH())
+	if (subRoot->getRCH())
 	{
-		KillOrphan(parent->getRCH(), time);
-		sc->Trm(parent->getRCH()); 
-		
-		parent->getRCH()->setTerminationTime(time);
-		parent->getRCH()->setTurnaroundDuration(parent->getRCH()->getTerminationTime() - parent->getRCH()->getArrivalTime());
-		//TotalTRT += parent->getRCH()->getTurnaroundDuration(); //waiting for DR to remove
-		
-		Process* temp = parent->getRCH();
-		sc->Kill(temp);
-		parent->setRCH(nullptr);
+		KillOrphan(subRoot->getRCH(), time);
+		subRoot->getRCH()->setwaitingtime(subRoot->getRCH()->gettimeRemaining());
+		subRoot->getRCH()->setTerminationTime(time);
+		subRoot->getRCH()->setTurnaroundDuration(subRoot->getRCH()->getTerminationTime() - subRoot->getRCH()->getArrivalTime());
+		sc->Kill(subRoot->getRCH());
+		subRoot->setRCH(nullptr);
 	}
+	return;
 }
 
-void FCFS::sigkill(int timestep, int NF)
+void FCFS::sigkill(int timestep, int NF, int pnow)
 {
-	//if more than one process are to be killed at the same timestep ?
-	// Mimo read his note from Amira 
-	// resolve the case mentioned above using a while loop
-
 	SNode<int> Q;
+	if (killSig.isEmpty()) /// lw empty return 3ltol mnlf4 
+		return;
 	Q = *(killSig.peek());
-	int kill = Q.getFirstItem(); // get the kill time
-	int ID = Q.getSecondItem(); // get id to be killed
-	Node<Process*>* temp = RDY.getHead(); // get head
-	while (timestep == kill)
+	bool found = false; // did i found el 3yza a killo wla la?
+	int loop = 0; // how many times ana fdlt fy nfs el processor 
+	int killtime = Q.getFirstItem(); // Get the kill time
+	int ID = Q.getSecondItem(); // Get id to be killed
+	while (timestep == killtime)
 	{
-		nf++;
+		nf++; // ana lafat 3la kam processor 
+		Node<Process*>* temp = RDY.getHead(); // Get head
+		loop++; // ana blf fy el processor aho f add it
 		//check if process is in this processor FCFS[nf] RDY
 		while (temp) //traversing the RDY list until I found the process with that ID
 		{
@@ -117,12 +110,30 @@ void FCFS::sigkill(int timestep, int NF)
 				sc->setpKill(sc->getpKill() + 1);
 				Process* p = temp->getItem();
 				KillOrphan(p, timestep); // killing the children and grandchildren and decrementing rdy length
-				RDY.deleteNode(p); //delete it from RDY List
+				p->setiskilled(true);
+				p->setwaitingtime(p->gettimeRemaining());
 				setRDY_Length(getRDY_Length() - p->gettimeRemaining()); //adjusting RDY_Length
+				//////////////////////////AMIRA////////////////////////////////////////////
+				if (p->getorphanflag()) //if the process is forked
+				{
+					p->setwaitingtime(p->gettimeRemaining());
+					//check whether it is a right child or left child
+					if (p->getParent()->getLCH() == p) //if it is a left child for a parent
+					{
+						p->getParent()->setLCH(nullptr);
+					}
+					if (p->getParent()->getRCH() == p) //if it is a right child for a parent
+					{
+						p->getParent()->setRCH(nullptr);
+					}
+				}
+				////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+				RDY.deleteNode(p); //delete it from RDY List
 				p->setTerminationTime(timestep);
 				p->setTurnaroundDuration(p->getTerminationTime() - p->getArrivalTime());
 				//TotalTRT += p->getTurnaroundDuration(); //taha - 7asab ans el DR
 				sc->Trm(p); //terminate this process
+				found = true;
 				break;
 			}
 			temp = temp->getNext();
@@ -134,27 +145,68 @@ void FCFS::sigkill(int timestep, int NF)
 			{
 				sc->setpKill(sc->getpKill() + 1);
 				KillOrphan(getCurrRun(), timestep); // killing the children and grandchildren
+				getCurrRun()->setwaitingtime(getCurrRun()->gettimeRemaining());
+				getCurrRun()->setiskilled(true);
 				getCurrRun()->setTerminationTime(timestep);
 				getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
 				//TotalTRT += getCurrRun()->getTurnaroundDuration(); //taha - 7asab ans el DR
 				sc->Trm(getCurrRun()); //terminate this process
 				setCurrRun(nullptr);// RUN CURRENTLY EMPTY
+				found = true;
 			}
 		}
 
-		if (nf == NF)
+		if (nf == NF) /// lw ana lafat 3la kol el fcfs w mal2to4 5las n dequeue it 
 		{
 			killSig.dequeue();
+			if (killSig.isEmpty())
+				break;
 			Q = *(killSig.peek());
-			kill = Q.getFirstItem(); // get the kill time
+			killtime = Q.getFirstItem(); // get the kill time
 			ID = Q.getSecondItem(); // get id to be killed
-			temp = RDY.getHead(); // get head
-			nf = 0;
+			nf = 0; // check from the first processor again
+			found = false;
+
+		}
+		else if (found) // lw ana lafat w la2to killato dequeue it ba 34an a check el b3do
+		{
+			killSig.dequeue();
+			if (killSig.isEmpty())
+				break;
+			Q = *(killSig.peek());
+			killtime = Q.getFirstItem(); // get the kill time
+			ID = Q.getSecondItem(); // get id to be killed
+			nf = 0; //lesa added now
+			found = false;
+		}
+		// lw ana blf fy nfs el processor ll tany mra w mal2to4 nady el processor el tanyan
+		else if (loop != 1 && !found)
+		{
+			// hn loop 3la el fcfs processor nnady 3la sigkill bt3thom m3da el ana fy now
+			for (int i = 0; i < NF; i++)
+			{
+				FCFS* temp = sc->GetFCFSprocessor(i); // Getting the fcfs processor el ana 3yzah
+				if (i != actualp - 1 && i != pnow - 1) // checking eny msh d5la el ana fy mn el awl or el ana hba fy kman 4owya tany
+				{
+					pnow = i + 1; // el ana hba fy kman 4owya 
+					temp->sigkill(timestep, NF, pnow);
+				}
+			}
+			break; //lafat 3la kolo 5las
+
 		}
 		else
-			break;
+		{
+			break; // msh blf tany + el element dh msh mawgod 3ndy 
+		}
+
+	}
+	if (actualp == NF)
+	{
+		actualp = 0;
 	}
 }
+
 
 void FCFS::Handle(int timestep) //this functions executes and checks if the process needs termination
 {
@@ -167,6 +219,7 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 			TotalIdleTime = timestep - TotalBusyTime;
 		}
 		currenttime++;
+
 		//handling fork
 		srand(timestep);
 		double forkP = rand() % 100; //generate a random forking probability
@@ -174,11 +227,12 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 		{
 			sc->fork(getCurrRun());
 		}
+
 		bool migrate = sc->migrationmaxw(getCurrRun(), MaxW, timestep);
 		
 			if (migrate == true ) //&& RDY.getHead()
 			{
-				//Process* temp = RDY.getHead()->getItem();
+				//Process* temp = RDY.peek();
 				//RDY.deleteNode();
 				//setRDY_Length(getRDY_Length() - temp->gettimeRemaining()); //Rdy length is decremented as a process is removed from rdy
 				//setCurrRun(temp);
@@ -200,14 +254,24 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 				continue;
 			}
 		}
+
 		///////////////////////////////////////////////////////////////////////////
-		getCurrRun()->execute(timestep); //execute
+		if (getCurrRun()->getfirsttime() == 1)
+			getCurrRun()->setfirsttime(2);
+		else if (getCurrRun()->getfirsttime() == 2)
+			getCurrRun()->execute(timestep); //execute
+		////////////////////////////////////////////////////////////////////////////
+
 		if (getCurrRun()->getisFinished())
 		{
-			Process* p =  getCurrRun();
-			KillOrphan(getCurrRun(), timestep);
-			//getCurrRun()->setTerminationTime(timestep);
+			if (getCurrRun()->getorphanflag() == true)
+				//Process* p =  getCurrRun();
+			{
+				KillOrphan(getCurrRun(), timestep);
+			}
+			getCurrRun()->setTerminationTime(timestep);
 			getCurrRun()->setTurnaroundDuration(getCurrRun()->getTerminationTime() - getCurrRun()->getArrivalTime());
+			getCurrRun()->setwaitingtime(getCurrRun()->getTurnaroundDuration() - getCurrRun()->getCpuTime());// to make sure waiting time of killed orphans not with negative value
 			//TotalTRT += getCurrRun()->getTurnaroundDuration(); // waiting for DR to remove 
 			sc->Trm(getCurrRun());
 			setCurrRun(nullptr);
@@ -220,6 +284,7 @@ void FCFS::Handle(int timestep) //this functions executes and checks if the proc
 
 void FCFS::ScheduleAlgo(int timestep)
 {
+	actualp++;
 	currenttime = timestep;
 	if (getisOverheated())
 	{
@@ -229,7 +294,7 @@ void FCFS::ScheduleAlgo(int timestep)
 	}
 	else
 	{
-		//sigkill(timestep, sc->getNF());
+		sigkill(timestep, sc->getNF(), sc->getNF() + 1);
 		Handle(timestep); //equivalent to while run = true (run contains a process)
 		while (!getCurrRun()) //while RUN is empty 
 		{
@@ -243,9 +308,10 @@ void FCFS::ScheduleAlgo(int timestep)
 				{
 					temp->setResponseTime(timestep - temp->getArrivalTime());
 					temp->setfirsttime(1);
+					
 				}
 				setCurrRun(temp);
-				if (getCurrRun()->getnumIO() != 0) // taha 8ayaro b new condtion
+				if (getCurrRun()->getnumIO() != 0) 
 				{
 					int IO_req = getCurrRun()->getIOqueue()->peekR()->getFirstItem();
 					getCurrRun()->setblktime(IO_req + timestep);
@@ -261,7 +327,7 @@ void FCFS::ScheduleAlgo(int timestep)
 
 Process* FCFS:: eject()
 {
-	Process* temp = RDY.getHead()->getItem();
+	Process* temp = RDY.peek();
 	RDY.deleteNode();
 	/*setRDY_Length(getRDY_Length() - temp->gettimeRemaining());*/
 	return temp;
@@ -309,8 +375,7 @@ void FCFS::Loadkill(ifstream& inputFile)
 	}
 }
 
-FCFS :: ~FCFS()
-{}
+FCFS :: ~FCFS() {}
 
 SQueue<int> FCFS::killSig;
 
@@ -318,3 +383,4 @@ char FCFS::Ptype = 'f';
 double FCFS::forkprob = 0;
 int FCFS::MaxW = 0;
 int FCFS::nf = 0;
+int FCFS::actualp = 0;
