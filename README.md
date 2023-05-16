@@ -3,7 +3,7 @@ debug:
 
 
 
-1.check deletes li kol el dynamic allocations, also make a readme file to explain the whole project while commenting.
+1.make a readme file to explain the whole project while commenting.
 
 2. A3mel lel processor load -> Total TRT dh le kol process le each processor wala total TRT le kol processes Ely f system.(Done bs check) 
 
