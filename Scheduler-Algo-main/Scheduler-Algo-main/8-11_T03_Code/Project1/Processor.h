@@ -10,14 +10,12 @@ class Processor
 private:
     Process* CurrRun;
     char type;
-    int RDY_Length;        //increases when new process is added and decreases during run or steal etc.
-    int BusyCount;     //incremented every time step during running - bne3mel eh b deh??
+    int RDY_Length;     //increases when new process is added and decreases during run or steal etc.
+    int BusyCount;      //incremented every time step during running
     int Total_CPUtime;  //increases when new process is added to rdy queue
-    int OverheatTime;    //the time left for the processor to return to operating after overheat 
-    bool isOverheated;   //indicates whether the processor is overheated or not
-   
+    int OverheatTime;   //the time left for the processor to return to operating after overheat 
 protected:
-
+    bool isOverheated;  //indicates whether the processor is overheated or not
    Scheduler * sc;  
    double TotalBusyTime; // time taken inside run for each processor
    double TotalIdleTime; // total busy time minus time step
@@ -34,9 +32,10 @@ public:
     virtual Process* gettop() = 0;// return top process in the list for stealing
     virtual double pUtil() = 0; // to measure the time of the processor when it is executing 
     virtual int getRDYCount() = 0;  // returns the number of processes in different ready lists
-    virtual void addToReadyQueue(Process* process) = 0;  // adds process to different ready lists
+    virtual void addToReadyQueue(Process* process, int time) = 0;  // adds process to different ready lists
     virtual void ScheduleAlgo(int time) = 0;  // the operating of each processor
     virtual void print_rdy() = 0;   // prints different ready lists
+    virtual void OverheatRun(int OverheatConstant) = 0;
     /////////////////////////////////////////
     //				Getters				   //
     /////////////////////////////////////////

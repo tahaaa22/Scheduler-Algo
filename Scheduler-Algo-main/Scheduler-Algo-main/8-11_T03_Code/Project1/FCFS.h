@@ -14,42 +14,25 @@ class FCFS : public Processor
 	//The FCFS is a queue but because of the kill signal that will require accessing 
 	// a process in the middle of the queue the structure is now a LinkedList
 private:
-	//int TotalBusyTime; // time taken inside run for each processor
-	//int TotalIdleTime; // total busy time minus time step
-	//int TotalTRT; // total turn around time of all processes
-	static int actualp; // actual processor i am currently in
 	static SQueue<int> killSig; //Kill Signal Time
 	static char Ptype; // returning type instead of dynamic casting 
-	LinkedList<Process*> RDY;
+	LinkedList<Process*> RDY; //RDY list
 	static int MaxW; //to use for check in migration
 	static double forkprob; //fork probability 
 	static int nf; //holder to be incremented until number of FCFS processors, used to make sure all of them were checked in sigkill fn
-	//Scheduler* s; //used to call fork fn
 
 public:
-	FCFS(Scheduler *);  
+	FCFS(Scheduler*); //constructor
 
-	Process* eject();
-	
-	virtual Process* gettop() ;
+	bool sigkill(int timestep, int NF); //Kill Signal
 
-	void sigkill(int timestep, int NF, int pnow);
+	void KillOrphan(Process* parent, int time); //Killing children and grandchildren
 
-	virtual double pUtil();
+	virtual char getPtype(); //getter for the processor type (represented as a character)
 
-	virtual void ScheduleAlgo(int time);
+	virtual void print_rdy(); //printing the rdy list
 
-	void KillOrphan(Process* parent, int time);
-
-	void Handle(int timestep);
-
-	virtual int getRDYCount(); //number of processes in processor
-
-	virtual void addToReadyQueue(Process* process); //inserting a process to the RDY 
-
-	char getPtype();
-
-	void print_rdy();
+	void KillRun(Process* orphan); //killig a process in RUN state
 
 	static void Loadp(ifstream& inputFile); //loading MaxW
 
@@ -57,12 +40,29 @@ public:
 
 	static void Loadkill(ifstream& inputFile); // loading kill signals
 
-	bool isfound(Process* p); //checks if orphan is in processor
+	bool isfound(Process* p); //checks if orphan is in processor's RDY list
 
-	void deleteNodeK(Process* p); //to be called in scheduler for killing
+	void deleteNodeK(Process* p); //delete and adjust the rdy length
 
-	~FCFS();
+	~FCFS(); //destructor
+
+	/////////////////////////////////////////
+	//		    Virtual Functions	       //
+	/////////////////////////////////////////
+	virtual Process* gettop();
+
+	virtual Process* eject();
+
+	virtual void Handle(int timestep);
+
+	virtual void OverheatRun(int overheatconst);
+
+	virtual double pUtil();
+
+	virtual void ScheduleAlgo(int time);
+
+	virtual int getRDYCount(); //number of processes in processor
+
+	virtual void addToReadyQueue(Process* process, int time); //inserting a process to the RDY 
+
 };
-
-
-

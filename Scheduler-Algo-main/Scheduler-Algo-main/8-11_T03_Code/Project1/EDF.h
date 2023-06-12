@@ -4,23 +4,19 @@
 class EDF : public Processor
 {
 private:
-	//int TotalBusyTime; // time taken inside run for each processor
-	//int TotalIdleTime; // total busy time minus time step
-	//int TotalTRT; // total turn around time of all processes
 	PriorityQueue <Process*> EDFrdy;  // EDF ready list
-	static char Ptype;
+	static char Ptype;  // character set as 'e' to indicate the type is EDF
 public:
-	EDF(Scheduler *);
-	//void RDYlength();
-	Process* eject();
-	void Handle(int timestep);
-	virtual Process* gettop();
-	//virtual double pLoad();
-	virtual double pUtil();
-	virtual void ScheduleAlgo(int time);
-	void addToReadyQueue(Process* p1);
-	char getPtype();
-	virtual void print_rdy();
-	virtual int getRDYCount();
-	~EDF();
+	EDF(Scheduler*);  // constructor
+	virtual Process* eject();  // dequeues from the priority queue
+	virtual void OverheatRun(int overheatconst);  // adds the process in the run state to the shortest ready list (called if the processor overheats)
+	virtual void Handle(int timestep);  // executes the process in the run state and 
+	virtual Process* gettop();  // returns the process on the head for the steal function 
+	virtual double pUtil();  // calculates the utilization percentage of the processor 
+	virtual void ScheduleAlgo(int time);  // operates the processor 
+	virtual void addToReadyQueue(Process* p1, int time);  // adds a process to the ready list 
+	virtual char getPtype();  // getter for the data member Ptype
+	virtual void print_rdy();  // prints he processes in the ready list
+	virtual int getRDYCount();  // returns number of processes in the ready list
+	~EDF();  // destructor 
 };

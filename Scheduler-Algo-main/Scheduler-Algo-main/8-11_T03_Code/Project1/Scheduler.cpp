@@ -3,38 +3,40 @@
 Scheduler::Scheduler()
 {
 	OverheatConstant = 0;
-	ArrP = new Processor * [NF + NR + NS + ND];
-	pr = new RR(this);
-	pf = new FCFS(this);
-	ps = new SJF(this);
-	pUI = new UI;
-	pd = new EDF(this);
-	minflag = false;
-	maxflag = false;
+	ArrP = new Processor * [NF + NR + NS + ND]; //Array of Processor pointers
+	pr = new RR(this); //pointer of RR
+	pf = new FCFS(this); //pointer of FCFS
+	ps = new SJF(this); //pointer of SJF
+	pUI = new UI;  //Pointer of UI
+	pd = new EDF(this); //pointer of EDF
+	minflag = false; //used in stealing and migration
+	maxflag = false; //used in stealing and migration
 	isFileLoaded = true;
-	NF = 0;
-	NR = 0;
-	NS = 0;
-	ND = 0;
-	pSteal = 0;
-	TimeStep = 1;
+	NF = 0; //number of FCFS processors
+	NR = 0; //number of RR processors
+	NS = 0; //number of SJF processors
+	ND = 0; //number of EDF processors
+	pSteal = 0; //number of stolen processes
+	TimeStep = 0;
 	char type = 0;
 	Blkcounter = 0;
 }
 
 Scheduler::~Scheduler()
 {
+	// Housekeeping
 	delete pr;
 	delete pf;
 	delete ps;
 	delete pd;
-	//delete pUI;
+	delete pUI;
 	delete Pp;
-	for (int i = 0; i < NumProcessor; i++)
+	for (int i = 0; i < NumProcessor; i++) //deleting array of processors
 	{
 		delete ArrP[i];
 	}
-	while (!TerminatedQueue.isEmpty()) {
+	while (!TerminatedQueue.isEmpty())  //freeing the termination queue
+	{
 		Process* del;
 		TerminatedQueue.dequeue(del);
 		delete del;
@@ -51,32 +53,31 @@ void Scheduler::Simulation()
 		pUI->printending();
 		return;
 	}
-	full();
+	full(); //filling the Array of processor pointers
 	int mode;
-	pUI->printwelcome();
+	//pUI->printwelcome();
 	mode = pUI->ReadMode();
 	cin.ignore();  //Clear any leftover characters in the input buffer
 	// create processors array
-	bool isallterminated = allTerminated();	//simulation is working // btba b 0 fl awl
+	bool isallterminated = allTerminated();
 	if (mode == 3)
 		pUI->printBeforeSim(); // only condition for mode 3 before simulation 
-	while (!isallterminated && isFileLoaded)
+	while (!isallterminated && isFileLoaded) //processes are not all terminated and the input file is loaded
 	{
 		srand(time(0));
 		int random = rand() % 100;
-		int r = rand() % NumProcessor;
+		int r = rand() % NumProcessor; //generating random number as overheat probability
 		if (random < 10)
 		{
-			Overheat(ArrP[r]);
+			//Overheat(ArrP[r]); //overheating
 		}
-		NewtoRdy(TimeStep);
-		if (TimeStep == 20)
-			int amira = 0;
+		NewtoRdy(TimeStep); //distribute processes from New to Ready
 		for (int i = 0; i < NumProcessor; i++)
 		{
-			ArrP[i]->ScheduleAlgo(TimeStep);
+			ArrP[i]->ScheduleAlgo(TimeStep); //running the scheduleAlgo for all processors
 		}
-		BlktoRdy();
+		BlktoRdy(); //taking the processes that finished their IO_D to Ready
+		KillSignal();
 		Steal();
 		isallterminated = allTerminated();
 		// NOW CHOOSING MODES////
@@ -90,51 +91,43 @@ void Scheduler::Simulation()
 		{
 			// PRINTING //
 			Output(TimeStep);
-			Sleep(100);		//Wait for second
+			Sleep(50);		//Wait for second
 		}
 		incrementTimeStep(); // finally increment time step for next loop
 	}
 	if (mode == 3)  //no need for bring inside loop as it is printed once
 		pUI->printAfterSim();
-	pUI->printending();
-	    OutputFile();
+    pUI->printending();
+	OutputFile();
 }
+
 void Scheduler::Overheat(Processor* p)
 {
 	int counter = 0; // to check if all processors of type FCFS are overheated
 	bool allFCFSOverheated = false; // to check of all FCFS processors are overheated or not
-	p->setisOverheated(true);
-
-	if (getMinProcessor(1, 0) == NULL && p->getCurrRun()) // if all processors are overheated all processes in the ready and the run will be terminated
-		Trm(p->getCurrRun());
-	else
-		AddtoRdy(p->getCurrRun());
-
-	p->setCurrRun(nullptr);
-	p->setOverheatTime(OverheatConstant);
-	
-	while (p->getRDYCount() > 0) 
+	p->OverheatRun(OverheatConstant);
+	while (p->getRDYCount() > 0)
 	{
-		Process* temp = p->eject();
+		Process* temp = p->eject(); //ejecting the process at top of RDY queue
 		if (getMinProcessor(1, 0) == NULL)// if all processors are overheated all processes in the ready and the run will be terminated
-			Trm(temp);
+			Trm(temp); //terminate the process on top
 		else
 		{
 			while (counter < NF && ArrP[counter]->getisOverheated())
-				counter++;
+				counter++; //get counter of the first NON overheated FCFS
 			if (counter == NF)
 				allFCFSOverheated = true;
 			if (allFCFSOverheated && getMinProcessor('f', 0) && temp->getorphanflag())
-				Trm(temp);
+				Trm(temp); //terminate the forked if all FCFS processors are overheated
 			else
-			AddtoRdy(temp);
+				AddtoRdy(temp);
 		}
 	}
 }
-//////////////////////////////////taha////////////////////////
+
 void Scheduler::Steal()
 {
-	if (TimeStep % STL == 0)
+	if (TimeStep % STL == 0) //stealing every [constant] timesteps
 	{
 		Processor* shortest = getMinProcessor(1, 0);
 		Processor* longest = getMaxProcessor();
@@ -144,22 +137,28 @@ void Scheduler::Steal()
 			{
 				if (minflag == false && maxflag == false)
 				{
-					double Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
-					while (Plimit > 40)
+					double Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / (double)longest->getRDY_Length()) * 100;
+					if (TimeStep == 30)
+						int t = 0;
+					while (Plimit > 40) //check if steal limit is reached
 					{
+						if (TimeStep == 19)
+							int t = 0;
 						Process* x = longest->gettop();
+						if (x == NULL)
+							break;
 						if (shortest && longest && x)
 						{
 							pSteal++;
-							shortest->addToReadyQueue(x);
+							shortest->addToReadyQueue(x, TimeStep);
 						}
-						shortest = getMinProcessor(1, 0);
-						longest = getMaxProcessor();
-						int t = longest->getRDY_Length(); //testing 
-						int m = shortest->getRDY_Length(); //testing
+						/*shortest = getMinProcessor(1, 0);
+						longest = getMaxProcessor();*/
+						if (shortest->getRDY_Length() > longest->getRDY_Length())
+							break;
 						if (longest->getRDY_Length() != 0) // to make sure that Plimit is not 100 precent when shortest is zero length
 						{
-							Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / longest->getRDY_Length()) * 100;
+							Plimit = ((longest->getRDY_Length() - shortest->getRDY_Length()) / (double)longest->getRDY_Length()) * 100;
 						}
 						if (minflag == true || maxflag == true)
 							break;
@@ -173,16 +172,17 @@ void Scheduler::Steal()
 	}
 }
 
-///////////////////Added by Amira //////////////////
+
 void Scheduler::fork(Process* parent)
 {
-	if (!parent->getLCH() || !parent->getRCH())  //There is <2 children
+	if (!parent->getLCH() || !parent->getRCH())  //There are < 2 children
 	{
 		Process* child = new Process(TimeStep, NumProcess + 1, parent->gettimeRemaining(), parent);
 		pFork++; // for output file
 		NumProcess++;
 		Processor* f = getMinProcessor('f', 0);
-		f->addToReadyQueue(child);
+		f->addToReadyQueue(child, TimeStep);
+		//maintaining a fork tree
 		if (!parent->getLCH())
 		{
 			parent->setLCH(child);
@@ -195,11 +195,10 @@ void Scheduler::fork(Process* parent)
 		}
 	}
 }
-////////////////////////////////////////////////////
 
 void Scheduler::full()
 {
-	
+
 	for (int i = 0; i < NumProcessor; i++)
 	{
 		if (i < NF)
@@ -225,29 +224,24 @@ void Scheduler::full()
 	}
 }
 
- FCFS* Scheduler::GetFCFSprocessor(int n)
+void Scheduler::KillSignal()
 {
-	Processor* kill = ArrP[n];
-	if (FCFS* tmp = dynamic_cast<FCFS*>(kill))
+	if (NF > 0)
 	{
-		return tmp;
+		bool found = true; //if i didnot find the processor needed to kill - true at the first to enter the while loop
+		while (found)
+			for (int i = 0; i < NF; i++)
+				found = ((FCFS*)ArrP[i])->sigkill(TimeStep, NF);
 	}
 
 }
 
-int Scheduler::getNF()
-{
-	return NF;
-}
 void Scheduler::incrementTimeStep()
 {
 	TimeStep++;
 }
-int Scheduler::getTimeStep()
-{
-	return TimeStep;
-}
-bool Scheduler::allTerminated()
+
+bool Scheduler::allTerminated() //checks if all processes are terminated
 {
 	return TerminatedQueue.getCount() == NumProcess;
 }
@@ -261,7 +255,7 @@ Processor* Scheduler::getMaxProcessor()
 		{
 			max = ArrP[i];
 		}
-			
+
 	}
 	for (int i = 0; i < NumProcessor; i++)
 	{
@@ -282,11 +276,11 @@ Processor* Scheduler::getMinProcessor(char a, int n)
 	while (n < NumProcessor && ArrP[n]->getisOverheated())
 		n++;
 	if (n == NumProcessor)
-		return NULL ;
+		return NULL;
 
-		Processor* min = ArrP[n];
-		int m1 = min->getRDY_Length();
-	for (int i = n +1; i < NumProcessor; i++)
+	Processor* min = ArrP[n];
+	int m1 = min->getRDY_Length();
+	for (int i = n + 1; i < NumProcessor; i++)
 	{
 		if (ArrP[i]->getisOverheated())
 			continue;
@@ -296,8 +290,6 @@ Processor* Scheduler::getMinProcessor(char a, int n)
 		int m2 = ArrP[i]->getRDY_Length();
 		if (ArrP[i]->getRDY_Length() < min->getRDY_Length())
 			min = ArrP[i];
-
-
 	}
 
 	for (int i = n; i < NumProcessor; i++)
@@ -324,15 +316,19 @@ void  Scheduler::BlktoRdy()
 	{
 		int ionum = BLKQueue.getHead()->getItem()->getIOqueue()->peekR()->getSecondItem();
 		Blkcounter++; // counter to check if the duration of the IO resources is done or not
-		if (Blkcounter == ionum)
+		if (Blkcounter == (ionum+1))
 		{
-			BLKQueue.getHead()->getItem()->setTotalIO_D(BLKQueue.getHead()->getItem()->getTotalIO_D()   + ionum ); // sum of durations that is done for each process for output file 
+			
+			BLKQueue.getHead()->getItem()->setTotalIO_D(BLKQueue.getHead()->getItem()->getTotalIO_D() + ionum); // sum of durations that is done for each process for output file 
 			Blkcounter = 0;
 			BLKQueue.getHead()->getItem()->getIOqueue()->dequeueR();
 			Process* temp;
 			BLKQueue.dequeue(temp);
 			if (getMinProcessor(1, 0) == NULL)
+			{
 				Trm(temp);
+				temp->setwaitingtime(temp->gettimeRemaining());
+			}
 			else
 				AddtoRdy(temp);
 		}
@@ -347,26 +343,20 @@ void Scheduler::OutputFile()
 	Avg_Util = 0;
 	int earlyDeadLine = 0;
 	Process* process;
-	//string createFile = "";
 	string folderName = "OutputFiles";
 	string fileName = "output_" + to_string(time(nullptr)) + ".txt";
 	string filePath = folderName + "/" + fileName;
 
 	// Open the file for writing
 	OutputFile.open(filePath, ios::out);
-	//string path = "/8-11_T03_Code\Project1\OutputFiles";
-	//OutputFile.open("OutputFiles/" + path + ".txt", ios::out);
-	//OutputFile.open(createFile.c_str());
-	//OutputFile.open("OutputFiles.txt" );
 	OutputFile << "TT\tPID\tAT\tCT\tIO_D\tWT\tRT\tTRT\tDL" << endl;
 	while (TerminatedQueue.dequeueOT(process)) //printing finished processes
 	{
-		if (process->getPID() == 12)
-			int t = process->getWaitingTime();
-		process->getTotalIO_D();//testing 
-		if (process ->getorphanflag() == false && process->getiskilled() == false)
-		process->setwaitingtime(process->getTurnaroundDuration() - process->getCpuTime());
-		OutputFile << process->getTerminationTime() << "\t" << process->getPID() << "\t" << process->getArrivalTime() ;
+		if (process->getorphanflag() == false && process->getiskilled() == false)
+			process->setwaitingtime(process->getTurnaroundDuration() - process->getCpuTime());
+		if (process->getWaitingTime() < 0)
+			process->setwaitingtime(process->getWaitingTime() * -1); // if processes terminated before finishing its CPU time due to any action
+		OutputFile << process->getTerminationTime() << "\t" << process->getPID() << "\t" << process->getArrivalTime();
 		OutputFile << "\t" << process->getCpuTime() << "\t" << process->getTotalIO_D() << "\t" << process->getWaitingTime() << "\t" << process->getResponseTime() << "\t" << process->getTurnaroundDuration();
 		OutputFile << "\t" << process->getDeadLine();
 		if (process->getTerminationTime() < process->getDeadLine())
@@ -379,11 +369,11 @@ void Scheduler::OutputFile()
 	OutputFile << "------------------------------------------------------------------------------------------" << endl;
 	OutputFile << endl;
 	OutputFile << endl;
-	OutputFile << "early deadlines %: " << (earlyDeadLine *100)/ NumProcess << " %" << endl;
+	OutputFile << "early deadlines %: " << (earlyDeadLine * 100) / NumProcess << " %" << endl;
 	OutputFile << "Processes: " << NumProcess << endl;
-	OutputFile << "Avg WT = " << Total_WT / NumProcess << "\t" << "Avg RT = " << Total_RT / NumProcess << "\t" << "Avg TRT = " << Total_TRT / NumProcess <<endl;
+	OutputFile << "Avg WT = " << Total_WT / NumProcess << "\t" << "Avg RT = " << Total_RT / NumProcess << "\t" << "Avg TRT = " << Total_TRT / NumProcess << endl;
 	OutputFile << "Migration %:" << "\t" << "RTF=" << (pRTF / NumProcess) * 100 << " %\t" << "MaxW = " << (pMaxW / NumProcess) * 100 << " %" << endl;
-	OutputFile << "Work Steal%: " << (pSteal / NumProcess) << "%" << endl;
+	OutputFile << "Work Steal%: " << (pSteal / NumProcess) * 100 << "%" << endl;
 	OutputFile << "Forked Process: " << (pFork / NumProcess) * 100 << "%" << endl;
 	OutputFile << "Killed Process: " << (pKill / NumProcess) * 100 << "%" << endl;
 	OutputFile << endl;
@@ -458,14 +448,15 @@ void Scheduler::Output(int time)
 void Scheduler::LoadFile()
 {
 
-	ifstream inputFile("input.txt");
-	string line;   // lama ne3mel input file ha4el comment 
+	string inputFilePath = "input files\\steal.txt"; // full path to input file
+	ifstream inputFile(inputFilePath);
+	bool isFileLoaded;
+
 	if (inputFile.fail())
 	{
-		cout << "Cannot load input file!!" << endl;    // Check if file is not opened
+		cout << "Cannot load input file!!" << endl;
 		isFileLoaded = false;
-		exit(1); // terminates program
-
+		exit(1);
 	}
 	else
 	{
@@ -503,18 +494,19 @@ void Scheduler::LoadFile()
 	}
 	//------------------Line 6-----------------------------//
 	pf->Loadkill(inputFile);
-
+	inputFile.close();
 }
 
 
-void Scheduler::NewtoRdy(int timestep) 
+void Scheduler::NewtoRdy(int timestep) //Adds processes from new queue to RDY queue
 {
 	Process* temp;
 	bool isalloverheated = false;
 	int count = 0;
 	for (int i = 0; i < NumProcessor; i++)
-	{ 
-		if (ArrP[i]->getisOverheated() == true)
+	{
+		bool heat = ArrP[i]->getisOverheated();
+		if ( heat== true)
 			count++;
 	}
 	if (count == NumProcessor)
@@ -529,18 +521,16 @@ void Scheduler::NewtoRdy(int timestep)
 
 void Scheduler::Kill(Process* orphan)
 {
-	for (int i = 0; i < NumProcessor;i++)
+	for (int i = 0; i < NumProcessor; i++)
 	{
-		if (ArrP[i]->getPtype() == 'f')
+		if (ArrP[i]->getPtype() == 'f') //FCFS processor
 		{
-			if (ArrP[i]->getCurrRun() == orphan)
-			{
-				Trm(orphan);
-				ArrP[i]->setCurrRun(nullptr);
-			}
-			bool found = ((FCFS*)ArrP[i])->isfound(orphan);
+			((FCFS*)ArrP[i])->KillRun(orphan); //if orphan is in RUN
+			bool found = ((FCFS*)ArrP[i])->isfound(orphan); //if orphan is in RDY
 			if (found)
 			{
+				cout << endl;
+				cout << "orphan " << orphan << " from ready terminated\n" << endl;
 				Trm(orphan);
 				((FCFS*)ArrP[i])->deleteNodeK(orphan);
 			}
@@ -561,48 +551,30 @@ void Scheduler::RuntoBlk(Process* p) {
 
 void Scheduler::AddtoRdy(Process* temp)
 {
-	int t = TimeStep; // testing 
-
 	Processor* min;
 	min = getMinProcessor(1, 0);
 	if (min)
 	{
-		if (SJF* tmp = dynamic_cast<SJF*>(min))
-		{
-			Process* t = temp; // testing
-			min->addToReadyQueue(temp);
-
-		}
-		else if (RR* tmp = dynamic_cast<RR*>(min))
-		{
-			Process* te = temp; // testing
-			min->addToReadyQueue(temp);
-		}
-		else if (FCFS* tmp = dynamic_cast<FCFS*>(min))
-		{
-			Process* ter = temp; // testing 
-			min->addToReadyQueue(temp);
-		}
-		else
-			min->addToReadyQueue(temp);
+		min->addToReadyQueue(temp, TimeStep);
 	}
 }
 
-//////////////////////ADDEDDDDDDDDDDDDDD BY MIMOOOOOOOOOOOOOOOOOOO/////////////////////////
-bool Scheduler::migrationrtf(Process* p, int rtf) // bool 34an a3rf a remove mn run wla la
+
+bool Scheduler::migrationrtf(Process* p, int rtf) // bool to know whether to remove from RUN or not
 {
 	if (minflag == false)
 	{
-		if (!p->getorphanflag())
+		if (!p->getorphanflag()) //not a forked process
 		{
 			if (p->gettimeRemaining() < rtf)
 			{
-				pRTF++; // for output file
+				
 				Processor* min;
 				min = getMinProcessor('s', NF);
 				if (NS != 0 && min)
 				{
-					min->addToReadyQueue(p);  // add to shortest sjf
+					pRTF++; // for output file
+					min->addToReadyQueue(p, TimeStep);  // add to shortest sjf
 					return true;
 				}
 			}
@@ -611,7 +583,7 @@ bool Scheduler::migrationrtf(Process* p, int rtf) // bool 34an a3rf a remove mn 
 	return false;
 }
 
-bool Scheduler::migrationmaxw(Process* p, int maxw, int timestep) // bool 34an a3rf a remove mn run wla la
+bool Scheduler::migrationmaxw(Process* p, int maxw, int timestep) // bool to know whether to remove from RUN or not
 {
 	int timerunned = p->getCpuTime() - p->gettimeRemaining();
 	int at = p->getArrivalTime();
@@ -622,12 +594,13 @@ bool Scheduler::migrationmaxw(Process* p, int maxw, int timestep) // bool 34an a
 		{
 			if (waitingtime > maxw)
 			{
-				pMaxW++; // for output file
+				
 				Processor* min;
 				min = getMinProcessor('r', NF + NS);
-				if (NR != 0  && min)
+				if (NR != 0 && min)
 				{
-					min->addToReadyQueue(p);  // add to shortest sjf
+					pMaxW++; // for output file
+					min->addToReadyQueue(p, TimeStep);  // add to shortest RR
 					return true;
 				}
 			}
@@ -635,11 +608,11 @@ bool Scheduler::migrationmaxw(Process* p, int maxw, int timestep) // bool 34an a
 	}
 	return false;
 }
-double Scheduler::getpKill()
+double Scheduler::getpKill() //get number of actual killed processes
 {
 	return pKill;
 }
-void Scheduler::setpKill(int n)
+void Scheduler::setpKill(int n) //set number of actual killed processes
 {
 	pKill = n;
 }

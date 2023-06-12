@@ -7,16 +7,15 @@ UI::UI()
 
 void UI::clear()
 {
-	system("CLS"); //clear console 
+	system("CLS"); //clears the console 
 }
 
-//Reading the required mode
-int UI::ReadMode()
+int UI::ReadMode()  // reads the required mode 1-> interactive 2-> step by step 3-> silent 
 {
 	int mode;
 	cout << "1. Interactive Mode" << endl << "2. Step - By - Step Mode" << endl << "3. Silent Mode" << endl << "Please choose a mode: ";
-	cin >> mode;
-	while (mode != 1 && mode != 2 && mode != 3)
+	cin >> mode;  // takes the input
+	while (mode != 1 && mode != 2 && mode != 3)  // validates input is only 1, 2 or 3
 	{
 		clear();
 		cout << endl;
@@ -27,8 +26,8 @@ int UI::ReadMode()
 }
 
 
-//Printing the Process Scheduler Status
-void UI::printwelcome()
+
+void UI::printwelcome()  //Printing the Process Scheduler Status (elegant but not required credit to Ahmed Taha)
 {
 	string message = "WELCOME TO OUR PROJECT <3";
 
@@ -56,9 +55,9 @@ void UI::printwelcome()
 	}
 	Sleep(1000);
 	clear();
-	
+
 }
-void UI::printwarning()
+void UI::printwarning()  // message printed in case no processors are in the input file 
 {
 	string message = "No processors in the system to start please make sure you entered processors.";
 
@@ -87,94 +86,94 @@ void UI::printwarning()
 	Sleep(1000);
 
 }
-void UI:: Print1 (int time, int NumProcessor, Processor ** ArrP , int NF, int NS, int NR, int ND )
+void UI::Print1(int time, int NumProcessor, Processor** ArrP, int NF, int NS, int NR, int ND)  // prints the ready lists
 {
 	//clear();
-	cout << "Current Timestep:" << time << endl;
-	cout << "--------------------RDY processes--------------------" << endl;	
-		for (int i = 0; i < NumProcessor; i++)
+	cout << "Current Timestep:" << time << endl;  // displays the current time step
+	cout << "--------------------RDY processes--------------------" << endl;
+	for (int i = 0; i < NumProcessor; i++)  // keep in mind, the array of processor pointers is sorted such that all FCFS processors come first then SJF then RR then EDF
+	{
+		if (ArrP[i] != NULL)
 		{
-			if (ArrP[i] != NULL)
+			if (i < NF)
 			{
-				if (i < NF)//&& ArrP[i] != NULL
-				{
-					cout << "Processor " << i + 1 << "[FCFS]";
-					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
-					if (ArrP[i]->getisOverheated())
-						cout << "FCFS Processor is over heated !" ;
-					ArrP[i]->print_rdy();
-					cout << endl;
-				}
-				else if (i < NF + NS )//&& ArrP[i] != NULL
-				{
-					cout << "Processor " << i + 1 << "[SJF]";
-					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
-					if (ArrP[i]->getisOverheated())
-						cout << "SJF Processor is over heated !" ;
-					
-						ArrP[i]->print_rdy();
-						cout << endl;
-				}
-				else if (i < NF+NS+NR)
-				{
-					cout << "Processor " << i + 1 << "[RR]";
-					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
-					if (ArrP[i]->getisOverheated())
-					cout << "RR Processor is over heated !" ;
-					
-						ArrP[i]->print_rdy();
-						cout << endl;
-			
-				}
-				else
-				{
-					cout << "Processor " << i + 1 << "[EDF]";
-					cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";
-					if (ArrP[i]->getisOverheated())
-						cout << " EDF Processor is over heated !";
-					ArrP[i]->print_rdy();
-					cout << endl;
-				}
+				cout << "Processor " << i + 1 << "[FCFS]";
+				cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";  // displays number of processes in the ready list 
+				if (ArrP[i]->getisOverheated())
+					cout << "FCFS Processor is overheated !";  // display message if the processor is overheated 
+				ArrP[i]->print_rdy();
+				cout << endl;
+			}
+			else if (i < NF + NS)
+			{
+				cout << "Processor " << i + 1 << "[SJF]";
+				cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";  // displays number of processes in the ready list 
+				if (ArrP[i]->getisOverheated())
+					cout << "SJF Processor is overheated !";  // display message if the processor is overheated 
+
+				ArrP[i]->print_rdy();
+				cout << endl;
+			}
+			else if (i < NF + NS + NR)
+			{
+				cout << "Processor " << i + 1 << "[RR]";
+				cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";  // displays number of processes in the ready list 
+				if (ArrP[i]->getisOverheated())
+					cout << "RR Processor is overheated !";  // display message if the processor is overheated 
+
+				ArrP[i]->print_rdy();
+				cout << endl;
+
+			}
+			else
+			{
+				cout << "Processor " << i + 1 << "[EDF]";
+				cout << " " << ArrP[i]->getRDYCount() << " " << "RDY: ";  // displays number of processes in the ready list 
+				if (ArrP[i]->getisOverheated())
+					cout << " EDF Processor is overheated !";  // display message if the processor is overheated 
+				ArrP[i]->print_rdy();
+				cout << endl;
 			}
 		}
+	}
 }
-void UI::Print2(Queue<Process*> BLKqueue, int BLKcount)
+void UI::Print2(Queue<Process*> BLKqueue, int BLKcount)  // prints the blocked list 
 {
 	cout << "--------------------BLK processes--------------------" << endl;
-	cout << BLKcount << " BLK: ";
+	cout << BLKcount << " BLK: ";  // displays the number of processes in the blocked list 
 	BLKqueue.Print();
-	
-	
+
+
 }
-void UI::Print3(int NumProcessor, Processor** ArrP)
+void UI::Print3(int NumProcessor, Processor** ArrP)  // prints the run states 
 {
 	int count = 0;
 	for (int i = 0; i < NumProcessor; i++)
 	{
 		if (ArrP[i]->getCurrRun())
 		{
-			count++;
+			count++;  // returns the number of processors with a process in the run at that time step 
 		}
 	}
-	
+
 	cout << endl;
 	cout << "--------------------RUN processes--------------------" << endl;
-	cout << count << " RUN: ";
+	cout << count << " RUN: ";  // displays the number of processors with a process in the run at that time step 
 	for (int i = 0; i < NumProcessor; i++)
 	{
 		if (ArrP[i]->getCurrRun())
-		cout << ArrP[i] ->getCurrRun()->getPID() << "(P"<<i+1<<") ";
+			cout << ArrP[i]->getCurrRun()->getPID() << "(P" << i + 1 << ") ";  // displays the run states of processors with a process in the run at that time step 
 	}
 	cout << endl;
 }
-void UI::Print4(Queue<Process*> TRMqueue, int trmcount )
+void UI::Print4(Queue<Process*> TRMqueue, int trmcount)  // prints the terminate list
 {
 	cout << "--------------------TRM processes--------------------" << endl;
-	cout << trmcount << " TRM: ";
+	cout << trmcount << " TRM: ";  // displays the number of terminated processes 
 	TRMqueue.Print();
-	
+
 }
-void UI::printending()
+void UI::printending()  //Printing the Process Scheduler Status (elegant but not required credit to Ahmed Taha)
 {
 	clear();
 	string message = "Simulation endedddd :) \n\n\t\t\t\t\t\tTHANK YOU <3";
@@ -199,7 +198,7 @@ void UI::printending()
 	// set cursor position for message 1
 	COORD pos1 = { x1, y1 };
 	SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos1);
-	
+
 	//// set cursor position for message 2
 	//COORD pos2 = { x2, y2 };
 	//SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos2);
@@ -216,17 +215,17 @@ void UI::printending()
 	//	cout << c;
 	//	Sleep(100);
 	//}
-	
+
 
 }
-// Silent Mode
-void UI::printBeforeSim()
+
+void UI::printBeforeSim()  // prints the silent mode message 
 {
 	clear();
 	cout << "Silent Mode" << endl << "Simulation Starts..." << endl;
 }
 
-void UI::printAfterSim()
+void UI::printAfterSim()  // prints message that output file is created 
 {
 	cout << "Simulation ends, Output file created" << endl;
 }

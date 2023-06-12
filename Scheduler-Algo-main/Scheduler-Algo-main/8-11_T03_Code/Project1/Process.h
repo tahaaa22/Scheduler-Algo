@@ -8,80 +8,83 @@ class Process
 {
 private:
     int PID;
-    bool iskilled;
-    int totalIO_D; // added by taha for output file
-    int firsttime; //to check response time - added by taha 
+    bool iskilled; //to adjust waiting time for killed processes
+    int totalIO_D; // added for output file
+    int totalIO_R; // added for checking the done IO requests to check for others in further executions 
+    int firsttime; //to check response time  
     int ArrivalTime;
     int ResponseTime;
     int CPUtime;
-    int timeblk;
-    int numIO;
+    int timeblk; //used in handling blk
+    int numIO; //number of times a process asks for IO
     int TerminationTime;
     int TurnaroundDuration;
     int waitingTime;
-    int deadline; // added by taha
+    int deadline;
     SNode <int>* IOpairs;
     SQueue<int> IO_queue;
-    int timeRemaining;
+    int timeRemaining; //CT - number of timesteps a process was executed
     int No_of_IO; //no of times user request input or output
-    bool isBlocked;
-    bool isFinished;
-    bool orphanflag; // added by taha
+    bool isBlocked; //if process state is blocked
+    bool isFinished; //process finished execution
+    bool orphanflag; //flag for forked processes
     Process* Parent;
     Process* LCH;
     Process* RCH;
-    //int lch_ID;   //1st child ID set to -1 if no children added by Amira
-    //int rch_ID;   //1st child ID set to -1 if no children added by Amira
-    //int ch_count; //number of children; set to 0 by default added by Amira
-    
+
 public:
- Process();
- Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d); //changed by taha
- Process(int AT, int ID, int CT, Process* parent); //overloaded constructor for forking
-   Process * load(ifstream& inputFile);
-   Process* getParent(); //getter for forked child to parent
-   int getnumIO();
-   void setiskilled(bool t);
-   bool getiskilled();
-   void setnumIO(int t);
-   void setblktime(int t);
-   int getblktime();
-   void setwaitingtime(int t);
-   void setTurnaroundDuration(int t);
-   void setfirsttime(int t);
-   int getfirsttime();
-   int getTotalIO_D();
-   void setTotalIO_D(int t);
-    int getPID();
-    bool getorphanflag();
-    void setorphanflag(bool f);
-    int getArrivalTime() ;
-    int getResponseTime() ;
-    void settimeRemaining(int time);
-    int gettimeRemaining();
-    void setResponseTime(int time);
-    int getTerminationTime() ;
-    void setTerminationTime(int time);
-    int getTurnaroundDuration() ;
-    int getWaitingTime() ;
-    int getDeadLine(); //added by taha
-    bool getisBlocked();
-    void setisBlocked(bool it);
-    void setisFinished(bool it);
-    bool getisFinished();
+    Process();
+    Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d);
+    Process(int AT, int ID, int CT, Process* parent); //overloaded constructor for forking
+    Process* load(ifstream& inputFile);
     void execute(int currentTimeStep);
-    SQueue<int> * getIOqueue();
-    ///////////// Added by Amira /////////////
-    Process(int AT, int ID, int CT); //overloaded constructor for forking
-    void setRCH(Process* p);
-    void setLCH(Process* p);
+    friend ostream& operator<<(ostream& output, Process* p1);
+    ~Process();
+
+    /////////////////////////////////////////
+    //				Getters				   //
+    /////////////////////////////////////////
+    Process* getParent(); //getter for forked child to parent
     Process* getRCH();
     Process* getLCH();
+    SQueue<int>* getIOqueue();
     int getCpuTime();
-    ////////////////////////////////////////
-     //Process newcreation(int AT, int ID, int CT, SQueue<int> N);
-    //void requestIO(int currentTimeStep, int inputRequestTime);
-    //void completeIO(int currentTimeStep);
-  friend ostream& operator<<(ostream& output,  Process* p1);
-    ~Process();    
+    int getnumIO();
+    int getblktime();
+    bool getiskilled();
+    int getfirsttime();
+    int getTotalIO_D();
+    int getPID();
+    bool getorphanflag();
+    int getTotalIO_R();
+    int getArrivalTime();
+    int getResponseTime();
+    int getTurnaroundDuration();
+    int getWaitingTime();
+    int getDeadLine();
+    bool getisBlocked();
+    int getTerminationTime();
+    int gettimeRemaining();
+    bool getisFinished();
+
+    /////////////////////////////////////////
+    //				setters				   //
+    /////////////////////////////////////////
+    void setiskilled(bool t);
+    void setnumIO(int t);
+    void setblktime(int t);
+    void setwaitingtime(int t);
+    void setTurnaroundDuration(int t);
+    void setfirsttime(int t);
+    void setTotalIO_D(int t);
+    void setTotalIO_R(int t);
+    void setorphanflag(bool f);
+    void settimeRemaining(int time);
+    void setResponseTime(int time);
+    void setTerminationTime(int time);
+    void setisBlocked(bool it);
+    void setisFinished(bool it);
+    void setRCH(Process* p);
+    void setLCH(Process* p);
+
 };

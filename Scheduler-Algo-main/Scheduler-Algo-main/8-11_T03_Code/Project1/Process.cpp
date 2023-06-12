@@ -3,48 +3,203 @@
 #include <iostream>
 #include <istream>
 #include <ostream>
-using namespace std; 
+using namespace std;
 
-Process::Process(){}
-Process::Process(int AT, int ID, int CT , int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), numIO(Num), IO_queue(N), deadline(d) //changed by taha
+Process::Process() {} //defult constructor
+
+Process::Process(int AT, int ID, int CT, int Num, SQueue<int> N, int d) :ArrivalTime(AT), PID(ID), CPUtime(CT), numIO(Num), IO_queue(N), deadline(d) //changed by taha
 {
-    Parent = nullptr;
-    timeblk = 0;
-    firsttime = 0;
-    timeRemaining = CT;
-    orphanflag = false;
-    isBlocked = false;
-    isFinished = false;
-    iskilled = false;
-    ResponseTime = 0;
-    TerminationTime = 0;
-    waitingTime = -1;
-    TurnaroundDuration = 0;
-    //No_of_IO = IO.size(); // no of times ha request input/output
-    LCH = NULL;
-    RCH = NULL;
+    Parent = nullptr; // no forking intially
+    timeblk = 0;  // time in which the process will go to the block
+    firsttime = 0;  // intially it hasn't runned yet
+    timeRemaining = CT; // intially time rem aining =cpu
+    orphanflag = false; //not orphan intially
+    isBlocked = false; //not blocked intially
+    isFinished = false; //not finished intially
+    iskilled = false; //not killed intially
+    ResponseTime = 0; //no response time intially
+    TerminationTime = 0; //not finished intially
+    waitingTime = -1; //will be calculated later on
+    TurnaroundDuration = 0; //no trt time intially
+    LCH = NULL; //no Left child intially
+    RCH = NULL; //no right child intially
 }
 
-void Process::setiskilled(bool t)
+///Constructor for forked process
+
+Process::Process(int AT, int ID, int CT, Process* parent) :ArrivalTime(AT), PID(ID), CPUtime(CT), Parent(parent) //overloaded constructr for forking
 {
-    iskilled = t;
+    firsttime = 0;
+    orphanflag = true; //forked child so set this flag true to avoid migration and stealing
+    timeRemaining = CT;
+    isBlocked = false; //not blocked intially
+    isFinished = false; //not finished intially
+    ResponseTime = 0; //no response time intially
+    TerminationTime = 0; //not finished intially
+    waitingTime = -1; //will be calculated later on
+    TurnaroundDuration = 0; //no trt time intially
+    LCH = NULL; //no Left child intially
+    RCH = NULL; //no right child intially
+}
+
+//load fn
+Process* Process::load(ifstream& inputFile)
+{
+    int AT, ID, CT, N, d;
+    char c;
+    SQueue<int> IO_queue;
+    Process* Pp = NULL;
+    inputFile >> AT; //Load Arrival time
+    inputFile >> ID; // load id 
+    inputFile >> CT; // load cpu
+    inputFile >> N; // load no of time it will request blk
+    numIO = N; // this number used to know how many IO resources needed in the blk function
+    for (int i = 0; i < N; i++) //load the block queue
+    {
+        if (ID == 7)
+            int t = 0;
+        int IO_R = 0, IO_D = 0;
+        inputFile >> IO_R;  //load request time
+        inputFile >> c;     //load the comma
+        inputFile >> IO_D;  //load the duration 
+        IOpairs = new SNode<int>(IO_R, IO_D);
+        IO_queue.enqueue(IOpairs);
+    }
+    if (N == 0) //no pairs
+    {
+        IOpairs = new SNode<int>(0, 0);
+        IO_queue.enqueue(IOpairs); //enqueue 0 and 0 as it won't request
+    }
+    inputFile >> d; //load the deadline
+    Process* p = new Process(AT, ID, CT, N, IO_queue, d); //create the process
+    return p;
+}
+
+void Process::execute(int currentTimeStep)  // decrement cpu at each time step 
+{
+    if (timeRemaining > 0)
+    {
+        timeRemaining--;
+        if (timeRemaining == 0)
+        {
+            isFinished = true; //if finished set the bool true & set termanation time
+            TerminationTime = currentTimeStep;
+        }
+    }
+}
+
+//operator overloading of the peocess
+ostream& operator<<(ostream& output, Process* p1)
+{
+    output << p1->PID << " "; //print the id of the process
+    return output;
+}
+
+Process::~Process()
+{
+    //deallocating 
+    delete Parent;
+    delete LCH;
+    delete RCH;
+}
+
+
+//////////////////////////////////////// GETTTERS//////////////////////////////////////
+Process* Process::getParent() //get parent
+{
+    return Parent;
+}
+Process* Process::getRCH() //Get right child
+{
+    return RCH;
+}
+Process* Process::getLCH() //get left child
+{
+    return LCH;
+}
+SQueue<int>* Process::getIOqueue()
+{
+    return &IO_queue; //get the io queue to check for the block
+}
+int Process::getnumIO()
+{
+    return numIO; //Get no of ios
+}
+int Process::getblktime()
+{
+    return timeblk;
 }
 bool Process::getiskilled()
 {
     return iskilled;
 }
-Process* Process::getParent()
+int Process::getfirsttime()
 {
-    return Parent;
+    return firsttime;
+}
+int Process::getTotalIO_D()
+{
+    return totalIO_D;
+}
+int Process::getTotalIO_R()
+{
+    return totalIO_R;
+}
+bool Process::getorphanflag()
+{
+    return orphanflag;
+}
+int Process::getPID()
+{
+    return PID;
+}
+int Process::getArrivalTime()
+{
+    return ArrivalTime;
+}
+int Process::getResponseTime()
+{
+    return ResponseTime;
+}
+int Process::getDeadLine()
+{
+    return deadline;
+}
+int Process::gettimeRemaining()
+{
+    return timeRemaining;
+}
+int Process::getTerminationTime()
+{
+    return TerminationTime;
+}
+int Process::getTurnaroundDuration()
+{
+    return TurnaroundDuration;
+}
+int Process::getWaitingTime()
+{
+    return waitingTime;
+}
+bool Process::getisBlocked()
+{
+    return isBlocked;
+}
+bool Process::getisFinished()
+{
+    return isFinished;
+}
+int Process::getCpuTime()
+{
+    return CPUtime;
 }
 
-SQueue<int>* Process::getIOqueue()
+
+//////////////////////////////////////////// Setters///////////////////////////////////////
+
+void Process::setiskilled(bool t)
 {
-    return & IO_queue;
-}
-int Process::getnumIO()
-{
-    return numIO;
+    iskilled = t;
 }
 void Process::setnumIO(int t)
 {
@@ -54,10 +209,6 @@ void Process::setblktime(int t)
 {
     timeblk = t;
 }
-int Process::getblktime()
-{
-    return timeblk;
-}
 void Process::setwaitingtime(int t)
 {
     waitingTime = t;
@@ -65,10 +216,6 @@ void Process::setwaitingtime(int t)
 void Process::setTurnaroundDuration(int t)
 {
     TurnaroundDuration = t;
-}
-int Process::getfirsttime()
-{
-    return firsttime;
 }
 void Process::setfirsttime(int t)
 {
@@ -78,152 +225,33 @@ void Process::setTotalIO_D(int t)
 {
     totalIO_D = t;
 }
-int Process::getTotalIO_D()
+void Process::setTotalIO_R(int t)
 {
-    return totalIO_D;
+    totalIO_R = t;
 }
-void Process:: setorphanflag(bool f)
+void Process::setorphanflag(bool f)
 {
     orphanflag = f;
 }
-bool Process::getorphanflag()
-{
-    return orphanflag;
-}
-int Process::getPID() 
-{
-    return PID;
-}
-
-int Process::getArrivalTime() 
-{
-    return ArrivalTime;
-}
-
-int Process::getResponseTime() 
-{
-    return ResponseTime;
-}
-int Process::getDeadLine() // added by taha
-{
-    return deadline;
-}
-
 void Process::settimeRemaining(int time)
 {
     timeRemaining = time;
 }
-
-int Process::gettimeRemaining()
-{
-    return timeRemaining;
-}
-
-
-void Process::setResponseTime(int time) 
+void Process::setResponseTime(int time)
 {
     ResponseTime = time;
 }
-
-int Process::getTerminationTime() 
-{
-    return TerminationTime;
-}
-
-void Process::setTerminationTime(int time) 
+void Process::setTerminationTime(int time)
 {
     TerminationTime = time;
 }
-
-int Process::getTurnaroundDuration() 
-{
-    return TurnaroundDuration;
-}
-
-int Process::getWaitingTime() 
-{
-    return waitingTime;
-}
-
-bool Process::getisBlocked() 
-{
-    return isBlocked;
-}
 void Process::setisBlocked(bool it)
 {
-    isBlocked =it;
+    isBlocked = it;
 }
 void Process::setisFinished(bool it)
 {
     isFinished = it;
-}
-bool Process::getisFinished()
-{
-    return isFinished;
-}
-
-void Process::execute(int currentTimeStep)  // decrement cpu at each time step 
-{
-    if (timeRemaining > 0)
-    {
-        timeRemaining--;
-        if (timeRemaining == 0) 
-        {
-            isFinished = true;
-            TerminationTime = currentTimeStep;
-        }
-    }
-}
-
-Process* Process::load(ifstream& inputFile) // changed by taha
-{
-    int AT, ID, CT, N, d;
-    char c;
-    //int t = 0; // for total IO duration 
-    SQueue<int> IO_queue;
-    Process* Pp = NULL;
-    inputFile >> AT;
-    inputFile >> ID;
-    inputFile >> CT;
-    inputFile >> N;
-    numIO = N; // this number used to know how many IO resources needed in the blk function
-    for (int i = 0; i < N; i++)
-    {
-        int IO_R = 0, IO_D = 0;
-        inputFile >> IO_R;
-        inputFile >> c;
-        inputFile >> IO_D;
-       // t += IO_D;
-        IOpairs = new SNode<int>(IO_R, IO_D);
-        IO_queue.enqueue( IOpairs ); // shelt {} mn IOpairs
-    }
-    if (N == 0)
-    {
-        IOpairs = new SNode<int>(0, 0);
-        IO_queue.enqueue(IOpairs);
-    }
-    IO_queue; // testing
-    inputFile >> d;
-    Process* p = new Process(AT, ID, CT, N, IO_queue, d);
-    return p;
-}
-
-
-///////////// Added by Amira /////////////
-Process::Process(int AT, int ID, int CT, Process * parent) :ArrivalTime(AT), PID(ID), CPUtime(CT), Parent(parent) //overloaded constructr for forking
-{
-    firsttime = 0;
-    orphanflag = true;
-    timeRemaining = CT;
-    isBlocked = false;
-    isFinished = false;
-    ResponseTime = 0;
-    TerminationTime = 0;
-    waitingTime = 0;
-    TurnaroundDuration = 0;
-    //No_of_IO = IO.size(); // no of times ha request input/output
-    LCH = nullptr;
-    RCH = nullptr;
 }
 void Process::setRCH(Process* p)
 {
@@ -232,34 +260,4 @@ void Process::setRCH(Process* p)
 void Process::setLCH(Process* p)
 {
     LCH = p;
-}
-Process* Process::getRCH()
-{
-    return RCH;
-}
-Process* Process::getLCH()
-{
-    return LCH;
-}
-int Process::getCpuTime()
-{
-    return CPUtime;
-}
-
-ostream& operator<<(ostream& output, Process* p1)
-{
-    output << p1->PID << " ";
-    /*output << "Arrival time: " << p1->ArrivalTime << "\n";
-    output << "CPU time: " << p1->CPUtime << "\n";
-    output << "Response time: " << p1->ResponseTime << "\n";
-    output << "Termination time: " << p1->TerminationTime << "\n";
-    output << "Turnaround duration: " << p1->getTurnaroundDuration() << "\n";
-    output << "Waiting time: " << p1->waitingTime << "\n";*/
-   return output;
-}
-Process::~Process()
-{
-    delete Parent;
-    delete LCH;
-    delete RCH;
 }
