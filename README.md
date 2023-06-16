@@ -26,3 +26,8 @@ The program will then simulate the scheduling algorithm and generate an output f
 
 ## Conclusion
 This project provides a useful tool for simulating the operation of the process scheduler in a multiprocessor system. With support for multiple scheduling algorithms and various actions that can happen to a process, it is an effective way to evaluate the performance of different scheduling algorithms and improve the overall system.
+ ## Screenshots
+ ![image](https://github.com/tahaaa22/Scheduler-Algo/assets/128100857/7182abfb-95c6-4a55-a148-a8ed065b7ac8)
+ ![image](https://github.com/tahaaa22/Scheduler-Algo/assets/128100857/d606b21b-aa2b-43b5-911b-f360adf4d9c4)
+
+
